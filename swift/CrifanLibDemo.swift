@@ -5,9 +5,12 @@
 //  Created by licrifan on 15/11/20.
 //  Copyright © 2016年 licrifan. All rights reserved.
 //
-//  Last Update: 2016-05-11
+//  Last Update: 2016-05-14
 
 import UIKit
+
+//https://github.com/danielgindi/Charts
+import Charts
 
 //unuseful function CrifanLibDemo, just for demo usage for CrifanLib
 func CrifanLibDemo(){
@@ -163,7 +166,94 @@ func CrifanLibDemo(){
     curSizeInBytes = 1012 * 1036 * 1042 * 1024 * 1024 * 3400 //3459.29 PB
     
     genSizeStr(curSizeInBytes)
+    
+    
+    /*
+     * demo for Charts library
+     */
+    var doubleLineChartView:LineChartView = LineChartView()
+    var singleLineChartView:LineChartView = LineChartView()
+    var singleBarChartView:BarChartView = BarChartView()
+    var pieChartView:PieChartView = PieChartView()
+
+    let dayList:[String] = ["5月16日", "5月17日", "5月18日", "5月19日", "5月20日", "5月21日", "5月22日"]
+    let entranceGuestNumList:[Double] = [3, 4, 8, 13, 25, 19, 32]
+    let potentialGuestNumList:[Double] = [3, 7, 15, 19, 30, 31, 40]
+    
+    func initEntranceGuestChartView() {
+        commonLineBarChartViewSettings(doubleLineChartView)
+        
+        //entranceGuestChartView.delegate = self
+        doubleLineChartView.descriptionText = "到店流量和潜客统计数据"
+        
+        //double x axis
+        let xAxis:ChartXAxis = doubleLineChartView.xAxis
+        xAxis.drawAxisLineEnabled = false
+        xAxis.drawGridLinesEnabled = false
+        //        xAxis.labelFont = UIFont.systemFontOfSize(12)
+        //        xAxis.labelTextColor = UIColor.whiteColor()
+        //        xAxis.spaceBetweenLabels = 1.0
+        
+        let leftColor:UIColor = UIColor.cyanColor()
+        //        let leftColor:UIColor = UIColor.blueColor()
+        //        let leftColor:UIColor = UIColor.purpleColor()
+        //        let leftColor:UIColor = UIColor.magentaColor()
+        //        let leftColor:UIColor = UIColor.greenColor()
+        let leftAxis:ChartYAxis = doubleLineChartView.leftAxis
+        leftAxis.labelTextColor = leftColor
+        //        leftAxis.axisMaxValue = 100.0
+        leftAxis.axisMinValue = 0.0
+        leftAxis.drawGridLinesEnabled = true
+        leftAxis.drawZeroLineEnabled = false
+        leftAxis.granularityEnabled = true
+        
+        let rightColor:UIColor = UIColor.redColor()
+        let rightAxis:ChartYAxis = doubleLineChartView.rightAxis
+        rightAxis.labelTextColor = rightColor
+        //        rightAxis.axisMaxValue = 100.0
+        rightAxis.axisMinValue = 0.0
+        rightAxis.drawGridLinesEnabled = false
+        rightAxis.granularityEnabled = false
+        
+        setDoubleLineChart(doubleLineChartView, xPoints: dayList, leftAxisValues: potentialGuestNumList, rightAxisValues: entranceGuestNumList, leftAxisLabel: "到店流量", rightAxisLabel: "到店潜客", leftColor: leftColor, rightColor: rightColor)
+    }
+    
+    func initPotentialGuestChartView() {
+        commonLineBarChartViewSettings(singleLineChartView)
+        
+        //potentialGuestChartView.delegate = self
+        singleLineChartView.descriptionText = "到店潜客统计数据"
+        
+        //single x axis
+        singleLineChartView.leftAxis.enabled = true
+        singleLineChartView.rightAxis.enabled = false
+        
+        setSingleLineChart(singleLineChartView, xPointList: dayList, leftYAXisValues: potentialGuestNumList, leftYAxisLabel: "到店潜客")
+    }
+    
+    func iniFlowGuestChartView() {
+        commonLineBarChartViewSettings(singleBarChartView)
+        
+        //flowGuestChartView.delegate = self
+        singleBarChartView.descriptionText = "到店流量统计数据"
+        
+        singleBarChartView.leftAxis.enabled = true
+        singleBarChartView.rightAxis.enabled = false
+        
+        setSingleBarChart(singleBarChartView, xPointList: dayList, leftYAXisValues: entranceGuestNumList, leftYAxisLabel: "到店流量")
+    }
+    
+    func initDealWithGuestChartView() {
+        let dealTypeList:[String] = ["进入未跟进", "进入跟进未成交", "跟进且成交"]
+        let diffDealTypeNumList:[Double] = [5, 19, 26]
+        
+        let labelStr = "成交客户比例统计"
+        commomPieChartViewSettings(pieChartView, centerText: labelStr)
+        //commomPieChartViewSettings(dealWithGuestChartView, centerText: labelStr, isValueUsePercent: false)
+        
+        //dealWithGuestChartView.delegate = self
+        
+        setPieChart(pieChartView, xLabelList: dealTypeList, yValueList: diffDealTypeNumList, label: labelStr)
+    }
+    
 }
-
-
-
