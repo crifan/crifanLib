@@ -5,7 +5,7 @@
 //  Created by licrifan on 15/11/6.
 //  Copyright © 2015年 licrifan. All rights reserved.
 //
-//  Last Update: 2016-05-14
+//  Last Update: 2016-05-15
 
 import UIKit
 //import Foundation
@@ -322,6 +322,8 @@ extension NSDate
         
         return parsedDate
     }
+    
+    static let emptyDate:NSDate = NSDate(timeIntervalSince1970: 0)
 
 }
 
