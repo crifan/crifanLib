@@ -1331,6 +1331,61 @@ func drawCircle(circleRadius:CGFloat, fillColor:UIColor) -> UIView {
     return circleView
 }
 
+//draw a circle image with border, if border is 0 means no border
+func drawCircleImage(circleRadius:CGFloat, fillColor:UIColor = UIColor.blueColor(), borderColor:UIColor = UIColor.cyanColor(), borderWidth:CGFloat = 0) -> UIImage {
+    UIGraphicsBeginImageContextWithOptions(CGSize(width: circleRadius, height: circleRadius), false, 0)
+    let context = UIGraphicsGetCurrentContext()
+
+    let rectangle = CGRectMake(borderWidth, borderWidth, circleRadius - borderWidth - 1, circleRadius - borderWidth - 1)
+    
+    CGContextSetFillColorWithColor(context, fillColor.CGColor)
+    CGContextSetStrokeColorWithColor(context, borderColor.CGColor)
+    CGContextSetLineWidth(context, borderWidth)
+    
+    CGContextAddEllipseInRect(context, rectangle)
+    if borderWidth == 0 {
+        CGContextDrawPath(context, .Fill)
+    } else {
+        CGContextDrawPath(context, .FillStroke)
+    }
+  
+    let circleImage = UIGraphicsGetImageFromCurrentImageContext()
+    UIGraphicsEndImageContext()
+    
+    return circleImage
+}
+
+//draw a outer big circle with border while inside is a inner small circle filled with color
+func drawCircileImageWithInnderCircle(circleRadius:CGFloat, fillColor:UIColor = UIColor.blueColor(), borderColor:UIColor = UIColor.cyanColor(), borderWidth:CGFloat = 0, innerCircleRadius:CGFloat, innerCircleFillColor:UIColor = UIColor.greenColor()) -> UIImage {
+    
+    UIGraphicsBeginImageContextWithOptions(CGSize(width: circleRadius, height: circleRadius), false, 0)
+    let context = UIGraphicsGetCurrentContext()
+    
+    let rectangle = CGRectMake(borderWidth, borderWidth, circleRadius - borderWidth - 1, circleRadius - borderWidth - 1)
+    
+    CGContextSetFillColorWithColor(context, fillColor.CGColor)
+    CGContextSetStrokeColorWithColor(context, borderColor.CGColor)
+    CGContextSetLineWidth(context, borderWidth)
+    
+    CGContextAddEllipseInRect(context, rectangle)
+    if borderWidth == 0 {
+        CGContextDrawPath(context, .Fill)
+    } else {
+        CGContextDrawPath(context, .FillStroke)
+    }
+
+    let innerRectangle = CGRectMake(circleRadius/2 - innerCircleRadius/2 + 1, circleRadius/2 - innerCircleRadius/2 + 1, innerCircleRadius, innerCircleRadius)
+    CGContextSetFillColorWithColor(context, innerCircleFillColor.CGColor)
+    CGContextAddEllipseInRect(context, innerRectangle)
+    CGContextDrawPath(context, .Fill)
+    
+    let circleImage = UIGraphicsGetImageFromCurrentImageContext()
+    UIGraphicsEndImageContext()
+    
+    return circleImage
+}
+
+
 //draw a badge view
 func drawBadgeView(badgeString:String, circleFillColor:UIColor) -> UIView {
     //let badgeRadius:CGFloat = 9
@@ -1439,6 +1494,7 @@ func drawRectangleImageWithLabel(size:CGSize, color:UIColor, label:UILabel) -> U
 }
 
 //merge multiple image to single image
+//Note: for round circle image, seems can not merge !
 func mergeMultipleToSingleImage(mergedFrameSize: CGSize, imageArr:[UIImage], drawPointArr: [CGPoint]) -> UIImage {
     var mergedImage:UIImage = UIImage()
     let opaque:Bool = false
@@ -1446,10 +1502,12 @@ func mergeMultipleToSingleImage(mergedFrameSize: CGSize, imageArr:[UIImage], dra
 
     UIGraphicsBeginImageContextWithOptions(mergedFrameSize, opaque, scale)
     
-    for index in 0...(imageArr.count - 1) {
+    //Note: while count==0 will crash for 0 can not smaller than 0 - 1 = -1
+    //for index in 0...(imageArr.count - 1)
+    for index in 0..<imageArr.count {
         let curDrawPoint = drawPointArr[index]
         let curImage = imageArr[index]
-        //print("[\(index)] curDrawPoint=\(curDrawPoint), curImage=\(curImage)")
+        print("[\(index)] curDrawPoint=\(curDrawPoint), curImage=\(curImage)")
         curImage.drawAtPoint(curDrawPoint, blendMode: CGBlendMode.Normal, alpha: 1.0)
     }
     

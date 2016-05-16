@@ -257,5 +257,26 @@ func CrifanLibDemo(){
         
         setPieChart(pieChartView, xLabelList: dealTypeList, yValueList: diffDealTypeNumList, label: labelStr)
     }
+ 
+    /*
+     * UIImage demo
+     */
+    let ButtonNumberPerLine:Int = 3
+    let ButtonWidthPercent:Float = 2.0/3.0
+    let circleRadius:CGFloat = (UIScreen.mainScreen().bounds.width/CGFloat(ButtonNumberPerLine)) * CGFloat(ButtonWidthPercent)
+    
+    let darkerBlueColor = UIColor(red: 2.0/255.0, green: 174.0/255.0, blue: 240.0/255.0, alpha: 1)
+    let lightBlueColor:UIColor = UIColor(red: 30.0/255.0, green: 175.0/255.0, blue: 235.0/255.0, alpha: 0.3)
+    
+    //        let borderWidth:CGFloat = 2
+    let borderWidth:CGFloat = 3
+    let innerCircleRadius:CGFloat = circleRadius/4
+    
+    let normalGestureNodeImage = drawCircleImage(circleRadius, fillColor: UIColor.clearColor(), borderColor: UIColor.whiteColor(), borderWidth: borderWidth)
+    print("normalGestureNodeImage=\(normalGestureNodeImage)")
+    
+    let selectedCircleImage:UIImage = drawCircileImageWithInnderCircle(circleRadius, fillColor: lightBlueColor, borderColor: darkerBlueColor, borderWidth: borderWidth, innerCircleRadius: innerCircleRadius, innerCircleFillColor: darkerBlueColor)
+    let selectedGestureNodeImage = selectedCircleImage
+    print("selectedGestureNodeImage=\(selectedGestureNodeImage)")
     
 }
