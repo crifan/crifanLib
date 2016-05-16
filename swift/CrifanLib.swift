@@ -324,9 +324,10 @@ extension NSDate
     }
     
     //static let emptyDate:NSDate = NSDate(timeIntervalSince1970: 0)
-    var emptyDate:NSDate {
-        return NSDate(timeIntervalSince1970: 0)
-    }
+//    var emptyDate:NSDate {
+//        return NSDate(timeIntervalSince1970: 0)
+//    }
+    @nonobjc static let emptyDate:NSDate = NSDate(timeIntervalSince1970: 0)
 
 }
 

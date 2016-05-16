@@ -111,7 +111,7 @@ func CrifanLibDemo(){
     let parsedDatetime:NSDate? = NSDate.fromString("2015/11/28 12:01:02", dateFormat: "yyyy/MM/dd HH:mm:ss")
     print("parsedDatetime=\(parsedDatetime)") //Optional(2015-11-28 04:01:02 +0000)
     
-    print("NSDate(timeIntervalSince1970: 0).isEqualToDate(NSDate().emptyDate=\(NSDate(timeIntervalSince1970: 0).isEqualToDate(NSDate().emptyDate)))")
+    print("NSDate(timeIntervalSince1970: 0).isEqualToDate(NSDate.emptyDate=\(NSDate(timeIntervalSince1970: 0).isEqualToDate(NSDate.emptyDate)))")
 
     /*
     * fromTimestampMsec demo
