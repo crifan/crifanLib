@@ -5,7 +5,7 @@
 //  Created by licrifan on 15/11/6.
 //  Copyright © 2015年 licrifan. All rights reserved.
 //
-//  Last Update: 2016-05-16
+//  Last Update: 2016-06-07
 
 import UIKit
 //import Foundation
@@ -32,6 +32,18 @@ func isFirstRunApp() -> Bool {
     }
     
     return isFirstRun
+}
+
+let kLastTimeIsLogined = "lastTimeIsLogined"
+
+//last time is logined
+func lastIsLogined() -> Bool {
+    return NSUserDefaults.standardUserDefaults().boolForKey(kLastTimeIsLogined)
+}
+
+//record current time logined
+func saveLastLogined(hasLogined:Bool) {
+    NSUserDefaults.standardUserDefaults().setBool(hasLogined, forKey: kLastTimeIsLogined)
 }
 
 /***************************************************************************
@@ -212,47 +224,47 @@ func generateBase64Str(inputStr:String) -> String {
 extension NSDate
 {
     //2015
-    func Year() -> Int {
+    var Year: Int {
         let curCalendar:NSCalendar = NSCalendar.currentCalendar()
         let componentYear:Int = curCalendar.component(NSCalendarUnit.Year, fromDate: self)
         return componentYear
     }
     
     //11
-    func Month() -> Int {
+    var Month: Int {
         let curCalendar:NSCalendar = NSCalendar.currentCalendar()
         let componentMonth:Int = curCalendar.component(NSCalendarUnit.Month, fromDate: self)
         return componentMonth
     }
     
     //28
-    func Day() -> Int {
+    var Day: Int {
         let curCalendar:NSCalendar = NSCalendar.currentCalendar()
         let componentDay:Int = curCalendar.component(NSCalendarUnit.Day, fromDate: self)
         return componentDay
     }
     
     //10
-    func Hour() -> Int {
+    var Hour: Int {
         let curCalendar:NSCalendar = NSCalendar.currentCalendar()
         let componentHour:Int = curCalendar.component(NSCalendarUnit.Hour, fromDate: self)
         return componentHour
     }
     
     //39
-    func Minute() -> Int {
+    var Minute: Int {
         let curCalendar:NSCalendar = NSCalendar.currentCalendar()
         let componentMinute:Int = curCalendar.component(NSCalendarUnit.Minute, fromDate: self)
         return componentMinute
     }
     
     //18
-    func Second() -> Int {
+    var Second: Int {
         let curCalendar:NSCalendar = NSCalendar.currentCalendar()
         let componentSecond:Int = curCalendar.component(NSCalendarUnit.Second, fromDate: self)
         return componentSecond
     }
-    
+
     //get short style date time string
     //11/28/15, 10:51 AM
     func toStringShort() -> String {
@@ -329,6 +341,18 @@ extension NSDate
 //    }
     @nonobjc static let emptyDate:NSDate = NSDate(timeIntervalSince1970: 0)
 
+    func isToday(toCmpTime:NSDate) -> Bool {
+        var isToday = false
+
+        if (toCmpTime.Year == self.Year) &&
+        (toCmpTime.Month == self.Month) &&
+            (toCmpTime.Day == self.Day) {
+            isToday = true
+        }
+    
+        return isToday
+    }
+    
 }
 
 
@@ -898,6 +922,23 @@ extension String {
         return isAll
     }
     
+    var isAllDigitOrLetter: Bool {
+        var allValid = true
+        
+        for eachChar in self.characters {
+            if !(
+                    ((eachChar >= "A") && (eachChar <= "Z")) ||
+                    ((eachChar >= "a") && (eachChar <= "z")) ||
+                    ((eachChar >= "0") && (eachChar <= "9"))
+                ){
+                allValid = false
+                break
+            }
+        }
+        
+        return allValid
+    }
+    
     //Trims white space and new line characters, returns a new string
     func trim() -> String {
         return stringByTrimmingCharactersInSet(NSCharacterSet.whitespaceAndNewlineCharacterSet())
@@ -1387,9 +1428,7 @@ func drawCircileImageWithInnderCircle(circleRadius:CGFloat, fillColor:UIColor = 
 
 
 //draw a badge view
-func drawBadgeView(badgeString:String, circleFillColor:UIColor) -> UIView {
-    //let badgeRadius:CGFloat = 9
-    let badgeRadius:CGFloat = 8.5
+func drawBadgeView(badgeString:String, badgeRadius:CGFloat = 8.5, circleFillColor:UIColor = UIColor.redColor()) -> UIView {
     let badgeFrame = CGRectMake(0, 0, badgeRadius * 2, badgeRadius * 2)
     
     let circleLayer = drawCircleLayer(badgeRadius, fillColor: circleFillColor)
@@ -1657,11 +1696,8 @@ func getCallerViewController(curVC:UIViewController) -> UIViewController? {
     var calerVc:UIViewController? = nil
     
     if let naviViewControllers = curVC.navigationController?.viewControllers{
-        let vcCount = naviViewControllers.count //3
-        let maxVcIdx = vcCount - 1 //3
-        let callerVcIdx = maxVcIdx - 1 //2
-        if callerVcIdx >= 0 {
-            calerVc = naviViewControllers[callerVcIdx]
+        if let lastVc = naviViewControllers.last {
+            calerVc = lastVc
             //Optional(<JianDao.ConversationManageViewController: 0x7facfd93a870>)
         }
     }

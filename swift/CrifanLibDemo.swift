@@ -5,7 +5,7 @@
 //  Created by licrifan on 15/11/20.
 //  Copyright © 2016年 licrifan. All rights reserved.
 //
-//  Last Update: 2016-05-16
+//  Last Update: 2016-06-07
 
 import UIKit
 
@@ -93,12 +93,12 @@ func CrifanLibDemo(){
     */
     let curDate:NSDate = NSDate()
     print("curDate=\(curDate)") //2015-11-28 02:35:19 +0000
-    print("curDate.Year()=\(curDate.Year())") //2015
-    print("curDate.Month()=\(curDate.Month())") //11
-    print("curDate.Day()=\(curDate.Day())") //28
-    print("curDate.Hour()=\(curDate.Hour())") //10
-    print("curDate.Minute()=\(curDate.Minute())") //39
-    print("curDate.Second()=\(curDate.Second())") //18
+    print("curDate.Year=\(curDate.Year)") //2015
+    print("curDate.Month=\(curDate.Month)") //11
+    print("curDate.Day=\(curDate.Day)") //28
+    print("curDate.Hour=\(curDate.Hour)") //10
+    print("curDate.Minute=\(curDate.Minute)") //39
+    print("curDate.Second=\(curDate.Second)") //18
     
     print("curDate.toShortStyleString()=\(curDate.toStringShort())") //11/28/15, 11:04 AM
     print("curDate.toMediumStyleString()=\(curDate.toStringMedium())") //Nov 28, 2015, 11:04:39 AM
