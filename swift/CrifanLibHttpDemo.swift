@@ -58,13 +58,13 @@ func CrifanLibHttpDemo(){
     
     func getSmsCodeHandler(respDataJson:Alamofire.Result<JSON, NSError>) {
         gLog.verbose("respDataJson.debugDescription=\(respDataJson.debugDescription)")
-        //respDataJson.debugDescription=SUCCESS: 15051464654
+        //respDataJson.debugDescription=SUCCESS: 13812345678
         //respDataJson.debugDescription=FAILURE: Error Domain=HttpErrorDomain Code=403 "(null)" UserInfo={message=The phone is not found , code=403}
         
         switch respDataJson {
         case .Success(let dataJson):
             gLog.verbose("dataJson=\(dataJson)")
-            //dataJson=15051464654
+            //dataJson=13812345678
             
         //self.noticeSuccess("已成功发送短信验证码，请注意查收", autoClear: true)
         case .Failure(let error):

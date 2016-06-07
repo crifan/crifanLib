@@ -16,12 +16,14 @@ import SwiftyJSON
 
 func getUrlRespJson_async(httpMethod:Alamofire.Method, url:String, parameters: [String : AnyObject]? = nil, headers: [String : String]? = nil, respJsonHandler: (Alamofire.Result<JSON, NSError>) -> Void) {
     gLog.info("httpMethod=\(httpMethod), url=\(url), parameters=\(parameters), headers=\(headers), respJsonHandler=\(respJsonHandler)")
-    //httpMethod=POST, url=http://qapp.chinacloudapp.cn/open/code, parameters=Optional(["codetype": register, "phone": 15051464654]), headers=nil
+    //httpMethod=POST, url=http://qapp.chinacloudapp.cn/open/code, parameters=Optional(["codetype": register, "phone": 13812345678]), headers=nil
 
     //merge input headers
     var currentHeaders:[String : String] = [
-        "Accept" : "application/json",
-        "Content-Type" : "application/json"]
+//        "Accept" : "application/json",
+        "Content-Type" : "application/json",
+    ]
+
     if let inputHeaders = headers {
         for eachKey in inputHeaders.keys {
             gLog.verbose("[\(eachKey)] = \(inputHeaders[eachKey]!)")
@@ -63,7 +65,7 @@ func getUrlRespJson_async(httpMethod:Alamofire.Method, url:String, parameters: [
             /*
             value={
                 code = 200;
-                data = 15051464654;
+                data = 13812345678;
                 message = ok;
             }, value type=__NSCFDictionary)
              
@@ -81,7 +83,7 @@ func getUrlRespJson_async(httpMethod:Alamofire.Method, url:String, parameters: [
              
             {
                 code = 200;
-                data = 15051464654;
+                data = 13812345678;
                 message = ok;
             }
              */
@@ -92,7 +94,7 @@ func getUrlRespJson_async(httpMethod:Alamofire.Method, url:String, parameters: [
             {
               "message" : "ok",
               "code" : 200,
-              "data" : "15051464654"
+              "data" : "13812345678"
             }
 
             {
@@ -101,9 +103,9 @@ func getUrlRespJson_async(httpMethod:Alamofire.Method, url:String, parameters: [
               "data" : {
                 "dealer" : "guanhai",
                 "id" : 10000101,
-                "name" : "李茂",
+                "name" : "Crifan Li",
                 "password" : "111111",
-                "phone" : "15051464654",
+                "phone" : "13812345678",
                 "jiugongge" : "1,2,3,4",
                 "role" : "sales_consultant",
                 "created" : 1464770891756
@@ -120,7 +122,8 @@ func getUrlRespJson_async(httpMethod:Alamofire.Method, url:String, parameters: [
                 errorStr = error.localizedFailureReason ?? ""
             }
             
-            gLog.error("\(httpMethod) \(url) error: \(errorStr)")
+            gLog.error("\(httpMethod) \(url) error: \(errorStr), detail:\(error)")
+            //GET http://qapp.chinacloudapp.cn/token/generate error: The data couldn’t be read because it isn’t in the correct format., detail:Error Domain=NSCocoaErrorDomain Code=3840 "Invalid value around character 0." UserInfo={NSDebugDescription=Invalid value around character 0.}
 
             let error:NSError = NSError(domain: HttpErrorDomain, code: statusCode, userInfo: [
                 "message"   : errorStr,
@@ -133,7 +136,7 @@ func getUrlRespJson_async(httpMethod:Alamofire.Method, url:String, parameters: [
 
 func getUrlRespDataJson_async(httpMethod:Alamofire.Method, url:String, parameters: [String : AnyObject]? = nil, headers: [String : String]? = nil, respJsonHandler: (Alamofire.Result<JSON, NSError>) -> Void) {
     gLog.info("httpMethod=\(httpMethod), url=\(url), parameters=\(parameters), headers=\(headers), respJsonHandler=\(respJsonHandler)")
-    //httpMethod=GET, url=http://qapp.chinacloudapp.cn/open/phone/15051464654, parameters=nil, headers=nil, respJsonHandler=(Function)
+    //httpMethod=GET, url=http://qapp.chinacloudapp.cn/open/phone/13812345678, parameters=nil, headers=nil, respJsonHandler=(Function)
 
     var curHeader = headers ?? Dictionary<String, String>()
     
@@ -157,9 +160,9 @@ func getUrlRespDataJson_async(httpMethod:Alamofire.Method, url:String, parameter
               "data" : {
                 "dealer" : "guanhai",
                 "id" : 10000101,
-                "name" : "李茂",
+                "name" : "Crifan Li",
                 "password" : "111111",
-                "phone" : "15051464654",
+                "phone" : "13812345678",
                 "jiugongge" : "1,2,3,4",
                 "role" : "sales_consultant",
                 "created" : 1464770891756
@@ -182,7 +185,7 @@ func getUrlRespDataJson_async(httpMethod:Alamofire.Method, url:String, parameter
              
             {
                 code = 200;
-                data = 15051464654;
+                data = 13812345678;
                 message = ok;
             }
              */
@@ -195,13 +198,13 @@ func getUrlRespDataJson_async(httpMethod:Alamofire.Method, url:String, parameter
                 let dataObj = respJson["data"].object
                 //maybe int/json/string/...
                 gLog.verbose("dataObj=\(dataObj)")
-                //dataObj=15051464654
+                //dataObj=13812345678
                 //dataObj=10000010
                 
                 let dataJson:JSON = JSON(dataObj)
                 gLog.verbose("dataJson=\(dataJson)")
-                //dataJson=15051464654
-                //dataJson.string -> 15051464654
+                //dataJson=13812345678
+                //dataJson.string -> 13812345678
 
                 respJsonHandler(Alamofire.Result.Success(dataJson))
                 
@@ -212,10 +215,34 @@ func getUrlRespDataJson_async(httpMethod:Alamofire.Method, url:String, parameter
             } else {
                 let message = respJson["message"].string ?? ""
                 gLog.error("\(httpMethod) \(url) message=\(message)")
+                
+                /*
+                {
+                  "message" : "手机号码已经注册|403105",
+                  "code" : 403
+                }
+                 
+                respJson={
+                  "message" : "There was an error processing your request. It has been logged (ID f826f11a0495f196).",
+                  "code" : 500
+                }
+                 */
+                
+                //parse message to message + subCode
+                let messageStrArr = message.splitToStrArr("|")
+                
+                var messageStr:String = message
+                var subCode:Int = 0
+                
+                if messageStrArr.count > 1 {
+                    messageStr = messageStrArr[0]
+                    subCode = Int(messageStrArr[1]) ?? 0
+                }
 
                 let error:NSError = NSError(domain: HttpErrorDomain, code: statusCode, userInfo: [
-                    "message"   : message,
+                    "message"   : messageStr,
                     "code"      : statusCode,
+                    "subCode"   : subCode,
                     ])
 
                 respJsonHandler(Alamofire.Result.Failure(error))
