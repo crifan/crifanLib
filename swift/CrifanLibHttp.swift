@@ -125,11 +125,13 @@ func getUrlRespJson_async(httpMethod:Alamofire.Method, url:String, parameters: [
             gLog.error("\(httpMethod) \(url) error: \(errorStr), detail:\(error)")
             //GET http://qapp.chinacloudapp.cn/token/generate error: The data couldn’t be read because it isn’t in the correct format., detail:Error Domain=NSCocoaErrorDomain Code=3840 "Invalid value around character 0." UserInfo={NSDebugDescription=Invalid value around character 0.}
 
-            let error:NSError = NSError(domain: HttpErrorDomain, code: statusCode, userInfo: [
+            //let error:NSError = NSError(domain: HttpErrorDomain, code: statusCode, userInfo: [
+            let returnError:NSError = NSError(domain: error.domain, code: error.code, userInfo: [
                 "message"   : errorStr,
                 "code"      : statusCode,
+                "NSDebugDescription" : error.userInfo["NSDebugDescription"] ?? "",
                 ])
-            respJsonHandler(Alamofire.Result.Failure(error))
+            respJsonHandler(Alamofire.Result.Failure(returnError))
         }
     })
 }

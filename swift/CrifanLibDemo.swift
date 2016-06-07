@@ -43,12 +43,14 @@ func CrifanLibDemo(){
     */
     let noneSeperatorStr:String = ""
     let strWithoutSpace:String = "中间没有空格单个字符串"
-    let splitedStrArr_withoutSpace:[String] = splitSingleStrToStrArr(strWithoutSpace, seperatorStr: noneSeperatorStr)
+    //let splitedStrArr_withoutSpace:[String] = splitSingleStrToStrArr(strWithoutSpace, seperatorStr: noneSeperatorStr)
+    let splitedStrArr_withoutSpace:[String] = strWithoutSpace.splitToStrArr(noneSeperatorStr)
     print("splitedStrArr_withoutSpace=\(splitedStrArr_withoutSpace)") //["中", "间", "没", "有", "空", "格", "单", "个", "字", "符", "串"]
 
     let spaceSeperatorStr:String = " "
     let stringContainingSpace:String = "中 间   有  空     格 的 字   符 串 "
-    let splitedStrArr_containingSpace:[String] = splitSingleStrToStrArr(stringContainingSpace, seperatorStr: spaceSeperatorStr)
+//    let splitedStrArr_containingSpace:[String] = splitSingleStrToStrArr(stringContainingSpace, seperatorStr: spaceSeperatorStr)
+    let splitedStrArr_containingSpace:[String] = stringContainingSpace.splitToStrArr(spaceSeperatorStr)
     print("splitedStrArr_containingSpace=\(splitedStrArr_containingSpace)") //["中", "间", "有", "空", "格", "的", "字", "符", "串"]
 
 
