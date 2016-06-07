@@ -5,7 +5,7 @@
 //  Created by licrifan on 15/11/6.
 //  Copyright © 2015年 licrifan. All rights reserved.
 //
-//  Last Update: 2016-05-16
+//  Last Update: 2016-06-07
 
 import UIKit
 //import Foundation
@@ -32,6 +32,18 @@ func isFirstRunApp() -> Bool {
     }
     
     return isFirstRun
+}
+
+let kLastTimeIsLogined = "lastTimeIsLogined"
+
+//last time is logined
+func lastIsLogined() -> Bool {
+    return NSUserDefaults.standardUserDefaults().boolForKey(kLastTimeIsLogined)
+}
+
+//record current time logined
+func saveLastLogined(hasLogined:Bool) {
+    NSUserDefaults.standardUserDefaults().setBool(hasLogined, forKey: kLastTimeIsLogined)
 }
 
 /***************************************************************************
@@ -908,6 +920,23 @@ extension String {
         }
         
         return isAll
+    }
+    
+    var isAllDigitOrLetter: Bool {
+        var allValid = true
+        
+        for eachChar in self.characters {
+            if !(
+                    ((eachChar >= "A") && (eachChar <= "Z")) ||
+                    ((eachChar >= "a") && (eachChar <= "z")) ||
+                    ((eachChar >= "0") && (eachChar <= "9"))
+                ){
+                allValid = false
+                break
+            }
+        }
+        
+        return allValid
     }
     
     //Trims white space and new line characters, returns a new string
