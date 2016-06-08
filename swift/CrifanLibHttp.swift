@@ -14,7 +14,8 @@ import SwiftyJSON
 
 
 
-func getUrlRespJson_async(httpMethod:Alamofire.Method, url:String, parameters: [String : AnyObject]? = nil, headers: [String : String]? = nil, respJsonHandler: (Alamofire.Result<JSON, NSError>) -> Void) {
+//func getUrlRespJson_async(httpMethod:Alamofire.Method, url:String, parameters: [String : AnyObject]? = nil, headers: [String : String]? = nil, respJsonHandler: (Alamofire.Result<JSON, NSError>) -> Void) {
+func getUrlRespJson_async(httpMethod:Alamofire.Method, url:String, parameters: [String : AnyObject]? = nil, headers: [String : String]? = nil, extraPara:Dictionary<String, AnyObject>?, respJsonHandler: (Alamofire.Result<JSON, NSError>, extraPara:Dictionary<String, AnyObject>?) -> Void) {
     gLog.info("httpMethod=\(httpMethod), url=\(url), parameters=\(parameters), headers=\(headers), respJsonHandler=\(respJsonHandler)")
     //httpMethod=POST, url=http://qapp.chinacloudapp.cn/open/code, parameters=Optional(["codetype": register, "phone": 13812345678]), headers=nil
 
@@ -30,6 +31,19 @@ func getUrlRespJson_async(httpMethod:Alamofire.Method, url:String, parameters: [
             currentHeaders[eachKey] = inputHeaders[eachKey]!
         }
     }
+    
+    var mergedExtraPara = Dictionary<String, AnyObject>()
+    mergedExtraPara["httpMethod"] = httpMethod.rawValue
+    mergedExtraPara["url"] = url
+    mergedExtraPara["parameters"] = parameters
+    mergedExtraPara["headers"] = headers
+    mergedExtraPara["extraPara"] = extraPara
+    
+//    if extraPara != nil {
+//        for eachInputParaKey in extraPara!.keys {
+//            mergedExtraPara[eachInputParaKey] = extraPara![eachInputParaKey]
+//        }
+//    }
     
     gLog.debug("currentHeaders=\(currentHeaders)")
     //currentHeaders=["Accept": "application/json"]
@@ -57,6 +71,8 @@ func getUrlRespJson_async(httpMethod:Alamofire.Method, url:String, parameters: [
         
         let statusCode = response.response?.statusCode ?? 0
         gLog.verbose("statusCode=\(statusCode)")
+
+        gLog.verbose("\(response.request?.HTTPMethod), \(response.request?.URL), \(response.request?.URLString), \(response.request?.allHTTPHeaderFields), \(response.request?.HTTPBody)")
 
         switch response.result {
         case .Success(let value):
@@ -113,7 +129,7 @@ func getUrlRespJson_async(httpMethod:Alamofire.Method, url:String, parameters: [
             }
              */
             
-            respJsonHandler(Alamofire.Result.Success(valueJson))
+            respJsonHandler(Alamofire.Result.Success(valueJson), extraPara: mergedExtraPara)
 
         case .Failure(let error):
             var errorStr:String = error.localizedDescription
@@ -131,12 +147,12 @@ func getUrlRespJson_async(httpMethod:Alamofire.Method, url:String, parameters: [
                 "code"      : statusCode,
                 "NSDebugDescription" : error.userInfo["NSDebugDescription"] ?? "",
                 ])
-            respJsonHandler(Alamofire.Result.Failure(returnError))
+            respJsonHandler(Alamofire.Result.Failure(returnError), extraPara: mergedExtraPara)
         }
     })
 }
 
-func getUrlRespDataJson_async(httpMethod:Alamofire.Method, url:String, parameters: [String : AnyObject]? = nil, headers: [String : String]? = nil, respJsonHandler: (Alamofire.Result<JSON, NSError>) -> Void) {
+func getUrlRespDataJson_async(httpMethod:Alamofire.Method, url:String, parameters: [String : AnyObject]? = nil, headers: [String : String]? = nil, extraPara:Dictionary<String, AnyObject>? = nil,respJsonHandler: (Alamofire.Result<JSON, NSError>, extraPara:Dictionary<String, AnyObject>?) -> Void) {
     gLog.info("httpMethod=\(httpMethod), url=\(url), parameters=\(parameters), headers=\(headers), respJsonHandler=\(respJsonHandler)")
     //httpMethod=GET, url=http://qapp.chinacloudapp.cn/open/phone/13812345678, parameters=nil, headers=nil, respJsonHandler=(Function)
 
@@ -148,9 +164,9 @@ func getUrlRespDataJson_async(httpMethod:Alamofire.Method, url:String, parameter
         //headers=["authenticate": "token he9jjpvgtjcph8681qb5fbs0al"]
     }
     
-    getUrlRespJson_async(httpMethod, url: url, parameters: parameters, headers: curHeader, respJsonHandler: { respResult in
+    getUrlRespJson_async(httpMethod, url: url, parameters: parameters, headers: curHeader, extraPara: extraPara, respJsonHandler: { respResult, extraPara in
         gLog.info("respResult=\(respResult)")
-        
+
         switch respResult {
         case .Success(let respJson):
             gLog.info("respJson=\(respJson)")
@@ -208,7 +224,7 @@ func getUrlRespDataJson_async(httpMethod:Alamofire.Method, url:String, parameter
                 //dataJson=13812345678
                 //dataJson.string -> 13812345678
 
-                respJsonHandler(Alamofire.Result.Success(dataJson))
+                respJsonHandler(Alamofire.Result.Success(dataJson), extraPara: extraPara)
                 
 //                    } else {
 //                        let emptyDataJson = JSON("")
@@ -247,13 +263,13 @@ func getUrlRespDataJson_async(httpMethod:Alamofire.Method, url:String, parameter
                     "subCode"   : subCode,
                     ])
 
-                respJsonHandler(Alamofire.Result.Failure(error))
+                respJsonHandler(Alamofire.Result.Failure(error), extraPara: extraPara)
             }
 
         case .Failure(let error):
             gLog.error("\(httpMethod) \(url) error: \(error)")
 
-            respJsonHandler(Alamofire.Result.Failure(error))
+            respJsonHandler(Alamofire.Result.Failure(error), extraPara: extraPara)
         }
     })
 }

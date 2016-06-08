@@ -28,7 +28,7 @@ func CrifanLibHttpDemo(){
             respJsonHandler: getUserIdHandler)
     }
     
-    func getUserIdHandler(respDataJson:Alamofire.Result<JSON, NSError>) {
+    func getUserIdHandler(respDataJson:Alamofire.Result<JSON, NSError>, extraPara:Dictionary<String, AnyObject>?) {
         gLog.verbose("respDataJson.debugDescription=\(respDataJson.debugDescription)")
         
         switch respDataJson {
@@ -56,7 +56,7 @@ func CrifanLibHttpDemo(){
     
     //demo Post with parameters
     
-    func getSmsCodeHandler(respDataJson:Alamofire.Result<JSON, NSError>) {
+    func getSmsCodeHandler(respDataJson:Alamofire.Result<JSON, NSError>, extraPara:Dictionary<String, AnyObject>?) {
         gLog.verbose("respDataJson.debugDescription=\(respDataJson.debugDescription)")
         //respDataJson.debugDescription=SUCCESS: 13812345678
         //respDataJson.debugDescription=FAILURE: Error Domain=HttpErrorDomain Code=403 "(null)" UserInfo={message=The phone is not found , code=403}
