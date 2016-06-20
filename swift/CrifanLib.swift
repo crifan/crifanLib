@@ -350,6 +350,61 @@ extension NSDate
         return isToday
     }
     
+    func toAgoString() -> String {
+        let curDate = NSDate()
+        
+        print("self=\(self), curDate=\(curDate)")
+        
+        let components = self.toDateComponents(curDate)
+        
+        print("components.year=\(components.year), components.month=\(components.month)")
+        
+        if components.year > 0 {
+            //            if (components.year >= 1) {
+            return "一年前"
+            //            }
+        }
+        
+        if components.month > 0 {
+            if (components.month >= 6) && (components.month < 12) {
+                return "半年前"
+            } else if (components.month >= 3) && (components.month < 6) {
+                //return "三个月前"
+                return "3个月前"
+            } else if (components.month >= 1) && (components.month < 3) {
+                //return "一个月前"
+                return "1个月前"
+            }
+        }
+        
+        if components.day > 0 {
+            if components.day >= 14 {
+                //return "两周前"
+                return "2周前"
+            } else if (components.day >= 7) && (components.day < 14) {
+                //return "一周前"
+                return "1周前"
+            } else if (components.day >= 3) && (components.day < 7) {
+                //return "三天前"
+                return "3天前"
+            } else if (components.day > 1) && (components.day < 3) {
+                //return "一天前"
+                return "1天前"
+            } else if components.day == 1 {
+                return "昨天"
+            }
+        } else if components.day == 0 {
+            return "今天"
+        }
+        
+        return ""
+    }
+    
+    func toDateComponents(toDate:NSDate) -> NSDateComponents {
+        let calander = NSCalendar.currentCalendar()
+        return calander.components([.Second, .Minute, .Hour, .Day, .Month, .Year], fromDate: self, toDate: toDate, options: [])
+    }
+
 }
 
 

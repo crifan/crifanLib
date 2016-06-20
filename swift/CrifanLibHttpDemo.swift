@@ -28,7 +28,7 @@ func CrifanLibHttpDemo(){
             respJsonHandler: getUserIdHandler)
     }
     
-    func getUserIdHandler(respDataJson:Alamofire.Result<JSON, NSError>, extraPara:Dictionary<String, AnyObject>?) {
+    func getUserIdHandler(respDataJson:Alamofire.Result<JSON, NSError>, mergedAllPara:Dictionary<String, AnyObject>) {
         gLog.verbose("respDataJson.debugDescription=\(respDataJson.debugDescription)")
         
         switch respDataJson {
@@ -56,7 +56,7 @@ func CrifanLibHttpDemo(){
     
     //demo Post with parameters
     
-    func getSmsCodeHandler(respDataJson:Alamofire.Result<JSON, NSError>, extraPara:Dictionary<String, AnyObject>?) {
+    func getSmsCodeHandler(respDataJson:Alamofire.Result<JSON, NSError>, mergedAllPara:Dictionary<String, AnyObject>) {
         gLog.verbose("respDataJson.debugDescription=\(respDataJson.debugDescription)")
         //respDataJson.debugDescription=SUCCESS: 13812345678
         //respDataJson.debugDescription=FAILURE: Error Domain=HttpErrorDomain Code=403 "(null)" UserInfo={message=The phone is not found , code=403}
@@ -90,5 +90,36 @@ func CrifanLibHttpDemo(){
             respJsonHandler: getSmsCodeHandler)
     //}
     
+    
+    //demo get with extarPara
+    func getCustomerDetailInfo(customerDetailVC:CustomerDetailViewController) {
+        gLog.verbose("customerDetailVC=\(customerDetailVC)")
+
+        getUrlRespDataJson_async(
+            .GET,
+            url: ServerApi.getCustomerDetailUrl(gCurUserItem.id, customerId: customerDetailVC.curCustomerItem.id),
+            extraPara: ["customerDetailVC" : customerDetailVC],
+            respJsonHandler: getCustomerDetailInfoHandler)
+    }
+    
+    func getCustomerDetailInfoHandler(respDataJson:Alamofire.Result<JSON, NSError>, mergedAllPara:Dictionary<String, AnyObject>) {
+        gLog.verbose("respDataJson.debugDescription=\(respDataJson.debugDescription)")
+        
+        let customerDetailVC = mergedAllPara["extraPara"]!["customerDetailVC"]! as! CustomerDetailViewController
+        
+        switch respDataJson {
+        case .Success(let dataJson):
+            gLog.verbose("dataJson=\(dataJson)")
+
+            parseJsonToCustomerItem(dataJson, curCustomerItem: customerDetailVC.curCustomerItem)
+            
+            customerDetailVC.curCustomerItem.gotAllInfo = true
+            
+            customerDetailVC.updateCustomerInfo()
+            
+        case .Failure(let error):
+            gLog.error("error=\(error) for get customer detail info for \(customerDetailVC.curCustomerItem)")
+        }
+    }
 
 }
