@@ -22,10 +22,11 @@ class ImageLabelBadgeButton: BadgeButton {
     
     init(curImage:UIImage,
          curTitle:String,
+         positionMode:ImageLabelPositionMode = .ImageLeftLabelRight,
          titleFont:UIFont = RightTextFieldTextFont,
          titleColor:UIColor = RightTextFieldTextColor,
          titleAlignment:NSTextAlignment = .Left,
-         positionMode:ImageLabelPositionMode = .ImageLeftLabelRight,
+         titleHeight:CGFloat = 0,
          paddingLeft:CGFloat = 0,
          paddingTop:CGFloat = 0,
          paddingRight:CGFloat = 0,
@@ -33,7 +34,7 @@ class ImageLabelBadgeButton: BadgeButton {
          paddingHorizontal:CGFloat = 0,
          paddingVertical:CGFloat = 0
          ) {
-        gLog.debug("curImage=\(curImage), newTitle=\(curTitle)")
+        gLog.debug("curImage=\(curImage), newTitle=\(curTitle), positionMode=\(positionMode), titleFont=\(titleFont), titleColor=\(titleColor), titleAlignment=\(titleAlignment), titleHeight=\(titleHeight), paddingLeft=\(paddingLeft), paddingTop=\(paddingTop), paddingRight=\(paddingRight), paddingBottom=\(paddingBottom), paddingHorizontal=\(paddingHorizontal), paddingVertical=\(paddingVertical)")
         
         self.curImageView = UIImageView()
         self.curTitleLabel = UILabel()
@@ -43,29 +44,44 @@ class ImageLabelBadgeButton: BadgeButton {
         let curImageSize = curImage.size
         gLog.debug("curImageSize=\(curImageSize)")
 
+        //1. image view
+        self.addSubview(self.curImageView)
+        self.curImageView.image = curImage
+
+        //2. title label
+        self.addSubview(self.curTitleLabel)
+        self.curTitleLabel.text = curTitle
+        self.curTitleLabel.textAlignment = titleAlignment
+        self.curTitleLabel.font = titleFont
+        self.curTitleLabel.textColor = titleColor
+
         if positionMode == .ImageLeftLabelRight {
-            //1. image view
-            self.addSubview(self.curImageView)
-            self.curImageView.image = curImage
             constrain(self.curImageView) {curImageView in
                 curImageView.left == curImageView.superview!.left + paddingLeft
                 curImageView.width == curImageSize.width
                 curImageView.centerY == curImageView.superview!.centerY
-//                curImageView.top == curImageView.superview!.top + paddingTop
-//                curImageView.bottom <= curImageView.superview!.bottom
-//                curImageView.width <= curImageView.superview!.width
             }
             
-            //2. title label
-            self.addSubview(self.curTitleLabel)
-            self.curTitleLabel.text = curTitle
-            self.curTitleLabel.textAlignment = titleAlignment
-            self.curTitleLabel.font = titleFont
-            self.curTitleLabel.textColor = titleColor
             constrain(curTitleLabel, curImageView) {curTitleLabel, curImageView in
                 curTitleLabel.left == curImageView.right + paddingHorizontal
                 curTitleLabel.centerY == curTitleLabel.superview!.centerY
                 curTitleLabel.width <= curTitleLabel.superview!.width
+            }
+        } else if positionMode == .ImageTopLabelBottom {
+            constrain(self.curImageView) {curImageView in
+                curImageView.top == curImageView.superview!.top + paddingTop
+                curImageView.height == curImageSize.height
+                curImageView.width == curImageSize.width
+                curImageView.centerX == curImageView.superview!.centerX
+            }
+
+            constrain(curTitleLabel, curImageView) {curTitleLabel, curImageView in
+                curTitleLabel.top == curImageView.bottom + paddingVertical
+                if titleHeight != 0 {
+                    curTitleLabel.height == titleHeight
+                }
+                curTitleLabel.width <= curTitleLabel.superview!.width
+                curTitleLabel.centerX == curTitleLabel.superview!.centerX
             }
         }
 
