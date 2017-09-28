@@ -1,9 +1,7 @@
 //
 //  BadgeButton.swift
-//  SalesApp
-//
-//  Created by licrifan on 16/6/19.
-//  Copyright © 2016年 licrifan. All rights reserved.
+//  Crifan Li
+//  Updated: 2017/09/28
 //
 
 import UIKit

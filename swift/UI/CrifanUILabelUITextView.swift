@@ -6,6 +6,23 @@
 
 import UIKit
 
+/***************************************************************************
+ * UITextView/UILabel Related functions
+ ***************************************************************************/
+
+//calc real text size for UITextView text
+func calcTexViewTextSize(text:String, font:UIFont, widthLimit:CGFloat)
+    -> CGSize {
+        let tmpTextView = UITextView(frame: CGRectZero)
+        tmpTextView.font = font
+        tmpTextView.text = text
+        //Terminating app due to uncaught exception 'NSInternalInconsistencyException', reason: 'Only run on the main thread!'
+        let realTextSize = tmpTextView.sizeThatFits(CGSize(width: widthLimit, height: CGFloat.max))
+        //print("calculated realTextSize=\(realTextSize)")
+        
+        return realTextSize
+}
+
 //caculate text size for UILabel text
 func calcLabelTextSize(_ text:String, font:UIFont) -> CGSize {
     let textLabel:UILabel = UILabel()

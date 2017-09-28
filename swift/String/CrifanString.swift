@@ -1,6 +1,6 @@
 //
 //  CrifanString.swift
-//  SalesApp
+//  Crifan
 //
 //  Created by licrifan on 16/6/21.
 //  Copyright © 2016年 licrifan. All rights reserved.
@@ -8,8 +8,12 @@
 
 import UIKit
 
-
 extension String {
+
+    public var notEmpty: Bool {
+        return !isEmpty
+    }
+
     var localized: String {
         //NSBundle.mainBundle()=NSBundle </Users/crifan/Library/Developer/CoreSimulator/Devices/63F89987-3382-42A5-BC13-AE102BEF98DB/data/Containers/Bundle/Application/41774451-6A9D-4562-8D0E-13302C32EF31/JianDao.app> (loaded)
         //return NSLocalizedString(self, tableName: nil, bundle: NSBundle.mainBundle(), value: "", comment: "")
@@ -286,6 +290,7 @@ let HtmlCharacterEntitiesDict : [String: Character] = [
 ]
 
 extension String {
+
     func replace(from:String, to:String) -> String {
       return self.stringByReplacingOccurrencesOfString(from, withString: to)
     }
@@ -499,23 +504,57 @@ extension String {
         // Return results
         return (decodedString: result, replacementOffsets: replacementOffsets)
     }
+
+    
+    //get first char(string)
+    var firstChar: String {
+        var firstChar:String = ""
+
+        if self.notEmpty {
+            firstChar = self[self.startIndex ..< self.startIndex.advancedBy(1)]
+        }
+
+        return firstChar
+    }
+    
+    
+    //get last char(string)
+    var lastChar: String {
+        var lastChar:String = ""
+
+        if self.notEmpty {
+            lastChar = self[self.endIndex.advancedBy(-1) ..< self.endIndex]
+        }
+
+        return lastChar
+    }
+    
+    
+    //split string into character array
+    //周杰伦 -> ["周", "杰", "伦"]
+    func splitToCharArr() -> [Character] {
+        let splitedCharArr:[Character] = Array(self.characters)
+        
+        return splitedCharArr
+    }
+
     
     //split string into string array, normally seperator is white space
     //if origin string not containing white space, then pass the empty string here, will split to every single char as string
-    func splitToStrArr(seperatorStr:String = " ") -> [String] {
-        guard !self.isEmpty else {
+    func splitToStrArr(seperatorStr:String = "") -> [String] {
+        guard self.notEmpty else {
             return [String]()
         }
         
         //print("strToSplit=\(strToSplit), seperatorStr=\(seperatorStr)")
         
         var splitedStrArr:[String] = [String]()
-        if !seperatorStr.isEmpty {
-            let seperatorChar:Character = splitSingleStrToCharArr(seperatorStr)[0]
+        if seperatorStr.notEmpty {
+            let seperatorChar:Character = seperatorStr.splitToCharArr()[0]
             splitedStrArr = self.characters.split(seperatorChar).map(String.init)
         } else {
             //split string(without space) into every single char as string
-            let splitedCharArr:[Character] = splitSingleStrToCharArr(self)
+            let splitedCharArr:[Character] = self.splitToCharArr()
             for eachChar in splitedCharArr {
                 splitedStrArr.append(String(eachChar))
             }
@@ -525,5 +564,104 @@ extension String {
         
         return splitedStrArr
     }
+    
 }
+
+
+//merge character array into string
+func mergeCharArrToSingleStr(charArr:[Character]) -> String {
+    //print("charArr=\(charArr)") //charArr=["一", "个", "字", "符", "串"]
+    
+    let mergedSingleStr:String = String(charArr) //"一个字符串"
+    //print("mergedSingleStr=\(mergedSingleStr)")
+    
+    return mergedSingleStr
+}
+
+//merge string array into single string
+func mergeStrArrToSingleStr(strArr:[String]) -> String {
+    //print("strArr=\(strArr)")
+    
+    var singleStr:String = ""
+    
+    for eachStr in strArr {
+        singleStr += eachStr
+    }
+    //print("singleStr\(singleStr)")
+    
+    return singleStr
+}
+
+
+//translate chinese string into pinyin with accents
+func translateChineseStrToPinyinWithAccents(chineseStr:String) -> String {
+    //print("chineseStr=\(chineseStr)") //chineseStr=王八
+    
+    var translatedPinyinWithAccents:String = ""
+    
+    let zhcnStrToTranslate:CFMutableStringRef = NSMutableString(string: chineseStr)
+    //print("zhcnStrToTranslate=\(zhcnStrToTranslate)") //zhcnStrToTranslate=王八
+    
+    let translatedOk:Bool = CFStringTransform(zhcnStrToTranslate, nil, kCFStringTransformMandarinLatin, false)
+    //print("translatedOk=\(translatedOk)") //translatedOk=true
+    
+    if translatedOk {
+        translatedPinyinWithAccents = zhcnStrToTranslate as String
+        //print("translatedPinyinWithAccents=\(translatedPinyinWithAccents)")
+    }
+    
+    return translatedPinyinWithAccents
+}
+
+//remove accents from (Chinese PinYin) string
+func removeAccentsFromStr(strWithAccents:String) -> String {
+    //print("strWithAccents=\(strWithAccents)") //áng shān sù jì
+    
+    var removedAccentsStr:String = ""
+    
+    let strWithAccentsRef:CFMutableStringRef = NSMutableString(string: strWithAccents)
+    
+    //method 1: kCFStringTransformStripCombiningMarks
+    let translatedOk = CFStringTransform(strWithAccentsRef, nil, kCFStringTransformStripCombiningMarks, false)
+    //    //method 2: kCFStringTransformStripDiacritics
+    //    let translatedOk = CFStringTransform(strWithAccentsRef, nil, kCFStringTransformStripDiacritics, false)
+    //print("translatedOk=\(translatedOk)") //true
+    
+    if translatedOk {
+        removedAccentsStr = strWithAccentsRef as String
+        //print("removedAccentsStr=\(removedAccentsStr)") //ang shan su ji
+    }
+    
+    return removedAccentsStr
+}
+
+//translate Chinese characters string to characterStr:pinyin(without accents) dictionary list
+//Note: here use dict list intead of dict to makesure returned key:value sequence can guaranteed
+func translateChineseStrToCharPinyinDict(chineseStr:String) -> [[String:String]] {
+    //print("chineseStr=\(chineseStr)") //昂山素季
+    
+    let noneSeperatorStr:String = ""
+    let chinseSingleCharStrArr:[String] = chineseStr.splitToStrArr(noneSeperatorStr)
+    //print("chinseSingleCharStrArr=\(chinseSingleCharStrArr)") //["昂", "山", "素", "季"]
+    
+    var translatedCharPinyinDictList:[[String:String]] = [[String:String]]()
+
+    //测试用户4
+    for (idx, eachChineseCharStr) in chinseSingleCharStrArr.enumerate() {
+        let translatedPinyinStrWithAccents:String = translateChineseStrToPinyinWithAccents(eachChineseCharStr)
+//        print("translatedPinyinStrWithAccents=\(translatedPinyinStrWithAccents)") //cè
+
+        let pinyinStrWithoutAccents:String = removeAccentsFromStr(translatedPinyinStrWithAccents)
+//        print("pinyinStrWithoutAccents=\(pinyinStrWithoutAccents)") //ce
+        
+        translatedCharPinyinDictList.append([chinseSingleCharStrArr[idx] : pinyinStrWithoutAccents])
+    }
+
+    print("translatedCharPinyinDictList=\(translatedCharPinyinDictList)")
+    //[["昂": "ang"], ["山": "shan"], ["素": "su"], ["季": "ji"]]
+    //translatedCharPinyinDictList=[["测": "ce"], ["试": "shi"], ["用": "yong"], ["户": "hu"], ["4": "4"]]
+
+    return translatedCharPinyinDictList
+}
+
 
