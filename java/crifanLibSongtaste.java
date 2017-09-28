@@ -108,14 +108,14 @@ public class crifanLibSongtaste {
     	String respHtml = crifanLib.getUrlRespHtml(stUrl, stHtmlCharset); 
 
     	// 1. extract title
-    	//<p class="mid_tit">ÎÒµÄ°®ÓëÄã·ÖÏí</p><p></p>
+    	//<p class="mid_tit">æˆ‘çš„çˆ±ä¸Žä½ åˆ†äº«</p><p></p>
     	StringBuilder sbExtractedTitle = new StringBuilder();
     	if(stExtractMusicTitle(respHtml, sbExtractedTitle))
     	{
     		//System.out.println(sbExtractedTitle);
     		
     		// 2. extract singer
-    		//<h1 class="h1singer">Î´Öª</h1>
+    		//<h1 class="h1singer">æœªçŸ¥</h1>
     		StringBuilder sbExtractedSinger = new StringBuilder();
     		if(stExtractMusicSinger(respHtml, sbExtractedSinger))
     		{
