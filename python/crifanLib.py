@@ -17,6 +17,10 @@ http://www.crifan.com/files/doc/docbook/python_summary/release/html/python_summa
 [TODO]
 
 [History]
+[v4.9, 2017-10-31]
+1.fixbug: update translateString from google translate to youdao translate
+1. add generateMd5
+
 [v4.8, 2014-05-23]
 1.fixbug-> update translateString to work
 
@@ -101,32 +105,33 @@ __author__ = "Crifan Li (admin@crifan.com)"
 __copyright__ = "Copyright (c) 2012, Crifan Li"
 __license__ = "GPL"
 
-import os;
-import re;
-import sys;
-import time;
-import chardet;
-from datetime import datetime,timedelta;
-from BeautifulSoup import BeautifulSoup,Tag,CData;
-import logging;
-import struct;
-import zlib;
-import random;
-import math;
-
-import urllib;
-import urllib2;
-import cookielib;
+import os
+import re
+import sys
+import time
+import chardet
+from datetime import datetime,timedelta
+from BeautifulSoup import BeautifulSoup,Tag,CData
+import logging
+import struct
+import zlib
+import random
+import math
+import md5
+import json
+import urllib
+import urllib2
+import cookielib
 
 # from PIL import Image;
 # from operator import itemgetter;
 
 #Note: The htmlentitydefs module has been renamed to html.entities in Python 3.0.
 # so htmlentitydefs is only available between Python 2.3 and Python 2.7
-import htmlentitydefs;
+import htmlentitydefs
 
 #--------------------------------const values-----------------------------------
-__VERSION__ = "v4.8";
+__VERSION__ = "v4.9"
 
 gConst = {
     'UserAgent' : 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.1; WOW64; Trident/5.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; InfoPath.3; .NET4.0C; .NET4.0E)',
@@ -1166,7 +1171,7 @@ def getUrlResponse(url, postDict={}, headerDict={}, timeout=0, useGzip=False, po
     #update cookies into local file
     if(gVal['cookieUseFile']):
         gVal['cj'].save();
-        logging.info("gVal['cj']=%s", gVal['cj']);
+        # logging.info("gVal['cj']=%s", gVal['cj']);
     
     return resp;
 
@@ -1387,100 +1392,127 @@ def getStrPossibleCharset(inputStr) :
         possibleCharset = encInfo['encoding'];
     return possibleCharset;
     #return encInfo['encoding'];
+
+def generateMd5(strToMd5) :
+    encrptedMd5 = ""
+    md5Instance = md5.new()
+    # logging.debug("md5Instance=%s", md5Instance)
+    #md5Instance=<md5 HASH object @ 0x1062af738>
+    md5Instance.update(strToMd5)
+    # logging.debug("md5Instance=%s", md5Instance)
+    #md5Instance=<md5 HASH object @ 0x1062af738>
+    encrptedMd5 = md5Instance.hexdigest()
+    logging.debug("encrptedMd5=%s", encrptedMd5)
+    #encrptedMd5=af0230c7fcc75b34cbb268b9bf64da79
+
+    return encrptedMd5
     
 #------------------------------------------------------------------------------
-# depend on BeautifulSoup
 # translate strToTranslate from fromLanguage to toLanguage
 # return the translated unicode string
-# some frequently used language abbrv:
-# Chinese Simplified:   zh-CN
-# Chinese Traditional:  zh-TW
-# English:              en
-# German:               de
-# Japanese:             ja
-# Korean:               ko
-# French:               fr    
-# more can be found at: 
-# http://code.google.com/intl/ru/apis/language/translate/v2/using_rest.html#language-params
-def translateString(strToTranslate, fromLanguage="zh-CN", toLanguage="en"):
-    transOK = False;
-    translatedStr = strToTranslate;
-    #logging.info("translatedStr=%s", translatedStr);
-    transErr = '';
+# supported languages can refer:
+# 有道智云 -> 帮助与文档 > 产品文档 > 自然语言翻译 > API 文档 > 支持的语言表
+# http://ai.youdao.com/docs/doc-trans-api.s#p05
+def translateString(strToTranslate, fromLanguage="zh-CHS", toLanguage="EN"):
+    logging.debug("translateString: strToTranslate=%s, from=%s, to=%s", strToTranslate, fromLanguage, toLanguage)
+
+    errorCodeDict = {
+        101	: "缺少必填的参数，出现这个情况还可能是et的值和实际加密方式不对应",
+        102	: "不支持的语言类型",
+        103	: "翻译文本过长",
+        104	: "不支持的API类型",
+        105	: "不支持的签名类型",
+        106	: "不支持的响应类型",
+        107	: "不支持的传输加密类型",
+        108	: "appKey无效，注册账号， 登录后台创建应用和实例并完成绑定， 可获得应用ID和密钥等信息，其中应用ID就是appKey（ 注意不是应用密钥）",
+        109	: "batchLog格式不正确",
+        110	: "无相关服务的有效实例",
+        111	: "开发者账号无效，可能是账号为欠费状态",
+        201	: "解密失败，可能为DES,BASE64,URLDecode的错误",
+        202	: "签名检验失败",
+        203	: "访问IP地址不在可访问IP列表",
+        301	: "辞典查询失败",
+        302	: "翻译查询失败",
+        303	: "服务端的其它异常",
+        401	: "账户已经欠费停"        
+    }
+
+    transOK = False
+    translatedStr = strToTranslate
+    transErr = ''
+
+    appKey = "152e0e77723a0026"
+    saltStr = str(random.randint(1, 65536))
+    secretKey = "sYmnnOaisQgZZrlrBFozWAtsaRyyJg4N"
+    logging.debug("appKey=%s,strToTranslate=%s,saltStr=%s,secretKey=%s", appKey, strToTranslate, saltStr, secretKey)
+    strToMd5 = appKey + strToTranslate + saltStr + secretKey
+    logging.debug("strToMd5=%s", strToMd5)
+    md5Sign = generateMd5(strToMd5)
 
     try :
-        # following refer: http://python.u85.us/viewnews-335.html
-        # postDict = {'hl':'zh-CN', 'ie':'UTF-8', 'text':strToTranslate, 'langpair':"%s|%s"%(fromLanguage, toLanguage)};
-        # googleTranslateUrl = 'http://translate.google.cn/translate_t';
-        # respHtml = getUrlRespHtml(googleTranslateUrl, postDict);
-        
-        #http://translate.google.cn/translate_a/t?client=t&sl=zh-CN&tl=en&hl=zh-CN&sc=2&ie=UTF-8&oe=UTF-8&oc=2&prev=conf&psl=en&ptl=en&otf=1&it=sel.5080&ssel=6&tsel=3&pc=1&q=%E6%88%91%E7%9A%84%E5%B0%8F%E9%A9%AC%E9%A9%B9%EF%BC%9A%E5%8F%8B%E8%B0%8A%E7%9A%84%E9%AD%94%E5%8A%9B%26amp%3Bnbsp%3B%E4%BB%8B%E7%BB%8D
-        #[[["My Little Pony : Friendship is Magic Introduction","我的小马驹：友谊的魔力\u0026amp;nbsp;介绍","","Wǒ de xiǎo mǎ jū: Yǒuyì de mólì\u0026amp;nbsp; jièshào"]],,"zh-CN",,[["My Little",[1],true,false,566,0,2,0],["Pony",[2],true,false,566,2,3,0],[": Friendship",[3],false,false,577,3,5,0],["is",[4],true,false,848,5,6,0],["Magic",[5],true,false,1000,6,7,0],["Introduction",[6],true,false,894,7,8,0]],[["我 的 小",1,[["My Little",566,true,false],["Of my little",0,true,false],["My Little One",0,true,false]],[[0,3]],"我的小马驹：友谊的魔力\u0026amp;nbsp;介绍"],["马驹",2,[["Pony",566,true,false],["foal",0,true,false],["Colts",0,true,false],["Colt",0,true,false],["foals",0,true,false]],[[3,5]],""],[": 友谊",3,[[": Friendship",577,false,false]],[[5,8]],""],["的",4,[["is",848,true,false],["of",0,true,false],["the",0,true,false],["of the",0,true,false]],[[8,9]],""],["魔力",5,[["Magic",1000,true,false],["the magic",0,true,false],["magic of",0,true,false],["the magic of",0,true,false],["magical",0,true,false]],[[9,11]],""],["介绍",6,[["Introduction",894,true,false],["presentation",8,true,false],["introduced",6,true,false],["introduce",1,true,false],["introduces",0,true,false]],[[11,23]],""]],,,[["zh-CN"]],64]
-        
-        quotedQueryStr = urllib.quote(translatedStr);
-        #logging.info("quotedQueryStr=%s", quotedQueryStr);
-        googleTranslateUrl = ("http://translate.google.cn/translate_a/t?client=t&sl=%s&tl=%s&q=%s")%(fromLanguage, toLanguage, quotedQueryStr);
-        #logging.info("googleTranslateUrl=%s", googleTranslateUrl);
-        respHtml = getUrlRespHtml(googleTranslateUrl);
-        #logging.info("---------------google translate respHtml html:\n%s", respHtml);
-    except urllib2.URLError,reason :
-        transOK = False;
-        transErr = reason;
-    except urllib2.HTTPError,code :
-        transOK = False;
-        transErr = code;
-    else :
-        #translatedJsonStr = respHtml;
-        #translatedDict = json.loads(translatedJsonStr);
-        #logging.info("translatedDict=%s", translatedDict);
-        
-        #[[["My Little Pony : Friendship is Magic Introduction","
-        foundFirstTranslatedStr = re.search('^\[\[\["(?P<firstTranslatedStr>.+?)","', respHtml);
-        #logging.info("foundFirstTranslatedStr=%s", foundFirstTranslatedStr);
-        if(foundFirstTranslatedStr):
-            firstTranslatedStr = foundFirstTranslatedStr.group('firstTranslatedStr');
-            #logging.info("firstTranslatedStr=%s", firstTranslatedStr);
-            translatedStr = firstTranslatedStr;
-            transOK = True;
+        quotedQueryStr = urllib.quote(strToTranslate)
+        #transUrl = "http://openapi.youdao.com/api?q=纠删码(EC)的学习&from=zh_CHS&to=EN&appKey=152e0e77723a0026&salt=4&sign=6BE15F1868019AD71C442E6399DB1FE4"
+        # transUrl = "http://openapi.youdao.com/api?q=%s&from=zh_CHS&to=EN&appKey=152e0e77723a0026&salt=4&sign=6BE15F1868019AD71C442E6399DB1FE4" % (quotedQueryStr)
+        transUrl = "http://openapi.youdao.com/api?q=%s&from=%s&to=%s&appKey=%s&salt=%s&sign=%s" \
+            % (quotedQueryStr, fromLanguage, toLanguage, appKey, saltStr, md5Sign)
+        logging.debug("transUrl=%s", transUrl)
+        respJsonStr = getUrlRespHtml(transUrl)
+        logging.debug("respJsonStr=%s", respJsonStr)
+        # respJsonStr={"query":"纠删码(EC)的学习","translation":["The study of correcting code (EC)"],"errorCode":"0","dict":{"url":"yddict://m.youdao.com/dict?le=eng&q=%E7%BA%A0%E5%88%A0%E7%A0%81%28EC%29%E7%9A%84%E5%AD%A6%E4%B9%A0"},"webdict":{"url":"http://m.youdao.com/dict?le=eng&q=%E7%BA%A0%E5%88%A0%E7%A0%81%28EC%29%E7%9A%84%E5%AD%A6%E4%B9%A0"},"l":"zh-CHS2en"}
+        translatedDict = json.loads(respJsonStr)
+        logging.debug("translatedDict=%s", translatedDict)
+        # translatedDict={u'l': u'zh-CHS2EN', u'errorCode': u'0', u'dict': {u'url': u'yddict://m.youdao.com/dict?le=eng&q=%E9%9B%A2%E5%B3%B6%E9%A2%A8%E5%85%89%E7%9A%84%E6%B5%81%E9%80%A3%E5%BF%98%E8%BF%94'}, u'webdict': {u'url': u'http://m.youdao.com/dict?le=eng&q=%E9%9B%A2%E5%B3%B6%E9%A2%A8%E5%85%89%E7%9A%84%E6%B5%81%E9%80%A3%E5%BF%98%E8%BF%94'}, u'query': u'\u96e2\u5cf6\u98a8\u5149\u7684\u6d41\u9023\u5fd8\u8fd4', u'translation': [u'Away from the island scenery']}
 
-        # soup = BeautifulSoup(respHtml);
-        # resultBoxSpan = soup.find(id='result_box');
-        # if resultBoxSpan and resultBoxSpan.span and resultBoxSpan.span.string :
-            # transOK = True;
-            # #translatedStr = resultBoxSpan.span.string.encode('utf-8');
-            # googleRetTransStr = resultBoxSpan.span.string;
-            # translatedStr = unicode(googleRetTransStr);
-            
-            # # just record some special one:
-            # # from:
-            # #【转载】[SEP4020  u-boot]  start.s  注释
-            # # to:
-            # # The 【reserved] [the SEP4020 u-boot] start.s comment
+        errorCode = int(translatedDict["errorCode"])
+        # logging.debug("errorCode=%s", errorCode)
+        errorCodeDictKeys = errorCodeDict.keys()
+        # logging.debug("errorCodeDictKeys=%s", errorCodeDictKeys)
+        if errorCode != 0 :
+            if errorCode in errorCodeDictKeys :
+                # logging.info("errorCode=%s in errorCodeDictKeys=%s", errorCode, errorCodeDictKeys)
+                transOK = False
+                transErr = errorCodeDict[errorCode]
+                # logging.info("transErr=%s ", transErr)
+            else :
+                transOK = False
+                transErr = "未知错误"
         else :
-            transOK = False;
-            transErr = "can not extract translated string from returned result";
+            queryUnicode = translatedDict["query"]
+            translationUnicode = translatedDict["translation"][0]
+            logging.debug(u"queryUnicode=%s, translationUnicode=%s", queryUnicode, translationUnicode)
 
-    transErr = str(transErr);
-    
+            transOK = True
+            translatedStr = translationUnicode.encode("utf-8")
+            logging.debug("translatedStr=%s ", translatedStr)
+    except urllib2.URLError,reason :
+        transOK = False
+        transErr = reason
+    except urllib2.HTTPError,code :
+        transOK = False
+        transErr = code
+
     if transOK :
-        return (transOK, translatedStr);
+        logging.info("Translate OK: %s -> %s", strToTranslate, translatedStr)
+        return (transOK, translatedStr)
     else :
-        return (transOK, transErr);
+        logging.info("Translate fail for %s", transErr)
+        return (transOK, transErr)
 
 #------------------------------------------------------------------------------
-# translate the Chinese Simplified(Zh-cn) string to English(en)
+# translate the Chinese(zh-CHS) string to English(EN)
 def transZhcnToEn(strToTrans) :
-    translatedStr = strToTrans;
-    transOK = False;
-    transErr = '';
+    translatedStr = strToTrans
+    transOK = False
+    transErr = ''
 
     if strIsAscii(strToTrans) :
-        transOK = True;
-        translatedStr = strToTrans;
+        transOK = True
+        translatedStr = strToTrans
     else :
-        (transOK, translatedStr) = translateString(strToTrans, "zh-CN", "en");
+        # (transOK, translatedStr) = translateString(strToTrans, "zh-CN", "en")
+        (transOK, translatedStr) = translateString(strToTrans, "zh-CHS", "EN")
 
-    return (transOK, translatedStr);
+    return (transOK, translatedStr)
 
 def getZipcodeFromLocation(locationStr):
     """
