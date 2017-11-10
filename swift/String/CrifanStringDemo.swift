@@ -162,5 +162,16 @@ func filterUnsupportChar(originStr:String) ->String {
     print("translatedCharPinyinDict=\(translatedCharPinyinDict)") //[["昂": "ang"], ["山": "shan"], ["素": "su"], ["季": "ji"]]
 
 
+    func testUrlEncodeDecode(){
+        let urlWithZhcn = "http://xx.xx.xx.xx/skrDev/src/report/wholesale.html?t=1510295408712&drAreaFiltrateCode=大东南区&drAreaFiltrateName=大东南区"
+        let urlEncodedPercent = "http://xx.xx.xx.xx/skrDev/src/report/wholesale.html?t=1510295408712&drAreaFiltrateCode=%E5%A4%A7%E4%B8%9C%E5%8D%97%E5%8C%BA&drAreaFiltrateName=%E5%A4%A7%E4%B8%9C%E5%8D%97%E5%8C%BA"
+        
+        let encodedZhcnUrl = urlWithZhcn.encodedUrl
+        //encodedZhcnUrl=http://xx.xx.xx.xx/skrDev/src/report/wholesale.html?t=1510295408712&drAreaFiltrateCode=%E5%A4%A7%E4%B8%9C%E5%8D%97%E5%8C%BA&drAreaFiltrateName=%E5%A4%A7%E4%B8%9C%E5%8D%97%E5%8C%BA
+        let decoedPercentUrl = urlEncodedPercent.decodedUrl
+        print("encodedZhcnUrl=\(encodedZhcnUrl)")
+        print("decoedPercentUrl=\(decoedPercentUrl)")
+        //decoedPercentUrl=http://xx.xx.xx.xx/skrDev/src/report/wholesale.html?t=1510295408712&drAreaFiltrateCode=大东南区&drAreaFiltrateName=大东南区
+    }
  
  */
