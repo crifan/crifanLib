@@ -1,9 +1,7 @@
 //
 //  CrifanString.swift
-//  Crifan
-//
-//  Created by licrifan on 16/6/21.
-//  Copyright © 2016年 licrifan. All rights reserved.
+//  Crifan Li
+//  Updated: 2017/11/10
 //
 
 import UIKit
@@ -290,6 +288,32 @@ let HtmlCharacterEntitiesDict : [String: Character] = [
 ]
 
 extension String {
+
+    // from
+    // http://xx.xx.xx.xx/yyy.html?drAreaFiltrateCode=大东南区
+    // to
+    // http://xx.xx.xx.xx/yyy.html?drAreaFiltrateCode=%E5%A4%A7%E4%B8%9C%E5%8D%97%E5%8C%BA
+    public var encodedUrl:String {
+        var encodedUrl = self
+        if let addedPercentUrl = self.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlQueryAllowed) {
+            encodedUrl = addedPercentUrl
+        }
+
+        return encodedUrl
+    }
+    
+    // from
+    // http://xx.xx.xx.xx/yyy.html?drAreaFiltrateCode=%E5%A4%A7%E4%B8%9C%E5%8D%97%E5%8C%BA
+    // to
+    // http://xx.xx.xx.xx/yyy.html?drAreaFiltrateCode=大东南区
+    public var decodedUrl:String {
+        var decodedUrl = self
+        if let removedPercentUrl = self.removingPercentEncoding {
+            decodedUrl = removedPercentUrl
+        }
+
+        return decodedUrl
+    }
 
     func replace(from:String, to:String) -> String {
       return self.stringByReplacingOccurrencesOfString(from, withString: to)
