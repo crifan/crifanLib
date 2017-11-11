@@ -8,15 +8,22 @@ crifanLib.py
 crifan's common functions, implemented by Python 2.x.
 
 [Note]
-1. detailed explanation about this lib:
+1. online latest version can found at:
+https://github.com/crifan/crifanLib/blob/master/python/crifanLib.py
+
+2. detailed explanation about this lib:
 crifan的Python库：crifanLib.py
 http://www.crifan.com/files/doc/docbook/python_summary/release/html/python_summary.html#crifanlib_py
 
-2. install chardet and BeautifulSoup before use this crifanLib.
+3. install chardet and BeautifulSoup before use this crifanLib.
 
 [TODO]
 
 [History]
+[v5.0, 2017-11-11]
+1. add loggingInit
+2. updated get current input file name and remove suffix
+
 [v4.9, 2017-10-31]
 1.fixbug: update translateString from google translate to youdao translate
 1. add generateMd5
@@ -102,16 +109,25 @@ http://www.crifan.com/files/doc/docbook/python_summary/release/html/python_summa
 
 __author__ = "Crifan Li (admin@crifan.com)"
 #__version__ = ""
-__copyright__ = "Copyright (c) 2012, Crifan Li"
+__copyright__ = "Copyright (c) 2017, Crifan Li"
 __license__ = "GPL"
 
 import os
 import re
 import sys
 import time
-import chardet
 from datetime import datetime,timedelta
-from BeautifulSoup import BeautifulSoup,Tag,CData
+
+try:
+    import chardet
+except ImportError:
+    print "crifanLib: Can not found lib chardet"
+
+try:
+    from BeautifulSoup import BeautifulSoup, Tag, CData
+except ImportError:
+    print "crifanLib: Can not found lib BeautifulSoup"
+
 import logging
 import struct
 import zlib
@@ -521,18 +537,83 @@ def getPicSufList():
 def getPicSufChars():
     return gVal['picSufChars'];
 
-#------------------------------------------------------------------------------
-# got python script self file name
-# extract out xxx from:
-# D:\yyy\zzz\xxx.py
-# xxx.py
-def extractFilename(inputStr) :
-    argv0List = inputStr.split("\\");
-    scriptName = argv0List[len(argv0List) - 1]; # get script file name self
-    possibleSuf = scriptName[-3:];
-    if possibleSuf == ".py" :
-        scriptName = scriptName[0:-3]; # remove ".py"
-    return scriptName;
+
+def getBasename(fullFilename):
+    """
+    get base filename
+
+    Examples:
+        xxx.exe          -> xxx.exe
+        xxx              -> xxx
+        Mac/Linux:
+           your/path/xxx.py -> xxx.py
+        Windows:
+           your\path\\xxx.py -> xxx.py
+    """
+
+    return os.path.basename(fullFilename)
+
+
+def removeSuffix(fileBasename):
+    """
+    remove file suffix
+
+    Examples:
+        xxx.exe -> xxx
+        xxx -> xxx
+    """
+
+    splitedTextArr = os.path.splitext(fileBasename)
+    filenameRemovedSuffix = splitedTextArr[0]
+    return filenameRemovedSuffix
+
+
+def getInputFilename():
+    """
+    get input filename, from argv
+
+    Examples:
+        AutoOrder.py -> AutoOrder.py
+        python AutoOrder.py -> AutoOrder.py
+        python AutoOrder/AutoOrder.py -> AutoOrder/AutoOrder.py
+    """
+
+    argvList = sys.argv
+    # print "argvList=%s"%(argvList)
+    return argvList[0]
+
+
+def getInputFileBasename(inputFilename = None):
+    """
+    get input file's base name
+
+    Examples:
+        AutoOrder.py -> AutoOrder.py
+        AutoOrder/AutoOrder.py -> AutoOrder.py
+    """
+
+    curInputFilename = getInputFilename()
+
+    if inputFilename :
+        curInputFilename = inputFilename
+
+    # print "curInputFilename=%s"%(curInputFilename)
+    inputBasename = getBasename(curInputFilename)
+    # print "inputBasename=%s"%(inputBasename)
+    return inputBasename
+
+def getInputFileBasenameNoSuffix():
+    """
+    get input file base name without suffix
+
+    Examples:
+        AutoOrder.py -> AutoOrder
+        AutoOrder/AutoOrder.py -> AutoOrder
+    """
+
+    inputFileBasename = getInputFileBasename()
+    basenameRemovedSuffix = removeSuffix(inputFileBasename)
+    return basenameRemovedSuffix
 
 #------------------------------------------------------------------------------
 # replace the &#N; (N is digit number, N > 1) to unicode char
@@ -1381,19 +1462,36 @@ def strIsAscii(strToDect) :
         isAscii = True;
     return isAscii;
 
-#------------------------------------------------------------------------------
-# get the possible(possiblility > 0.5) charset of input string
+
 def getStrPossibleCharset(inputStr) :
-    possibleCharset = "ascii";
-    #possibleCharset = "UTF-8";
-    encInfo = chardet.detect(inputStr);
-    #print "encInfo=",encInfo;
+    """
+    get the possible(possiblility > 0.5) charset of input string
+
+    :param inputStr: input string
+    :return: the most possible charset
+    """
+
+    possibleCharset = "ascii"
+    #possibleCharset = "UTF-8"
+    encInfo = chardet.detect(inputStr)
+    #print "encInfo=",encInfo
     if (encInfo['confidence'] > 0.5):
-        possibleCharset = encInfo['encoding'];
-    return possibleCharset;
-    #return encInfo['encoding'];
+        possibleCharset = encInfo['encoding']
+    return possibleCharset
+    #return encInfo['encoding']
+
 
 def generateMd5(strToMd5) :
+    """
+    generate md5 string from input string
+
+    eg:
+        xxxxxxxx -> af0230c7fcc75b34cbb268b9bf64da79
+
+    :param strToMd5: input string
+    :return: md5 string
+    """
+
     encrptedMd5 = ""
     md5Instance = md5.new()
     # logging.debug("md5Instance=%s", md5Instance)
@@ -1406,14 +1504,22 @@ def generateMd5(strToMd5) :
     #encrptedMd5=af0230c7fcc75b34cbb268b9bf64da79
 
     return encrptedMd5
-    
-#------------------------------------------------------------------------------
-# translate strToTranslate from fromLanguage to toLanguage
-# return the translated unicode string
-# supported languages can refer:
-# 有道智云 -> 帮助与文档 > 产品文档 > 自然语言翻译 > API 文档 > 支持的语言表
-# http://ai.youdao.com/docs/doc-trans-api.s#p05
+
+
 def translateString(strToTranslate, fromLanguage="zh-CHS", toLanguage="EN"):
+    """
+    translate strToTranslate from fromLanguage to toLanguage
+
+    for supported languages can refer:
+        有道智云 -> 帮助与文档 > 产品文档 > 自然语言翻译 > API 文档 > 支持的语言表
+        http://ai.youdao.com/docs/doc-trans-api.s#p05
+
+    :param strToTranslate: string to translate
+    :param fromLanguage: from language
+    :param toLanguage: to language
+    :return: translated unicode string
+    """
+
     logging.debug("translateString: strToTranslate=%s, from=%s, to=%s", strToTranslate, fromLanguage, toLanguage)
 
     errorCodeDict = {
@@ -1806,8 +1912,48 @@ def findFirstNavigableString(soupContents):
 
     return firstString;
 
-#------------------------------------------------------------------------------
+
+################################################################################
+# Logging
+################################################################################
+def loggingInit(filename = None,
+                fileLogLevel = logging.DEBUG,
+                fileLogFormat = 'LINE %(lineno)-4d  %(levelname)-8s %(message)s',
+                enableConsole = True,
+                consoleLogLevel = logging.INFO,
+                consoleLogFormat = "LINE %(lineno)-4d : %(levelname)-8s %(message)s",
+                ):
+    """
+    init logging for both log to file and console
+
+    :param logFilename: input log file name
+        if not passed, use current script filename
+    :return: none
+    """
+    curLogFilename = ""
+    if filename:
+        curLogFilename = filename
+    else:
+        curLogFilename = getInputFileBasenameNoSuffix()
+
+    logging.basicConfig(
+                    level    = fileLogLevel,
+                    format   = fileLogFormat,
+                    datefmt  = '%m-%d %H:%M',
+                    filename = curLogFilename + ".log",
+                    filemode = 'w')
+    if enableConsole :
+        # define a Handler which writes INFO messages or higher to the sys.stderr
+        console = logging.StreamHandler()
+        console.setLevel(consoleLogLevel)
+        # set a format which is simpler for console use
+        formatter = logging.Formatter(consoleLogFormat)
+        # tell the handler to use this format
+        console.setFormatter(formatter)
+        logging.getLogger('').addHandler(console)
+
+
 if __name__=="crifanLib":
-    gVal['picSufChars'] = genSufList();
-    #print "gVal['picSufChars']=",gVal['picSufChars'];
-    print "Imported: %s,\t%s"%( __name__, __VERSION__);
+    gVal['picSufChars'] = genSufList()
+    #print "gVal['picSufChars']=",gVal['picSufChars']
+    print "Imported: %s,\t%s"%( __name__, __VERSION__)
