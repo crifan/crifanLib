@@ -334,3 +334,71 @@ func genFullErrorStr(defaultError:String, error:NSError, noColon:Bool = false) -
     return fullErrorStr
 }
 
+
+//convert query dict to query string, suport input base url, and auto encode if special(ZhCN) chars
+/*
+     (1)
+     urlBase=""
+     queryParaDict=
+     {
+         "t" : 1510906527744,
+         "tabId" : ""
+     }
+     -> "?t=1510906527744&tabId="
+     (2)
+     urlBase="http://xx.xx.xx.xx/skrDev/src/report/dealer.html"
+     queryParaDict=
+     {
+         "t" : 1510906527744,
+         "tabId" : ""
+     }
+     -> "http://xx.xx.xx.xx/skrDev/src/report/dealer.html?t=1510906527744&tabId="
+     (3)
+     urlBase="http://xx.xx.xx.xx/skrDev/src/report/dealer.html"
+     queryParaDict=
+     {
+         "t" : 1510908755968,
+         "tabId" : "第二个Tab"
+     }
+     -> "http://xx.xx.xx.xx/skrDev/src/report/dealer.html?t=1510908755968&tabId=%E7%AC%AC%E4%BA%8C%E4%B8%AATab"
+ */
+func queryDictToStr(urlBase:String = "", queryParaDict: [String: Any]) -> String {
+    print("queryDictToStr: urlBase=\(urlBase), queryParaDict=\(queryParaDict)")
+    
+    var urlComponents = URLComponents()
+    
+    if !urlBase.isEmpty {
+        if let baseUrl = URL(string: urlBase) {
+            if let urlComponentsWithBase = URLComponents(url: baseUrl, resolvingAgainstBaseURL: false) {
+                urlComponents = urlComponentsWithBase
+//                Printing description of urlComponentsWithBase:
+//                ▿ http://xx.xx.xx.xx/skrDev/src/report/dealer.html
+//                - scheme : "http"
+//                - host : "xx.xx.xx.xx"
+//                - path : "/skrDev/src/report/dealer.html"
+            }
+        }
+    }
+//    print("url=\(urlBase) -> host=\(urlComponents.host), path=\(urlComponents.path), port=\(urlComponents.port)")
+    
+    urlComponents.queryItems = queryParaDict.map { (arg) -> URLQueryItem in
+        let (key, value) = arg
+        let valueStr = "\(value)"
+        return URLQueryItem(name: key, value: valueStr)
+    }
+    
+//    print("query=\(urlComponents.query), queryItems=\(urlComponents.queryItems)")
+    
+    var queryParaStr = ""
+    if let componentsAbsUrl = urlComponents.url?.absoluteString {
+        queryParaStr = componentsAbsUrl
+        //"?t=1510906527744&tabId="
+        //http://xx.xx.xx.xx/skrDev/src/report/dealer.html?t=1510908755968&tabId=%E7%AC%AC%E4%BA%8C%E4%B8%AATab
+    }
+    
+    //Note: above urlComponents.url?.absoluteString have encode url, here should NOT encode again
+    //        let encodedQueryParaStr = queryParaStr.encodedUrl
+    let encodedQueryParaStr = queryParaStr
+    
+    return encodedQueryParaStr
+}
