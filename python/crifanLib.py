@@ -15,14 +15,18 @@ https://github.com/crifan/crifanLib/blob/master/python/crifanLib.py
 crifan的Python库：crifanLib.py
 http://www.crifan.com/files/doc/docbook/python_summary/release/html/python_summary.html#crifanlib_py
 
-3. install chardet and BeautifulSoup before use this crifanLib.
+3. install chardet and BeautifulSoup if you need use related functions
 
 [TODO]
 
 [History]
+[v5.1, 2017-11-18]
+1. add jsonToPrettyStr
+
 [v5.0, 2017-11-11]
 1. add loggingInit
 2. updated get current input file name and remove suffix
+3. add getCurDatetimeStr
 
 [v4.9, 2017-10-31]
 1.fixbug: update translateString from google translate to youdao translate
@@ -233,17 +237,31 @@ def ConvertELogStrToValue(eLogStr):
 # Time
 ################################################################################
 
+def getCurDatetimeStr(outputFormat="%Y%m%d_%H%M%S"):
+    """
+    get current datetime then format to string
+
+    eg:
+        20171111_220722
+
+    :param outputFormat: datetime output format
+    :return: current datetime formatted string
+    """
+    curDatetime = datetime.now() # 2017-11-11 22:07:22.705101
+    curDatetimeStr = curDatetime.strftime(format=outputFormat) #'20171111_220722'
+    return curDatetimeStr
+
 #------------------------------------------------------------------------------
 # get current time's timestamp
 # 1351670162
 def getCurTimestamp() :
-    return datetimeToTimestamp(datetime.now());
+    return datetimeToTimestamp(datetime.now())
 
 #------------------------------------------------------------------------------
 # convert datetime value to timestamp
 # from "2006-06-01 00:00:00" to 1149091200
 def datetimeToTimestamp(datetimeVal) :
-    return int(time.mktime(datetimeVal.timetuple()));
+    return int(time.mktime(datetimeVal.timetuple()))
 
 #------------------------------------------------------------------------------
 # convert timestamp to datetime value
@@ -465,6 +483,41 @@ def filterHtmlTag(origHtml):
 ################################################################################
 # String
 ################################################################################
+
+def jsonToPrettyStr(jsonDictOrStr, indent=4, sortKeys=False):
+    """
+    convert json dictionary un-formatted json string to prettify string
+
+    '{"outputFolder":"output","isResetOutput":true,"waitTimeout":10,"msStore":{"productList":[{"productUrl":"","buyNum":2}]}}'
+    ->
+    {
+        "msStore": {
+            "productList": [
+                {
+                    "productUrl": "",
+                    "buyNum": 2
+                }
+            ]
+        },
+        "outputFolder": "output",
+        "isResetOutput": true,
+        "waitTimeout": 10
+    }
+
+    :param jsonDictOrStr: json dict or json str
+    :param indent: indent space number
+    :param sortKeys: output is sort by key or not
+    :return: formatted/prettified json string with indent
+    """
+
+    prettifiedStr = ""
+    jsonDict = jsonDictOrStr
+    if type(jsonDictOrStr) is str:
+        jsonDict = json.loads(jsonDictOrStr)
+
+    prettifiedStr = json.dumps(jsonDict, indent=indent, sort_keys=sortKeys)
+    return prettifiedStr
+
 
 def formatString(inputStr, paddingChar="=", totalWidth=80):
     """
@@ -1918,10 +1971,12 @@ def findFirstNavigableString(soupContents):
 ################################################################################
 def loggingInit(filename = None,
                 fileLogLevel = logging.DEBUG,
-                fileLogFormat = 'LINE %(lineno)-4d  %(levelname)-8s %(message)s',
+                fileLogFormat = '%(asctime)s LINE %(lineno)-4d %(levelname)-7s %(message)s',
+                fileLogDateFormat = '%Y/%m/%d %I:%M:%S',
                 enableConsole = True,
                 consoleLogLevel = logging.INFO,
-                consoleLogFormat = "LINE %(lineno)-4d : %(levelname)-8s %(message)s",
+                consoleLogFormat = "%(asctime)s LINE %(lineno)-4d %(levelname)-7s %(message)s",
+                consoleLogDateFormat = '%Y/%m/%d %I:%M:%S',
                 ):
     """
     init logging for both log to file and console
@@ -1930,24 +1985,24 @@ def loggingInit(filename = None,
         if not passed, use current script filename
     :return: none
     """
-    curLogFilename = ""
+    logFilename = ""
     if filename:
-        curLogFilename = filename
+        logFilename = filename
     else:
-        curLogFilename = getInputFileBasenameNoSuffix()
+        logFilename = getInputFileBasenameNoSuffix() + ".log"
 
     logging.basicConfig(
                     level    = fileLogLevel,
                     format   = fileLogFormat,
-                    datefmt  = '%m-%d %H:%M',
-                    filename = curLogFilename + ".log",
+                    datefmt  = fileLogDateFormat,
+                    filename = logFilename,
                     filemode = 'w')
     if enableConsole :
         # define a Handler which writes INFO messages or higher to the sys.stderr
         console = logging.StreamHandler()
         console.setLevel(consoleLogLevel)
         # set a format which is simpler for console use
-        formatter = logging.Formatter(consoleLogFormat)
+        formatter = logging.Formatter(fmt=consoleLogFormat, datefmt=consoleLogDateFormat)
         # tell the handler to use this format
         console.setFormatter(formatter)
         logging.getLogger('').addHandler(console)
