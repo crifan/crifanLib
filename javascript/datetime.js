@@ -1,10 +1,3 @@
-/*
- * Javascript date and time realted functions
- * 
- * Crifan Li
- * Updated: 2017/09/28
- * 
- */
 
 export const INVALID_DATE = new Date("1970/1/1");
 
@@ -76,9 +69,9 @@ Date.prototype.prevNextHours = function (hoursNumber) {
 // 例子：
 // this=Tue Jun 06 2017 15:00:00 GMT+0800 (CST) -> timesamp=1496732400000
 Date.prototype.timestamp = function () {
-  console.log(`Date timesamp: this=${this}`);
+  // console.log(`Date timesamp: this=${this}`);
   let timesamp = this.getTime();
-  console.log(`this=${this} -> timesamp=${timesamp}`);
+  // console.log(`this=${this} -> timesamp=${timesamp}`);
   return timesamp;
 };
 
