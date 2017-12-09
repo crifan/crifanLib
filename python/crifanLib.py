@@ -20,6 +20,12 @@ http://www.crifan.com/files/doc/docbook/python_summary/release/html/python_summa
 [TODO]
 
 [History]
+[v5.2, 2017-12-09]
+1. [ADD] jsonToStr, strToJson
+2. [ADD] generateUUID
+3. [ADD] calcDistance
+4. [ADD] genRandomStr, genRandomDigit, genRandomAlphanum
+
 [v5.1, 2017-11-18]
 1. add jsonToPrettyStr
 
@@ -151,7 +157,7 @@ import cookielib
 import htmlentitydefs
 
 #--------------------------------const values-----------------------------------
-__VERSION__ = "v4.9"
+__VERSION__ = "v5.2"
 
 gConst = {
     'UserAgent' : 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.1; WOW64; Trident/5.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; InfoPath.3; .NET4.0C; .NET4.0E)',
@@ -163,7 +169,17 @@ gConst = {
     'picSufList'   : ('bmp', 'gif', 'jpeg', 'jpg', 'jpe', 'png', 'tiff', 'tif'),
     
     'defaultTimeout': 20, # default timeout seconds for urllib2.urlopen
+    # abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
+    'DIGITS': string.digits,
+    'ASCII_LETTERS': string.ascii_letters,
+    'ALPHANUMERIC_LETTERS': ASCII_LETTERS + DIGITS,
 }
+
+############################################################
+# Constant
+############################################################
+
+
 
 #----------------------------------global values--------------------------------
 gVal = {
@@ -232,6 +248,31 @@ def ConvertELogStrToValue(eLogStr):
         (convertOK, convertedValue) = (False, 0.0);
     
     return (convertOK, convertedValue);
+
+################################################################################
+# Geography
+################################################################################
+
+def calcDistance(lon1, lat1, lon2, lat2):
+    """
+    Calculate the great circle distance between two points
+    on the earth (specified in decimal degrees)
+
+    Reference: 
+        http://stackoverflow.com/questions/4913349/haversine-formula-in-python-bearing-and-distance-between-two-gps-points
+        def haversine(lon1, lat1, lon2, lat2):
+    """
+    # convert decimal degrees to radians
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+
+    # haversine formula
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a))
+    EARTH_RADIUS = 6371 # Radius of earth in kilometers. Use 3956 for miles
+    return c * EARTH_RADIUS
+
 
 ################################################################################
 # Time
@@ -480,77 +521,24 @@ def filterHtmlTag(origHtml):
 
     return filteredHtml;
 
+
 ################################################################################
-# String
+# Random String/Number
 ################################################################################
 
-def jsonToPrettyStr(jsonDictOrStr, indent=4, sortKeys=False):
-    """
-    convert json dictionary un-formatted json string to prettify string
+### random number and string
+def genRandomStr(choiceStr, length):
+    randomStr = ''.join([random.choice(choiceStr) for _ in range(length)])
+    return randomStr
 
-    '{"outputFolder":"output","isResetOutput":true,"waitTimeout":10,"msStore":{"productList":[{"productUrl":"","buyNum":2}]}}'
-    ->
-    {
-        "msStore": {
-            "productList": [
-                {
-                    "productUrl": "",
-                    "buyNum": 2
-                }
-            ]
-        },
-        "outputFolder": "output",
-        "isResetOutput": true,
-        "waitTimeout": 10
-    }
+def genRandomDigit(length):
+    randomDigits = genRandomStr(gConst['DIGITS'], length=length)
+    return randomDigits
 
-    :param jsonDictOrStr: json dict or json str
-    :param indent: indent space number
-    :param sortKeys: output is sort by key or not
-    :return: formatted/prettified json string with indent
-    """
+def genRandomAlphanum(length):
+    randomAlphanum = genRandomStr(gConst['ALPHANUMERIC_LETTERS'], length=length)
+    return randomAlphanum
 
-    prettifiedStr = ""
-    jsonDict = jsonDictOrStr
-    if type(jsonDictOrStr) is str:
-        jsonDict = json.loads(jsonDictOrStr)
-
-    prettifiedStr = json.dumps(jsonDict, indent=indent, sort_keys=sortKeys)
-    return prettifiedStr
-
-
-def formatString(inputStr, paddingChar="=", totalWidth=80):
-    """
-    format string, to replace for:
-    print '{0:=^80}'.format("xxx");
-    
-    auto added space before and after input string
-    """
-    formatting = "{0:" + paddingChar + "^" + str(totalWidth) + "}";
-    return formatting.format(" " + inputStr + " ");
-    
-
-def genListStr(listValue, encForUniVal="UTF-8", isRetainLastComma = False, delimiter=","):
-    """
-    generate string of values in list, separated by delimiter
-    eg:
-    input: ["20121202", "天平山赏红枫", "动物"]
-    output: 20121202,天平山赏红枫,动物
-    """
-    #print "listValue=",listValue;
-
-    generatedListStr = "";
-    for eachValue in listValue:
-        if(isinstance(eachValue, unicode)):
-            generatedListStr += eachValue.encode(encForUniVal) + delimiter;
-        else:
-            generatedListStr += str(eachValue) + delimiter;
-
-    if(not isRetainLastComma):
-        if(generatedListStr and (generatedListStr[-1] == delimiter)):
-            #remove last ,
-            generatedListStr = generatedListStr[:-1];
-    return generatedListStr;
 
 #------------------------------------------------------------------------------
 # generated the random digits number string
@@ -577,96 +565,22 @@ def randDigitsStr(digitNum = 12) :
     #print "randVal=",randVal; #randVal= 0.134248340235
     randVal = randVal[0 : digitNum];
     #print "randVal=",randVal; #randVal= 0.134248340235
-    
+
     return randVal;
 
-#------------------------------------------------------------------------------
-# get supported picture suffix list
-def getPicSufList():
-    return gConst['picSufList'];
+################################################################################
+# String
+################################################################################
 
-#------------------------------------------------------------------------------
-# get supported picture suffix chars
-def getPicSufChars():
-    return gVal['picSufChars'];
-
-
-def getBasename(fullFilename):
+def formatString(inputStr, paddingChar="=", totalWidth=80):
     """
-    get base filename
-
-    Examples:
-        xxx.exe          -> xxx.exe
-        xxx              -> xxx
-        Mac/Linux:
-           your/path/xxx.py -> xxx.py
-        Windows:
-           your\path\\xxx.py -> xxx.py
+    format string, to replace for:
+    print '{0:=^80}'.format("xxx");
+    
+    auto added space before and after input string
     """
-
-    return os.path.basename(fullFilename)
-
-
-def removeSuffix(fileBasename):
-    """
-    remove file suffix
-
-    Examples:
-        xxx.exe -> xxx
-        xxx -> xxx
-    """
-
-    splitedTextArr = os.path.splitext(fileBasename)
-    filenameRemovedSuffix = splitedTextArr[0]
-    return filenameRemovedSuffix
-
-
-def getInputFilename():
-    """
-    get input filename, from argv
-
-    Examples:
-        AutoOrder.py -> AutoOrder.py
-        python AutoOrder.py -> AutoOrder.py
-        python AutoOrder/AutoOrder.py -> AutoOrder/AutoOrder.py
-    """
-
-    argvList = sys.argv
-    # print "argvList=%s"%(argvList)
-    return argvList[0]
-
-
-def getInputFileBasename(inputFilename = None):
-    """
-    get input file's base name
-
-    Examples:
-        AutoOrder.py -> AutoOrder.py
-        AutoOrder/AutoOrder.py -> AutoOrder.py
-    """
-
-    curInputFilename = getInputFilename()
-
-    if inputFilename :
-        curInputFilename = inputFilename
-
-    # print "curInputFilename=%s"%(curInputFilename)
-    inputBasename = getBasename(curInputFilename)
-    # print "inputBasename=%s"%(inputBasename)
-    return inputBasename
-
-def getInputFileBasenameNoSuffix():
-    """
-    get input file base name without suffix
-
-    Examples:
-        AutoOrder.py -> AutoOrder
-        AutoOrder/AutoOrder.py -> AutoOrder
-    """
-
-    inputFileBasename = getInputFileBasename()
-    basenameRemovedSuffix = removeSuffix(inputFileBasename)
-    return basenameRemovedSuffix
+    formatting = "{0:" + paddingChar + "^" + str(totalWidth) + "}";
+    return formatting.format(" " + inputStr + " ");
 
 #------------------------------------------------------------------------------
 # replace the &#N; (N is digit number, N > 1) to unicode char
@@ -679,76 +593,6 @@ def repUniNumEntToChar(text):
         unicodeChar = unichr(num);
         return unicodeChar;
     return unicodeP.sub(transToUniChr, text);
-
-#------------------------------------------------------------------------------
-# generate the full url, which include the main url plus the parameter list
-# Note: 
-# normally just use urllib.urlencode is OK.
-# only use this if you do NOT want urllib.urlencode convert some special chars($,:,{,},...) into %XX
-def genFullUrl(mainUrl, paraDict) :
-    fullUrl = mainUrl;
-    fullUrl += '?';
-    for i, para in enumerate(paraDict.keys()) :
-        if(i == 0):
-            # first para no '&'
-            fullUrl += str(para) + '=' + str(paraDict[para]);
-        else :
-            fullUrl += '&' + str(para) + '=' + str(paraDict[para]);
-    return fullUrl;
-
-#------------------------------------------------------------------------------
-# check whether two url is similar
-# note: input two url both should be str type
-def urlIsSimilar(url1, url2) :
-    isSim = False;
-
-    url1 = str(url1);
-    url2 = str(url2);
-
-    slashList1 = url1.split('/');
-    slashList2 = url2.split('/');
-    lenS1 = len(slashList1);
-    lenS2 = len(slashList2);
-
-    # all should have same structure
-    if lenS1 != lenS2 :
-        # not same sturcture -> must not similar
-        isSim = False;
-    else :
-        sufPos1 = url1.rfind('.');
-        sufPos2 = url2.rfind('.');
-        suf1 = url1[(sufPos1 + 1) : ];
-        suf2 = url2[(sufPos2 + 1) : ];
-        # at least, suffix should same
-        if (suf1 == suf2) : 
-            lastSlashPos1 = url1.rfind('/');
-            lastSlashPos2 = url2.rfind('/');
-            exceptName1 = url1[:lastSlashPos1];
-            exceptName2 = url2[:lastSlashPos2];
-            # except name, all other part should same
-            if (exceptName1 == exceptName2) :
-                isSim = True;
-            else :
-                # except name, other part is not same -> not similar
-                isSim = False;
-        else :
-            # suffix not same -> must not similar
-            isSim = False;
-
-    return isSim;
-
-#------------------------------------------------------------------------------
-# found whether the url is similar in urlList
-# if found, return True, similarSrcUrl
-# if not found, return False, ''
-def findSimilarUrl(url, urlList) :
-    (isSimilar, similarSrcUrl) = (False, '');
-    for srcUrl in urlList :
-        if urlIsSimilar(url, srcUrl) :
-            isSimilar = True;
-            similarSrcUrl = srcUrl;
-            break;
-    return (isSimilar, similarSrcUrl);
 
 #------------------------------------------------------------------------------
 # remove non-word char == only retian alphanumeric character (char+number) and underscore
@@ -894,9 +738,258 @@ def filterNonAsciiStr(originalUnicodeStr):
     
     return filteredUni;
 
+
+################################################################################
+# Filename/Suffix
+################################################################################
+
+#------------------------------------------------------------------------------
+# get supported picture suffix list
+def getPicSufList():
+    return gConst['picSufList'];
+
+#------------------------------------------------------------------------------
+# get supported picture suffix chars
+def getPicSufChars():
+    return gVal['picSufChars'];
+
+
+def getBasename(fullFilename):
+    """
+    get base filename
+
+    Examples:
+        xxx.exe          -> xxx.exe
+        xxx              -> xxx
+        Mac/Linux:
+           your/path/xxx.py -> xxx.py
+        Windows:
+           your\path\\xxx.py -> xxx.py
+    """
+
+    return os.path.basename(fullFilename)
+
+
+def removeSuffix(fileBasename):
+    """
+    remove file suffix
+
+    Examples:
+        xxx.exe -> xxx
+        xxx -> xxx
+    """
+
+    splitedTextArr = os.path.splitext(fileBasename)
+    filenameRemovedSuffix = splitedTextArr[0]
+    return filenameRemovedSuffix
+
+
+def getInputFilename():
+    """
+    get input filename, from argv
+
+    Examples:
+        AutoOrder.py -> AutoOrder.py
+        python AutoOrder.py -> AutoOrder.py
+        python AutoOrder/AutoOrder.py -> AutoOrder/AutoOrder.py
+    """
+
+    argvList = sys.argv
+    # print "argvList=%s"%(argvList)
+    return argvList[0]
+
+
+def getInputFileBasename(inputFilename = None):
+    """
+    get input file's base name
+
+    Examples:
+        AutoOrder.py -> AutoOrder.py
+        AutoOrder/AutoOrder.py -> AutoOrder.py
+    """
+
+    curInputFilename = getInputFilename()
+
+    if inputFilename :
+        curInputFilename = inputFilename
+
+    # print "curInputFilename=%s"%(curInputFilename)
+    inputBasename = getBasename(curInputFilename)
+    # print "inputBasename=%s"%(inputBasename)
+    return inputBasename
+
+def getInputFileBasenameNoSuffix():
+    """
+    get input file base name without suffix
+
+    Examples:
+        AutoOrder.py -> AutoOrder
+        AutoOrder/AutoOrder.py -> AutoOrder
+    """
+
+    inputFileBasename = getInputFileBasename()
+    basenameRemovedSuffix = removeSuffix(inputFileBasename)
+    return basenameRemovedSuffix
+
+################################################################################
+# URL
+################################################################################
+
+#------------------------------------------------------------------------------
+# generate the full url, which include the main url plus the parameter list
+# Note: 
+# normally just use urllib.urlencode is OK.
+# only use this if you do NOT want urllib.urlencode convert some special chars($,:,{,},...) into %XX
+def genFullUrl(mainUrl, paraDict) :
+    fullUrl = mainUrl;
+    fullUrl += '?';
+    for i, para in enumerate(paraDict.keys()) :
+        if(i == 0):
+            # first para no '&'
+            fullUrl += str(para) + '=' + str(paraDict[para]);
+        else :
+            fullUrl += '&' + str(para) + '=' + str(paraDict[para]);
+    return fullUrl;
+
+#------------------------------------------------------------------------------
+# check whether two url is similar
+# note: input two url both should be str type
+def urlIsSimilar(url1, url2) :
+    isSim = False;
+
+    url1 = str(url1);
+    url2 = str(url2);
+
+    slashList1 = url1.split('/');
+    slashList2 = url2.split('/');
+    lenS1 = len(slashList1);
+    lenS2 = len(slashList2);
+
+    # all should have same structure
+    if lenS1 != lenS2 :
+        # not same sturcture -> must not similar
+        isSim = False;
+    else :
+        sufPos1 = url1.rfind('.');
+        sufPos2 = url2.rfind('.');
+        suf1 = url1[(sufPos1 + 1) : ];
+        suf2 = url2[(sufPos2 + 1) : ];
+        # at least, suffix should same
+        if (suf1 == suf2) : 
+            lastSlashPos1 = url1.rfind('/');
+            lastSlashPos2 = url2.rfind('/');
+            exceptName1 = url1[:lastSlashPos1];
+            exceptName2 = url2[:lastSlashPos2];
+            # except name, all other part should same
+            if (exceptName1 == exceptName2) :
+                isSim = True;
+            else :
+                # except name, other part is not same -> not similar
+                isSim = False;
+        else :
+            # suffix not same -> must not similar
+            isSim = False;
+
+    return isSim;
+
+#------------------------------------------------------------------------------
+# found whether the url is similar in urlList
+# if found, return True, similarSrcUrl
+# if not found, return False, ''
+def findSimilarUrl(url, urlList) :
+    (isSimilar, similarSrcUrl) = (False, '');
+    for srcUrl in urlList :
+        if urlIsSimilar(url, srcUrl) :
+            isSimilar = True;
+            similarSrcUrl = srcUrl;
+            break;
+    return (isSimilar, similarSrcUrl);
+
+################################################################################
+# UUID
+################################################################################
+
+def generateUUID(prefix = ""):
+    generatedUuid4 = uuid.uuid4()
+    generatedUuid4Str = str(generatedUuid4)
+    newUuid = prefix + generatedUuid4Str
+    gLog.debug("newUuid=%s", newUuid)
+    return newUuid
+
+
+################################################################################
+# JSON
+################################################################################
+
+
+def jsonToStr(jsonDict, indent=2):
+    return json.dumps(jsonDict, indent=2, ensure_ascii=False)
+
+def strToJson(jsonStr):
+    jsonDict = json.loads(jsonStr, encoding="utf-8")
+    return jsonDict
+
+def jsonToPrettyStr(jsonDictOrStr, indent=4, sortKeys=False):
+    """
+    convert json dictionary un-formatted json string to prettify string
+
+    '{"outputFolder":"output","isResetOutput":true,"waitTimeout":10,"msStore":{"productList":[{"productUrl":"","buyNum":2}]}}'
+    ->
+    {
+        "msStore": {
+            "productList": [
+                {
+                    "productUrl": "",
+                    "buyNum": 2
+                }
+            ]
+        },
+        "outputFolder": "output",
+        "isResetOutput": true,
+        "waitTimeout": 10
+    }
+
+    :param jsonDictOrStr: json dict or json str
+    :param indent: indent space number
+    :param sortKeys: output is sort by key or not
+    :return: formatted/prettified json string with indent
+    """
+
+    prettifiedStr = ""
+    jsonDict = jsonDictOrStr
+    if type(jsonDictOrStr) is str:
+        jsonDict = json.loads(jsonDictOrStr)
+
+    prettifiedStr = json.dumps(jsonDict, indent=indent, sort_keys=sortKeys)
+    return prettifiedStr
+
+
 ################################################################################
 # List
 ################################################################################
+
+def genListStr(listValue, encForUniVal="UTF-8", isRetainLastComma = False, delimiter=","):
+    """
+    generate string of values in list, separated by delimiter
+    eg:
+    input: ["20121202", "天平山赏红枫", "动物"]
+    output: 20121202,天平山赏红枫,动物
+    """
+    #print "listValue=",listValue;
+
+    generatedListStr = "";
+    for eachValue in listValue:
+        if(isinstance(eachValue, unicode)):
+            generatedListStr += eachValue.encode(encForUniVal) + delimiter;
+        else:
+            generatedListStr += str(eachValue) + delimiter;
+
+    if(not isRetainLastComma):
+        if(generatedListStr and (generatedListStr[-1] == delimiter)):
+            #remove last ,
+            generatedListStr = generatedListStr[:-1];
+    return generatedListStr;
+
 
 #------------------------------------------------------------------------------
 # remove the empty ones in list
