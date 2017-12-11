@@ -122,3 +122,37 @@ func calcTimeEnd(uniqueId:String){
     }
 }
 
+
+/***************************************************************************
+ * Phone functions
+ ***************************************************************************/
+
+func doPhoneCall(_ curPhone:String) -> Bool {
+    var callOk = false
+    
+    if curPhone.notEmpty {
+        let phoneTelStr = "tel://" + curPhone
+        gLog.verbose("phoneTelStr=\(phoneTelStr)")
+        //phoneTelStr=tel://13800001111
+        if let phoneTelNsurl = URL(string: phoneTelStr) {
+            gLog.verbose("phoneTelNsurl=\(phoneTelNsurl)")
+            //phoneTelNsurl=tel://13800001111
+            
+            let application:UIApplication = UIApplication.shared
+            if application.canOpenURL(phoneTelNsurl) {
+                callOk = true
+                
+                UIApplication.shared.openURL(phoneTelNsurl)
+            } else {
+                //Note:
+                //in iOS Simulator will fail:
+                //canOpenURL: failed for URL: "tel://13800001111" - error: "This app is not allowed to query for scheme tel"
+                print("application can not open: \(phoneTelNsurl)")
+            }
+        }
+    } else {
+        print("can not call for empty phone")
+    }
+    
+    return callOk
+}
