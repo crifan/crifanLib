@@ -20,6 +20,13 @@ http://www.crifan.com/files/doc/docbook/python_summary/release/html/python_summa
 [TODO]
 
 [History]
+
+[v5.5, 2018-05-10]
+1. [ADD] getFileSuffix
+
+[v5.4, 2018-05-07]
+1. [ADD] openpyxl related function: isInCellRange, getCellRangeValue, getRealCellValue
+
 [v5.3, 2017-12-14]
 1. [ADD] email related function: sendEmail, formatEmailNameAddrHeader, formatEmailHeader
 
@@ -122,7 +129,7 @@ http://www.crifan.com/files/doc/docbook/python_summary/release/html/python_summa
 
 __author__ = "Crifan Li (admin@crifan.com)"
 #__version__ = ""
-__copyright__ = "Copyright (c) 2017, Crifan Li"
+__copyright__ = "Copyright (c) 2018, Crifan Li"
 __license__ = "GPL"
 
 import os
@@ -166,7 +173,7 @@ from email.utils import parseaddr, formataddr
 import htmlentitydefs
 
 #--------------------------------const values-----------------------------------
-__VERSION__ = "v5.2"
+__VERSION__ = "v5.5"
 
 gConst = {
     'UserAgent' : 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.1; WOW64; Trident/5.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; InfoPath.3; .NET4.0C; .NET4.0E)',
@@ -780,6 +787,39 @@ def getBasename(fullFilename):
 
     return os.path.basename(fullFilename)
 
+
+def getFileSuffix(filename):
+    """
+        get file suffix from file name
+        no dot/period, no space/newline, makesure lower case
+
+        "xxx.mp3" -> "mp3"
+        "xxx.pdf" -> "pdf"
+        "xxx.mp3 " -> "mp3"
+        "xxx.JPg" -> "jpg"
+
+    :param filename:
+    :return:
+    """
+    fileSuffix = ""
+
+    if filename:
+        name, extension = os.path.splitext(filename)
+        fileSuffix = extension # .mp3
+
+    if fileSuffix:
+        # remove leading dot/period
+        fileSuffix = fileSuffix[1:] # mp3
+
+    if fileSuffix:
+        # remove ending newline or space
+        fileSuffix = fileSuffix.strip()
+
+    if fileSuffix:
+        # convert JPg to jpg
+        fileSuffix = fileSuffix.lower()
+
+    return fileSuffix
 
 def removeSuffix(fileBasename):
     """
@@ -2211,6 +2251,76 @@ def sendEmail(  sender, senderPassword, receiverList,
 
     return
 
+################################################################################
+# openpyxl related function
+################################################################################
+
+def isInCellRange(cellToCheck, cellRange):
+    """
+    to check a cell whether in a cell range
+    :param cellToCheck:
+    :param cellRange:
+    :return:
+        True : if cell in range
+        False: if cell not in range
+    """
+    # logging.debug("cellToCheck=[%d:%d]", cellToCheck.row, cellToCheck.col_idx)
+    # logging.debug("cellRange: row=[%d:%d] col=[%d:%d]",
+    #              cellRange.min_row, cellRange.max_row, cellRange.min_col, cellRange.max_col)
+    if (cellToCheck.row >= cellRange.min_row) and \
+        (cellToCheck.row <= cellRange.max_row) and \
+        (cellToCheck.col_idx >= cellRange.min_col) and \
+        (cellToCheck.col_idx <= cellRange.max_col):
+        logging.info("cell[%d:%d] with in cell range: row=[%d:%d] col=[%d:%d]",
+                     cellToCheck.row, cellToCheck.col_idx,
+                     cellRange.min_row, cellRange.max_row, cellRange.min_col, cellRange.max_col)
+        return True
+    else:
+        return False
+
+
+def getCellRangeValue(ws, cellRange):
+    """
+    get cell range value -> the top left cell value
+    :param cellRange:
+    :return:
+    """
+    topLeftCell = ws.cell(row=cellRange.min_row, column=cellRange.min_col)
+    topLeftCellValue = topLeftCell.value
+    return topLeftCellValue
+
+def getRealCellValue(ws, curCell):
+    """
+    for openpyxl, to get real value from row and column
+    expecially for merged cell, will get its (same) value from top-left cell value
+
+    :param curCell:
+    :return:
+        ("some normal value", None)
+        ("some real value from range", <CellRange N146:N163>)
+    """
+
+    withinCellRange = None
+
+    realCellValue = curCell.value
+
+    mergedCellsRangesList = ws.merged_cells.ranges
+    # logging.info("mergedCellsRangesList=%s", mergedCellsRangesList)
+
+    # Note:
+    # to efficiency , we only check cell in range or not when its value is None
+    # for all merged cell value is None
+    if not realCellValue:
+        for eachCellRange in mergedCellsRangesList:
+            if isInCellRange(curCell, eachCellRange):
+                # logging.info("mergedCellsRangesList=%s", mergedCellsRangesList)
+                cellRangeValue = getCellRangeValue(ws, eachCellRange)
+                realCellValue = cellRangeValue
+                withinCellRange = eachCellRange
+                logging.info("withinCellRange=%s", withinCellRange)
+                break
+
+    return realCellValue, withinCellRange
 
 ################################################################################
 # Logging
