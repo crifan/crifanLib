@@ -3,7 +3,7 @@
 """
 Filename: crifanLogging.py
 Function: crifanLib's logging related functions.
-Version: v1.0 20180605
+Version: v1.2 20180607
 Note:
 1. latest version and more can found here:
 https://github.com/crifan/crifanLib/blob/master/python/
@@ -15,6 +15,7 @@ __copyright__ = "Copyright (c) 2018, Crifan Li"
 __license__ = "GPL"
 
 import logging
+
 
 ################################################################################
 # Config
@@ -58,18 +59,34 @@ def loggingInit(filename = None,
         # '/Users/crifan/dev/dev_root/company/naturling/projects/NLP/sourcecode/naturling/processData/mysqlQa/crifanLogging.py.log'
         logFilename = CURRENT_LIB_FILENAME + ".log"
 
-    logging.basicConfig(
-                    level    = fileLogLevel,
-                    format   = fileLogFormat,
-                    datefmt  = fileLogDateFormat,
-                    filename = logFilename,
-                    filemode = 'w')
+    # logging.basicConfig(
+    #                 level    = fileLogLevel,
+    #                 format   = fileLogFormat,
+    #                 datefmt  = fileLogDateFormat,
+    #                 filename = logFilename,
+    #                 encoding = "utf-8",
+    #                 filemode = 'w')
+
+    rootLogger = logging.getLogger()
+    rootLogger.setLevel(fileLogLevel)
+    fileHandler = logging.FileHandler(
+        filename=logFilename,
+        mode='w',
+        encoding="utf-8")
+    fileHandler.setFormatter = logging.Formatter(
+        fmt=fileLogFormat,
+        datefmt=fileLogDateFormat
+    )
+    rootLogger.addHandler(fileHandler)
+
     if enableConsole :
         # define a Handler which writes INFO messages or higher to the sys.stderr
         console = logging.StreamHandler()
         console.setLevel(consoleLogLevel)
         # set a format which is simpler for console use
-        formatter = logging.Formatter(fmt=consoleLogFormat, datefmt=consoleLogDateFormat)
+        formatter = logging.Formatter(
+            fmt=consoleLogFormat,
+            datefmt=consoleLogDateFormat)
         # tell the handler to use this format
         console.setFormatter(formatter)
         logging.getLogger('').addHandler(console)

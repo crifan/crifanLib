@@ -16,6 +16,8 @@ __license__ = "GPL"
 
 import os
 import sys
+# from . import crifanList
+import crifanLib.crifanList
 
 ################################################################################
 # Config
@@ -27,8 +29,77 @@ import sys
 CURRENT_LIB_FILENAME = "crifanFile"
 
 ################################################################################
-# Filename
+# Global Variable
 ################################################################################
+gVal = {
+    'picSufChars': '',  # store the pic suffix char list
+}
+
+gConst = {
+    # also belong to ContentTypes, more info can refer: http://kenya.bokee.com/3200033.html
+    # here use Tuple to avoid unexpected change
+    # note: for tuple, refer item use tuple[i], not tuple(i)
+    'picSufList': ('bmp', 'gif', 'jpeg', 'jpg', 'jpe', 'png', 'tiff', 'tif'),
+}
+
+################################################################################
+# Internal Function
+################################################################################
+
+
+def genSufList():
+    """generate the suffix char list according to constant picSufList"""
+    global gConst
+
+    sufChrList = []
+    for suffix in gConst['picSufList']:
+        for c in suffix:
+            sufChrList.append(c)
+
+    sufChrList = crifanList.uniqueList(sufChrList)
+    # sufChrList = uniqueList(sufChrList)
+    sufChrList.sort()
+    joinedSuf = ''.join(sufChrList)
+    swappedSuf = joinedSuf.swapcase()
+    wholeSuf = joinedSuf + swappedSuf
+
+    return wholeSuf
+
+################################################################################
+# File Function
+################################################################################
+
+
+def saveBinDataToFile(binaryData, fileToSave):
+    """save binary data into file"""
+    saveOK = False
+    try:
+        # open a file, if not exist, create it
+        savedBinFile = open(fileToSave, "wb")
+        #print "savedBinFile=",savedBinFile
+        savedBinFile.write(binaryData)
+        savedBinFile.close()
+        saveOK = True
+    except :
+        saveOK = False
+    return saveOK
+
+################################################################################
+# Filename Function
+################################################################################
+
+def getPicSufList():
+    """get supported picture suffix list"""
+    return gConst['picSufList']
+
+
+def getPicSufChars():
+    """get supported picture suffix chars"""
+    if not gVal['picSufChars']:
+        gVal['picSufChars'] = genSufList()
+
+    return gVal['picSufChars']
+
 
 def getBasename(fullFilename):
     """
@@ -79,6 +150,7 @@ def getFileSuffix(filename):
 
     return fileSuffix
 
+
 def removeSuffix(fileBasename):
     """
     remove file suffix
@@ -127,6 +199,7 @@ def getInputFileBasename(inputFilename = None):
     # print "inputBasename=%s"%(inputBasename)
     return inputBasename
 
+
 def getInputFileBasenameNoSuffix():
     """
     get input file base name without suffix
@@ -144,9 +217,11 @@ def getInputFileBasenameNoSuffix():
 # Test
 ################################################################################
 
+
 def testFile():
     filenameNoSuffix = getInputFileBasenameNoSuffix()
     print("filenameNoSuffix=%s" % filenameNoSuffix) #filenameNoSuffix=crifanFile
+
 
 if __name__ == '__main__':
     print("[crifanLib-%s] %s" % (CURRENT_LIB_FILENAME, __version__))
