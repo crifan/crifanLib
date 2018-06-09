@@ -3,14 +3,14 @@
 """
 Filename: crifanLogging.py
 Function: crifanLib's logging related functions.
-Version: v1.2 20180607
+Version: v1.3 20180609
 Note:
 1. latest version and more can found here:
 https://github.com/crifan/crifanLib/blob/master/python/
 """
 
 __author__ = "Crifan Li (admin@crifan.com)"
-__version__ = "v1.0"
+__version__ = "v1.3"
 __copyright__ = "Copyright (c) 2018, Crifan Li"
 __license__ = "GPL"
 
@@ -21,9 +21,9 @@ import logging
 # Config
 ################################################################################
 
-LOG_FORMAT_FILE = "%(asctime)s LINE %(lineno)-4d %(levelname)-7s %(message)s"
+LOG_FORMAT_FILE = "%(asctime)s %(filename)s:%(lineno)-4d %(levelname)-7s %(message)s"
 LOG_LEVEL_FILE = logging.DEBUG
-LOG_FORMAT_CONSOLE = "%(asctime)s LINE %(lineno)-4d %(levelname)-7s %(message)s"
+LOG_FORMAT_CONSOLE = "%(asctime)s %(filename)s:%(lineno)-4d %(levelname)-7s %(message)s"
 LOG_LEVEL_CONSOLE = logging.INFO
 
 ################################################################################
@@ -42,13 +42,13 @@ def loggingInit(filename = None,
                 enableConsole = True,
                 consoleLogLevel = LOG_LEVEL_CONSOLE,
                 consoleLogFormat = LOG_FORMAT_CONSOLE,
-                consoleLogDateFormat = '%Y/%m/%d %I:%M:%S',
+                consoleLogDateFormat = '%Y%m%d %I:%M:%S',
                 ):
     """
     init logging for both log to file and console
 
     :param logFilename: input log file name
-        if not passed, use current script filename
+        if not passed, use current lib filename
     :return: none
     """
     logFilename = ""
@@ -67,16 +67,19 @@ def loggingInit(filename = None,
     #                 encoding = "utf-8",
     #                 filemode = 'w')
 
-    rootLogger = logging.getLogger()
+    # rootLogger = logging.getLogger()
+    rootLogger = logging.getLogger("")
     rootLogger.setLevel(fileLogLevel)
     fileHandler = logging.FileHandler(
         filename=logFilename,
         mode='w',
         encoding="utf-8")
-    fileHandler.setFormatter = logging.Formatter(
+    fileHandler.setLevel(fileLogLevel)
+    fileFormatter = logging.Formatter(
         fmt=fileLogFormat,
         datefmt=fileLogDateFormat
     )
+    fileHandler.setFormatter(fileFormatter)
     rootLogger.addHandler(fileHandler)
 
     if enableConsole :
@@ -89,7 +92,7 @@ def loggingInit(filename = None,
             datefmt=consoleLogDateFormat)
         # tell the handler to use this format
         console.setFormatter(formatter)
-        logging.getLogger('').addHandler(console)
+        rootLogger.addHandler(console)
 
 ################################################################################
 # Test

@@ -3,7 +3,7 @@
 """
 Filename: crifanMysql.py
 Function: crifanLib's mysql related functions.
-Version: v1.0 20180605
+Version: v1.2 20180609
 Note:
 1. latest version and more can found here:
 https://github.com/crifan/crifanLib/blob/master/python/
@@ -17,7 +17,7 @@ https://github.com/crifan/crifanLib/blob/master/python/
 
 
 __author__ = "Crifan Li (admin@crifan.com)"
-__version__ = "v1.0"
+__version__ = "v1.2"
 __copyright__ = "Copyright (c) 2018, Crifan Li"
 __license__ = "GPL"
 
@@ -31,28 +31,42 @@ import pymysql.cursors
 ################################################################################
 
 
-CurrentTableName = "tbl_autohome_car_info"
+# CurrentTableName = "tbl_autohome_car_info"
+# CreateTableSqlTemplate = """CREATE TABLE IF NOT EXISTS `%s` (
+#   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增，主键',
+#   `cityDealerPrice` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '经销商参考价',
+#   `msrpPrice` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '厂商指导价',
+#   `mainBrand` char(20) NOT NULL DEFAULT '' COMMENT '品牌',
+#   `subBrand` varchar(20) NOT NULL DEFAULT '' COMMENT '子品牌',
+#   `brandSerie` varchar(20) NOT NULL DEFAULT '' COMMENT '车系',
+#   `brandSerieId` varchar(15) NOT NULL DEFAULT '' COMMENT '车系ID',
+#   `model` varchar(50) NOT NULL DEFAULT '' COMMENT '车型',
+#   `modelId` varchar(15) NOT NULL DEFAULT '' COMMENT '车型ID',
+#   `modelStatus` char(5) NOT NULL DEFAULT '' COMMENT '车型状态',
+#   `url` varchar(200) NOT NULL DEFAULT '' COMMENT '车型url',
+#   PRIMARY KEY (`id`)
+# ) ENGINE=InnoDB DEFAULT CHARSET=utf8;"""
+
+CurrentTableName = "enum_value_dict"
 CreateTableSqlTemplate = """CREATE TABLE IF NOT EXISTS `%s` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增，主键',
-  `cityDealerPrice` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '经销商参考价',
-  `msrpPrice` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '厂商指导价',
-  `mainBrand` char(20) NOT NULL DEFAULT '' COMMENT '品牌',
-  `subBrand` varchar(20) NOT NULL DEFAULT '' COMMENT '子品牌',
-  `brandSerie` varchar(20) NOT NULL DEFAULT '' COMMENT '车系',
-  `brandSerieId` varchar(15) NOT NULL DEFAULT '' COMMENT '车系ID',
-  `model` varchar(50) NOT NULL DEFAULT '' COMMENT '车型',
-  `modelId` varchar(15) NOT NULL DEFAULT '' COMMENT '车型ID',
-  `modelStatus` char(5) NOT NULL DEFAULT '' COMMENT '车型状态',
-  `url` varchar(200) NOT NULL DEFAULT '' COMMENT '车型url',
-  PRIMARY KEY (`id`)
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `category` enum('word_type','word_difficulty') NOT NULL,
+  `name` char(20) NOT NULL,
+  `value` int(11) NOT NULL,
+  `comments` varchar(200) DEFAULT '',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id_UNIQUE` (`id`),
+  UNIQUE KEY `category_name_value_UNIQUE` (`category`,`name`,`value`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;"""
+
 
 MysqlConfig = {
     'host': '127.0.0.1',
     'port': 3306,
     'user': 'root',
     'password': 'crifan_mysql',
-    'database': 'AutohomeResultdb',
+    # 'database': 'AutohomeResultdb',
+    'database': 'naturling',
     'charset': "utf8"
 }
 
@@ -118,9 +132,9 @@ class MysqlDb:
 
         if self.isConnected:
             if needCreateTable:
-                # 2. create table for db
-                createTableOk, errDict = self.createTable(self.curTableName)
-                logging.info("Create table %s return %s, %s", self.curTableName, createTableOk, errDict)
+                # 2. create table for db if necessary
+                createTableOk, resultDict = self.createTable(self.curTableName)
+                logging.info("Create table %s return %s, %s", self.curTableName, createTableOk, resultDict)
 
     def close(self):
         """close mysql connection"""
@@ -131,7 +145,6 @@ class MysqlDb:
     def connect(self):
         try:
             # self.connection = pymysql.connect(**self.config, cursorclass=pymysql.cursors.DictCursor)
-            # self.connection = pymysql.connect(self.config, cursorclass=pymysql.cursors.DictCursor)
             self.config["cursorclass"] = pymysql.cursors.DictCursor
             self.connection = pymysql.connect(**self.config)
             logging.info("Connect mysql ok, self.connection=%s", self.connection)
@@ -154,6 +167,7 @@ class MysqlDb:
     def extractMysqlErrorCodeMessage(self, mysqlErrorStr):
         """extract mysql error code from error string"""
         # (1062, "Duplicate entry 'Here you go.-Thank you very much.' for key 'Q+A'")
+        # (1064, 'You have an error in your SQL syntax; ......
         foundErrorCode, errorCode, errorMessage = False, 0, "Unknown Error"
         mysqlErrorCodeMatch = re.search('^\((?P<mysqlErrorCode>\d+),\s*["|\'](?P<errorMessage>.+?)["|\']\)$', mysqlErrorStr)
         if mysqlErrorCodeMatch:
@@ -166,55 +180,36 @@ class MysqlDb:
             logging.error("Unrecognized mysql error: %s", mysqlErrorStr)
 
         return foundErrorCode, errorCode, errorMessage
-    #
-    # def isMysqlSyntaxError(self, mysqlErrStr):
-    #     """check whether is mysql syntax error from error string"""
-    #     # (1064, 'You have an error in your SQL syntax; ...
-    #     isSyntaxError = False
-    #
-    #     foundErrorCode, errorCode = self.extractMysqlErrorCode(mysqlErrStr)
-    #     if foundErrorCode:
-    #         if errorCode == 1064:
-    #             isSyntaxError = True
-    #
-    #     return isSyntaxError
-    #
-    # def isMysqlDuplicateError(self, mysqlErrStr):
-    #     """check whether is mysql duplicate error from error string"""
-    #     # 1062, "Duplicate entry 'Here you go.-T...
-    #     isDupError = False
-    #
-    #     foundErrorCode, errorCode = self.extractMysqlErrorCode(mysqlErrStr)
-    #     if foundErrorCode:
-    #         if errorCode == 1062:
-    #             isDupError = True
-    #
-    #     return isDupError
 
     def executeSql(self, sqlStr, actionDescription=""):
         logging.debug("executeSql: sqlStr=%s, actionDescription=%s", sqlStr, actionDescription)
 
         executeOk = False
-        errDict = {
+        resultDict = {
             "code": 0,
-            "message": "Unknown Mysql Error"
+            "message": "Unknown Mysql Error",
+            "data": None
         }
 
         if self.connection is None:
-            logging.error("Please connect mysql first before %s", actionDescription)
+            logging.error("Please connect mysql first before execute mysql %s for %s", sqlStr, actionDescription)
             executeOk = False
-            errDict["code"] = 10000
-            errDict["message"] = "Mysql not connected"
-            return executeOk, errDict
+            resultDict["code"] = 10000
+            resultDict["message"] = "Mysql not connected"
+            return executeOk, resultDict
 
         cursor = self.connection.cursor()
         logging.debug("cursor=%s", cursor)
 
         try:
-            cursor.execute(sqlStr)
+            executeReturn = cursor.execute(sqlStr)
+            sqlResult = cursor.fetchall()
             self.connection.commit()
-            logging.debug("+++ Ok to execute sql %s for %s", sqlStr, actionDescription)
+            logging.debug("+++ Ok to execute sql %s for %s -> return=%s, result=%s", sqlStr, actionDescription, executeReturn, sqlResult)
             executeOk = True
+            resultDict["code"] = 0
+            resultDict["message"] = "OK"
+            resultDict["data"] = sqlResult
         except pymysql.Error as err:
             errStr = str(err)
 
@@ -225,12 +220,10 @@ class MysqlDb:
             executeOk = False
             foundErrorCode, errorCode, errorMessage = self.extractMysqlErrorCodeMessage(errStr)
             if foundErrorCode:
-                errDict = {
-                    "code": errorCode,
-                    "message": errorMessage
-                }
+                resultDict["code"] = errorCode
+                resultDict["message"] = errorMessage
 
-        return executeOk, errDict
+        return executeOk, resultDict
 
     def createTable(self, newTablename):
         logging.info("createTable: newTablename=%s", newTablename)
@@ -327,13 +320,13 @@ def testMysqlDb():
 
     if testDropTable:
         # 2. test drop table
-        dropTableOk, errDict = mysqlObj.dropTable(testTablename)
-        logging.info("dropTable %s return %s, errDict=%s", testTablename, dropTableOk, errDict)
+        dropTableOk, resultDict = mysqlObj.dropTable(testTablename)
+        logging.info("dropTable %s return %s, resultDict=%s", testTablename, dropTableOk, resultDict)
 
     if testCreateTable:
         # 3. test create table
-        createTableOk, errDict = mysqlObj.createTable(testTablename)
-        logging.info("createTable %s return %s, errDict=%s", testTablename, createTableOk, errDict)
+        createTableOk, resultDict = mysqlObj.createTable(testTablename)
+        logging.info("createTable %s return %s, resultDict=%s", testTablename, createTableOk, resultDict)
 
     if testInsertValue:
         # 4. test insert value dict
@@ -350,13 +343,13 @@ def testMysqlDb():
             "msrpPrice": 375000 # 厂商指导价
         }
         logging.info("valueDict=%s", valueDict)
-        insertOk, errDict = mysqlObj.insert(valueDict=valueDict, tablename=testTablename)
-        logging.info("insertOk=%s,errDict=%s", insertOk, errDict)
+        insertOk, resultDict = mysqlObj.insert(valueDict=valueDict, tablename=testTablename)
+        logging.info("insertOk=%s,resultDict=%s", insertOk, resultDict)
 
     if testDeleteValue:
         toDeleteModelId = "5872"
-        deleteOk, errDict = mysqlObj.delete(modelId=toDeleteModelId, tablename=testTablename)
-        logging.info("deleteOk=%s, errDict=%s", deleteOk, errDict)
+        deleteOk, resultDict = mysqlObj.delete(modelId=toDeleteModelId, tablename=testTablename)
+        logging.info("deleteOk=%s, resultDict=%s", deleteOk, resultDict)
 
 if __name__ == '__main__':
     logging.info("[crifanLib-%s] %s", CURRENT_LIB_FILENAME, __version__)
