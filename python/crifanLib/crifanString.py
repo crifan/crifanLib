@@ -3,7 +3,7 @@
 """
 Filename: crifanString.py
 Function: crifanLib's string related functions.
-Version: v1.0 20180605
+Version: v1.2 20180613
 Note:
 1. latest version and more can found here:
 https://github.com/crifan/crifanLib/blob/master/python/
@@ -71,12 +71,14 @@ gConst = {
 ################################################################################
 
 
+
 def strToList(inputStr, separatorChar=","):
     """
         convert string to list by using separator char, and strip each str in list
 
         example:
             u'Family members,  Sick'
+            or 'Family members,  Sick,'
             ->
             [u'Family members', u'Sick']
     :param separatorChar: the separator char
@@ -90,9 +92,11 @@ def strToList(inputStr, separatorChar=","):
 
         for eachStr in convertedList:
             stripedStr = eachStr.strip()
-            stripedList.append(stripedStr)
+            if stripedStr:
+                stripedList.append(stripedStr)
 
     return stripedList
+
 
 def isStringInstance(someVar):
     """check whether is string instance"""
