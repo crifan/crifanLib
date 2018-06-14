@@ -31,6 +31,8 @@ try:
 except ImportError:
     import urllib2
 
+import codecs
+
 # from . import crifanMath
 # from . import crifanHttp
 # from . import crifanSystem
@@ -318,6 +320,15 @@ def jsonToPrettyStr(jsonDictOrStr, indent=4, sortKeys=False):
 
     prettifiedStr = json.dumps(jsonDict, indent=indent, sort_keys=sortKeys)
     return prettifiedStr
+
+def saveJsonToFile(jsonDict, fullFilename, indent=2, fileEncoding="utf-8"):
+  """
+    save dict json into file
+    for non-ascii string, output encoded string, without \uxxxx
+  """
+  with codecs.open(fullFilename, 'w', encoding="utf-8") as outputFp:
+      json.dump(jsonDict, outputFp, indent=indent, ensure_ascii=False)
+
 
 #----------------------------------------
 # String related using chardet
