@@ -102,7 +102,7 @@ def strToList(inputStr, separatorChar=","):
 
 def isStringInstance(someVar):
     """check whether is string instance"""
-    if crifanLib.crifanSystem.isPython2:
+    if crifanLib.crifanSystem.isPython2():
         return isinstance(someVar, unicode)
     else:
         return isinstance(someVar, str)

@@ -3,21 +3,21 @@
 """
 Filename: crifanList.py
 Function: crifanLib's list related functions.
-Version: v1.0 20180605
+Version: v1.1 20180615
 Note:
 1. latest version and more can found here:
 https://github.com/crifan/crifanLib/blob/master/python/crifanLib
 """
 
 __author__ = "Crifan Li (admin@crifan.com)"
-__version__ = "v1.0"
+__version__ = "v1.1"
 __copyright__ = "Copyright (c) 2018, Crifan Li"
 __license__ = "GPL"
 
 
 # from . import crifanString
 import crifanLib.crifanString
-
+import crifanLib.crifanSystem
 
 
 ################################################################################
@@ -72,10 +72,16 @@ def genListStr(listValue, encForUniVal="UTF-8", isRetainLastComma=False, delimit
 
     generatedListStr = ""
     for eachValue in listValue:
-        if crifanLib.crifanString.isStringInstance(eachValue):
-            generatedListStr += eachValue.encode(encForUniVal) + delimiter
+        if crifanLib.crifanSystem.isPython2():
+            if isinstance(eachValue, unicode):
+                encodedStr = eachValue.encode(encForUniVal)
+                generatedListStr += encodedStr
+            else:
+                generatedListStr += str(eachValue)
         else:
-            generatedListStr += str(eachValue) + delimiter
+            generatedListStr += str(eachValue)
+
+        generatedListStr += delimiter
 
     if (not isRetainLastComma):
         if (generatedListStr and (generatedListStr[-1] == delimiter)):
