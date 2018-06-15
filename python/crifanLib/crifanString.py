@@ -3,14 +3,14 @@
 """
 Filename: crifanString.py
 Function: crifanLib's string related functions.
-Version: v1.2 20180613
+Version: v1.2 20180615
 Note:
 1. latest version and more can found here:
 https://github.com/crifan/crifanLib/blob/master/python/
 """
 
 __author__ = "Crifan Li (admin@crifan.com)"
-__version__ = "v1.0"
+__version__ = "v1.2"
 __copyright__ = "Copyright (c) 2018, Crifan Li"
 __license__ = "GPL"
 
@@ -324,7 +324,7 @@ def jsonToPrettyStr(jsonDictOrStr, indent=4, sortKeys=False):
 def saveJsonToFile(jsonDict, fullFilename, indent=2, fileEncoding="utf-8"):
   """
     save dict json into file
-    for non-ascii string, output encoded string, without \uxxxx
+    for non-ascii string, output encoded string, without \\u xxxx
   """
   with codecs.open(fullFilename, 'w', encoding="utf-8") as outputFp:
       json.dump(jsonDict, outputFp, indent=indent, ensure_ascii=False)
