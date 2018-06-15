@@ -6,7 +6,7 @@ Function: crifanLib's string related functions.
 Version: v1.2 20180615
 Note:
 1. latest version and more can found here:
-https://github.com/crifan/crifanLib/blob/master/python/
+https://github.com/crifan/crifanLib/blob/master/python/crifanLib
 """
 
 __author__ = "Crifan Li (admin@crifan.com)"
@@ -102,7 +102,7 @@ def strToList(inputStr, separatorChar=","):
 
 def isStringInstance(someVar):
     """check whether is string instance"""
-    if crifanSystem.isPython2:
+    if crifanLib.crifanSystem.isPython2:
         return isinstance(someVar, unicode)
     else:
         return isinstance(someVar, str)
@@ -419,7 +419,7 @@ def translateString(strToTranslate, fromLanguage="zh-CHS", toLanguage="EN"):
     # logging.debug("appKey=%s,strToTranslate=%s,saltStr=%s,secretKey=%s", appKey, strToTranslate, saltStr, secretKey)
     strToMd5 = appKey + strToTranslate + saltStr + secretKey
     # logging.debug("strToMd5=%s", strToMd5)
-    md5Sign = crifanMath.generateMd5(strToMd5)
+    md5Sign = crifanLib.crifanMath.generateMd5(strToMd5)
 
     try:
         quotedQueryStr = urllib.quote(strToTranslate)
@@ -428,7 +428,7 @@ def translateString(strToTranslate, fromLanguage="zh-CHS", toLanguage="EN"):
         transUrl = "http://openapi.youdao.com/api?q=%s&from=%s&to=%s&appKey=%s&salt=%s&sign=%s" \
                    % (quotedQueryStr, fromLanguage, toLanguage, appKey, saltStr, md5Sign)
         # logging.debug("transUrl=%s", transUrl)
-        respJsonStr = crifanHttp.getUrlRespHtml(transUrl)
+        respJsonStr = crifanLib.crifanHttp.getUrlRespHtml(transUrl)
         # logging.debug("respJsonStr=%s", respJsonStr)
         # respJsonStr={"query":"纠删码(EC)的学习","translation":["The study of correcting code (EC)"],"errorCode":"0","dict":{"url":"yddict://m.youdao.com/dict?le=eng&q=%E7%BA%A0%E5%88%A0%E7%A0%81%28EC%29%E7%9A%84%E5%AD%A6%E4%B9%A0"},"webdict":{"url":"http://m.youdao.com/dict?le=eng&q=%E7%BA%A0%E5%88%A0%E7%A0%81%28EC%29%E7%9A%84%E5%AD%A6%E4%B9%A0"},"l":"zh-CHS2en"}
         translatedDict = json.loads(respJsonStr)

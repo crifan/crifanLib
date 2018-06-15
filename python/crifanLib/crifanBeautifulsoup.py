@@ -6,7 +6,7 @@ Function: crifanLib's BeautifulSoup related functions.
 Version: v1.0 20180605
 Note:
 1. latest version and more can found here:
-https://github.com/crifan/crifanLib/blob/master/python/
+https://github.com/crifan/crifanLib/blob/master/python/crifanLib
 """
 
 __author__ = "Crifan Li (admin@crifan.com)"
@@ -125,7 +125,7 @@ def removeSoupContentsTagAttr(soupContents, tagName, tagAttrKey, tagAttrVal="", 
             # singleContent: name=script, attrMap=None, attrs=[(u'type', u'text/javascript'), (u'src', u'http://partner.googleadservices.com/gampad/google_service.js')]
             # so use attrs here
             # logging.debug("singleContent: name=%s, attrs=%s", singleContent.name, singleContent.attrs)
-            attrsDict = crifanList.tupleListToDict(singleContent.attrs)
+            attrsDict = crifanLib.crifanList.tupleListToDict(singleContent.attrs)
             if ((singleContent.name == tagName)
                     and (singleContent.attrs)
                     and (tagAttrKey in attrsDict)

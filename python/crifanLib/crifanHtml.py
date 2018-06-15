@@ -6,7 +6,7 @@ Function: crifanLib's html related functions.
 Version: v1.0 20180605
 Note:
 1. latest version and more can found here:
-https://github.com/crifan/crifanLib/blob/master/python/
+https://github.com/crifan/crifanLib/blob/master/python/crifanLib
 """
 
 __author__ = "Crifan Li (admin@crifan.com)"
@@ -63,7 +63,7 @@ gConst = {
 def codePointToChar(codePoint):
     """convert unicode code point to char"""
     unicodeChar = ""
-    if crifanSystem.isPython2():
+    if crifanLib.crifanSystem.isPython2():
         unicodeChar = unichr(codePoint)
     else:
         unicodeChar = chr(codePoint)

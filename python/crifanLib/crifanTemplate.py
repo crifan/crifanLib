@@ -1,12 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
-Filename: .py
-Function: crifanLib's related functions.
+Filename: crifanXxx.py
+Function: crifanLib's xxx related functions.
 Version: v1.0 20180605
 Note:
 1. latest version and more can found here:
-https://github.com/crifan/crifanLib/blob/master/python/
+https://github.com/crifan/crifanLib/blob/master/python/crifanLib
 """
 
 __author__ = "Crifan Li (admin@crifan.com)"
@@ -22,7 +22,7 @@ __license__ = "GPL"
 ################################################################################
 # Constant
 ################################################################################
-CURRENT_LIB_FILENAME = ""
+CURRENT_LIB_FILENAME = "crifanXxx"
 
 ################################################################################
 # Global Variable

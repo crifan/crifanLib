@@ -6,7 +6,7 @@ Function: crifanLib's logging related functions.
 Version: v1.3 20180609
 Note:
 1. latest version and more can found here:
-https://github.com/crifan/crifanLib/blob/master/python/
+https://github.com/crifan/crifanLib/blob/master/python/crifanLib
 """
 
 __author__ = "Crifan Li (admin@crifan.com)"

@@ -6,7 +6,7 @@ Function: crifanLib's dict related functions.
 Version: v1.0 20180614
 Note:
 1. latest version and more can found here:
-https://github.com/crifan/crifanLib/blob/master/python/
+https://github.com/crifan/crifanLib/blob/master/python/crifanLib
 """
 
 __author__ = "Crifan Li (admin@crifan.com)"
@@ -116,7 +116,7 @@ bDict should use deepcopy, otherwise will be altered after call this function !!
 
     """
     aDictItems = None
-    if crifanSystem.isPython2(): # is python 2
+    if crifanLib.crifanSystem.isPython2(): # is python 2
       aDictItems = aDict.iteritems()
     else: # is python 3
       aDictItems = aDict.items()

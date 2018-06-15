@@ -6,7 +6,7 @@ Function: crifanLib's file related functions.
 Version: v1.0 20180605
 Note:
 1. latest version and more can found here:
-https://github.com/crifan/crifanLib/blob/master/python/
+https://github.com/crifan/crifanLib/blob/master/python/crifanLib
 """
 
 __author__ = "Crifan Li (admin@crifan.com)"
@@ -56,7 +56,7 @@ def genSufList():
         for c in suffix:
             sufChrList.append(c)
 
-    sufChrList = crifanList.uniqueList(sufChrList)
+    sufChrList = crifanLib.crifanList.uniqueList(sufChrList)
     # sufChrList = uniqueList(sufChrList)
     sufChrList.sort()
     joinedSuf = ''.join(sufChrList)

@@ -6,7 +6,7 @@ Function: crifanLib's list related functions.
 Version: v1.0 20180605
 Note:
 1. latest version and more can found here:
-https://github.com/crifan/crifanLib/blob/master/python/
+https://github.com/crifan/crifanLib/blob/master/python/crifanLib
 """
 
 __author__ = "Crifan Li (admin@crifan.com)"
@@ -17,6 +17,7 @@ __license__ = "GPL"
 
 # from . import crifanString
 import crifanLib.crifanString
+
 
 
 ################################################################################
@@ -71,7 +72,7 @@ def genListStr(listValue, encForUniVal="UTF-8", isRetainLastComma=False, delimit
 
     generatedListStr = ""
     for eachValue in listValue:
-        if crifanString.isStringInstance(eachValue):
+        if crifanLib.crifanString.isStringInstance(eachValue):
             generatedListStr += eachValue.encode(encForUniVal) + delimiter
         else:
             generatedListStr += str(eachValue) + delimiter
