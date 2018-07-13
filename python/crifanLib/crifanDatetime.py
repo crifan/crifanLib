@@ -3,14 +3,14 @@
 """
 Filename: crifanDatetime.py
 Function: crifanLib's datetime related functions.
-Version: v1.0 20180605
+Version: v1.1 20180713
 Note:
 1. latest version and more can found here:
 https://github.com/crifan/crifanLib/blob/master/python/crifanLib
 """
 
 __author__ = "Crifan Li (admin@crifan.com)"
-__version__ = "v1.0"
+__version__ = "v1.1"
 __copyright__ = "Copyright (c) 2018, Crifan Li"
 __license__ = "GPL"
 
@@ -73,23 +73,39 @@ def getCurDatetimeStr(outputFormat="%Y%m%d_%H%M%S"):
     return curDatetimeStr
 
 
-def getCurTimestamp():
+def getCurTimestamp(withMilliseconds=False):
     """
     get current time's timestamp
-        eg: 1351670162
+        (default)not milliseconds -> 10 digits: 1351670162
+        with milliseconds -> 13 digits: 1531464292921
     """
-    return datetimeToTimestamp(datetime.now())
+    curDatetime = datetime.now()
+    return datetimeToTimestamp(curDatetime, withMilliseconds)
 
 
-def datetimeToTimestamp(datetimeVal) :
+def datetimeToTimestamp(datetimeVal, withMilliseconds=False) :
     """
         convert datetime value to timestamp
         eg:
-            "2006-06-01 00:00:00" -> 1149091200
+            "2006-06-01 00:00:00.123" -> 1149091200
+            if with milliseconds -> 1149091200123
     :param datetimeVal:
     :return:
     """
-    return int(time.mktime(datetimeVal.timetuple()))
+    timetupleValue = datetimeVal.timetuple()
+    timestampFloat = time.mktime(timetupleValue) # 1531468736.0 -> 10 digits
+    timestamp10DigitInt = int(timestampFloat) # 1531468736
+    timestampInt = timestamp10DigitInt
+
+    if withMilliseconds:
+        microsecondInt = datetimeVal.microsecond # 817762
+        microsecondFloat = float(microsecondInt)/float(1000000) # 0.817762
+        timestampFloat = timestampFloat + microsecondFloat # 1531468736.817762
+        timestampFloat = timestampFloat * 1000 # 1531468736817.7621 -> 13 digits
+        timestamp13DigitInt = int(timestampFloat) # 1531468736817
+        timestampInt = timestamp13DigitInt
+
+    return timestampInt
 
 
 def timestampToDatetime(timestamp):
@@ -131,7 +147,14 @@ def calcTimeEnd(uniqueKey):
 # Test
 ################################################################################
 
-
+def testTimestamp():
+    # test timestamp with milliseconds
+    timestampNoMilliSec = getCurTimestamp()
+    print("timestampNoMilliSec=%s" % timestampNoMilliSec) # 1531468833
+    timestampWithMilliSec = getCurTimestamp(withMilliseconds=True)
+    print("timestampWithMilliSec=%s" % timestampWithMilliSec) # 1531468833344
 
 if __name__ == '__main__':
     print("[crifanLib-%s] %s" % (CURRENT_LIB_FILENAME, __version__))
+
+    # testTimestamp()
