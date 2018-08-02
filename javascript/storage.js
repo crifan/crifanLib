@@ -1,8 +1,8 @@
 /*
  * Javascript storage realted functions
  * 
- * Crifan Li
- * Updated: 20180731
+ * Author: Crifan Li
+ * Updated: 20180802
  * 
  */
 

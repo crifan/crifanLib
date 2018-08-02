@@ -1,3 +1,10 @@
+/*
+ * Javascript datetime realted functions
+ * 
+ * Author: Crifan Li
+ * Updated: 20180802
+ * 
+ */
 
 export const INVALID_DATE = new Date("1970/1/1");
 

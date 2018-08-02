@@ -1,8 +1,8 @@
 /*
  * Javascript string realted functions
  * 
- * Crifan Li
- * Updated: 2017/09/28
+ * Author: Crifan Li
+ * Updated: 20180802
  * 
  */
 
