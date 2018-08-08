@@ -2,7 +2,7 @@
  * Javascript string realted functions
  * 
  * Author: Crifan Li
- * Updated: 20180802
+ * Updated: 20180808
  * 
  */
 
@@ -29,4 +29,10 @@ export function  extractSingleStr(curStr, pattern, flags='i') {
   console.log(`curStr=${curStr}, pattern=${pattern}, flags=${flags} -> extractedStr=${extractedStr}`);
 
   return extractedStr;
+}
+
+// let capitalizedStr = originStr.capitalize()
+// 'hello' -> 'Hello'
+String.prototype.capitalize = function() {
+  return this.charAt(0).toUpperCase() + this.slice(1);
 }
