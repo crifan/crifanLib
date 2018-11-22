@@ -3,7 +3,7 @@
 """
 Filename: crifanFile.py
 Function: crifanLib's file related functions.
-Version: v1.0 20180605
+Last Update: 20181122
 Note:
 1. latest version and more can found here:
 https://github.com/crifan/crifanLib/blob/master/python/crifanLib
@@ -16,6 +16,11 @@ __license__ = "GPL"
 
 import os
 import sys
+import shutil
+import codecs
+import pysrt
+import chardet
+
 # from . import crifanList
 import crifanLib.crifanList
 
@@ -69,7 +74,6 @@ def genSufList():
 # File Function
 ################################################################################
 
-
 def saveBinDataToFile(binaryData, fileToSave):
     """save binary data into file"""
     saveOK = False
@@ -83,6 +87,54 @@ def saveBinDataToFile(binaryData, fileToSave):
     except :
         saveOK = False
     return saveOK
+
+
+def saveDataToFile(fullFilename, binaryData):
+    """save binary data info file"""
+    with open(fullFilename, 'wb') as fp:
+        fp.write(binaryData)
+        fp.close()
+        # logging.debug("Complete save file %s", fullFilename)
+
+def saveJsonToFile(fullFilename, jsonValue):
+    """save json dict into file"""
+    with codecs.open(fullFilename, 'w', encoding="utf-8") as jsonFp:
+        json.dump(jsonValue, jsonFp, indent=2, ensure_ascii=False)
+        logging.debug("Complete save json %s", fullFilename)
+
+def loadJsonFromFile(fullFilename):
+    """load and parse json dict from file"""
+    with codecs.open(fullFilename, 'r', encoding="utf-8") as jsonFp:
+        jsonDict = json.load(jsonFp)
+        logging.debug("Complete load json from %s", fullFilename)
+        return jsonDict
+
+def loadTextFromFile(fullFilename):
+    """load file text content from file"""
+    with codecs.open(fullFilename, 'r', encoding="utf-8") as fp:
+        allText = fp.read()
+        logging.debug("Complete load text from %s", fullFilename)
+        return allText
+
+################################################################################
+# Folder Function
+################################################################################
+
+def deleteFolder(folderFullPath):
+    """
+        delete folder
+        Note:makesure folder is already existed
+    """
+    if os.path.exists(folderFullPath):
+        shutil.rmtree(folderFullPath)
+
+def createFolder(folderFullPath):
+    """
+        create folder, even if already existed
+        Note: for Python 3.2+
+    """
+    os.makedirs(folderFullPath, exist_ok=True)
+
 
 ################################################################################
 # Filename Function
@@ -212,6 +264,39 @@ def getInputFileBasenameNoSuffix():
     inputFileBasename = getInputFileBasename()
     basenameRemovedSuffix = removeSuffix(inputFileBasename)
     return basenameRemovedSuffix
+
+################################################################################
+# SRT Subtitle Parsing
+################################################################################
+
+def extractRawSubtitleList(subtitleFullPath, srtEncodingConfidenceThreshold = 0.8, defaultEncoding="utf-8"):
+    """
+        extract subtitle text file to raw subtitle list of dict {start, end, text},
+        and support auto detect srt file encoding
+    """
+
+    getSubOk = False
+    rawSubtitleListOrErrMsg = "Unknown Error"
+
+    with open(subtitleFullPath, 'rb') as subtitleFp:
+        fileContentStr = subtitleFp.read()
+        detectedResult = chardet.detect(fileContentStr)
+        # logging.debug("detectedResult=%s", detectedResult)
+        fileEncoding = defaultEncoding
+        if detectedResult["confidence"] >= srtEncodingConfidenceThreshold:
+            fileEncoding = detectedResult["encoding"] # 'UTF-8-SIG'
+        # logging.debug("fileEncoding=%s", fileEncoding)
+
+        try:
+            rawSubtitleList = pysrt.open(subtitleFullPath, encoding=fileEncoding)
+            rawSubtitleListOrErrMsg = rawSubtitleList
+            getSubOk = True
+        except Exception as openSrtException:
+            rawSubtitleListOrErrMsg = str(openSrtException)
+            # logging.debug("Error %s of pysrt.open %s", rawSubtitleListOrErrMsg, subtitleFullPath)
+
+    return getSubOk, rawSubtitleListOrErrMsg
+
 
 ################################################################################
 # Test

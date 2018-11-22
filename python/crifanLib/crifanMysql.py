@@ -181,6 +181,9 @@ class MysqlDb:
 
         return foundErrorCode, errorCode, errorMessage
 
+    def cursor(self):
+        return self.connection.cursor()
+
     def executeSql(self, sqlStr, actionDescription=""):
         logging.debug("executeSql: sqlStr=%s, actionDescription=%s", sqlStr, actionDescription)
 

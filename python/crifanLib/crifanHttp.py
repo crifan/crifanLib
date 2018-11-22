@@ -166,7 +166,7 @@ def downloadFile(fileUrl, fileToSave, needReport=False):
 
     # note: totalFileSize -> may be -1 on older FTP servers which do not return a file size in response to a retrieval request
     def reportHook(copiedBlocks, blockSize, totalFileSize):
-        # global downloadingFile
+        # models downloadingFile
         if copiedBlocks == 0:  # 1st call : once on establishment of the network connection
             print('Begin to download %s, total size=%d' % (downloadingFile, totalFileSize))
         else:  # rest call : once after each block read thereafter

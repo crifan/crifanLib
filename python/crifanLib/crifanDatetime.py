@@ -16,8 +16,8 @@ __license__ = "GPL"
 
 
 from datetime import datetime,timedelta
+from datetime import time  as datetimeTime
 import time
-
 
 ################################################################################
 # Config
@@ -142,6 +142,73 @@ def calcTimeEnd(uniqueKey):
 
     return time.time() - gVal['calTimeKeyDict'][uniqueKey]
 
+
+def floatSecondsToDatetimeTime(floatSeconds):
+    """
+        convert float seconds(time delta) to datetime.time
+
+        example: 27.83879017829895 -> datetime.time(0, 0, 27, 838790)
+
+        Note: the max hour can NOT excedd 24 hors, otherwise will error: ValueError: hour must be in 0..23
+    """
+    secondsInt = int(floatSeconds)
+    decimalsFloat = floatSeconds - secondsInt
+    millisecondsFloat = decimalsFloat * 1000
+    millisecondsInt = int(millisecondsFloat)
+    microsecondsDecimal = millisecondsFloat - millisecondsInt
+    microsecondsInt = int(microsecondsDecimal * 1000)
+
+    minutes, seconds = divmod(secondsInt, 60)
+    hours, minutes = divmod(minutes, 60)
+
+    # datetimeTimeValue = datetime.time(
+    datetimeTimeValue = datetimeTime(
+        hour        =hours,
+        minute      =minutes,
+        second      =seconds,
+        microsecond =(millisecondsInt * 1000) + microsecondsInt
+    )
+
+    return datetimeTimeValue
+
+
+def floatSecondsToDatetimeDict(floatSeconds):
+    """
+        convert float seconds(time delta) to datetime dict{days, hours, minutes, seconds, millseconds, microseconds}
+
+        example: 96400.3765293 -> {'days': 1, 'hours': 2, 'minutes': 46, 'seconds': 40, 'millseconds': 376, 'microseconds': 529}
+    """
+    secondsInt = int(floatSeconds)
+    decimalsFloat = floatSeconds - secondsInt
+    millisecondsFloat = decimalsFloat * 1000
+    millisecondsInt = int(millisecondsFloat)
+    microsecondsDecimal = millisecondsFloat - millisecondsInt
+    microsecondsInt = int(microsecondsDecimal * 1000)
+
+    minutes, seconds = divmod(secondsInt, 60)
+    hours, minutes = divmod(minutes, 60)
+    days, hours = divmod(hours, 24)
+
+    convertedDict = {
+        "days": days,
+        "hours": hours,
+        "minutes": minutes,
+        "seconds": seconds,
+        "millseconds": millisecondsInt,
+        "microseconds": microsecondsInt,
+    }
+
+    return convertedDict
+
+
+def datetimeDictToStr(datetimeDict, seperatorD=" ", seperatorHms=":", seperatorMilliS="."):
+    formattedStr = "%d%s%02d%s%02d%s%02d%s%03d" % (
+        datetimeDict["days"], seperatorD,
+        datetimeDict["hours"], seperatorHms,
+        datetimeDict["minutes"], seperatorHms,
+        datetimeDict["seconds"], seperatorMilliS,
+        datetimeDict["millseconds"])
+    return formattedStr
 
 ################################################################################
 # Test

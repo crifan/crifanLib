@@ -18,6 +18,7 @@ __license__ = "GPL"
 import re
 import json
 import random
+from enum import Enum
 
 try:
     import chardet
@@ -487,6 +488,70 @@ def transZhcnToEn(strToTrans):
     return transOK, translatedStr
 
 
+#----------------------------------------
+# String Language
+#----------------------------------------
+
+class LanguageType(Enum):
+    UNKNOWN = '未知语言'
+    ZHCN = '中文'
+    EN = '英文'
+    JP = '日文'
+
+def detectLanguageType(inputString, possibilityRatioThreshold = 0.7):
+    """
+        input: a string
+        output: the possible language type and possiblity
+
+        * 测试中文
+          * 输入：`testInputStr1 = "测试Python代码的编程逻辑和基本语法"`
+          * 输出：中文，0.7
+        * 测试英文
+          * 输入：`testInputStr2 = "test python basic programming logic and grammar"`
+          * 输出：英文，1.0
+        * 测试未超过比例
+          * 输入：`testInputStr3 = "test python basic 代码逻辑和基本语法"`
+          * 输出：未知，0.0
+            * 提示，此时：
+              * 0.375部分是中文
+              * 0.625部分是英文
+                * 都没有超过0.7，所以输出 未知语言
+        * 测试日文
+          * 输入：`testInputStr4 = "Pythonコードプログラミングのロジックと基本スキルをテストする"`
+          * 输出：日文，0.76
+    """
+    lanType = LanguageType.UNKNOWN
+    lanPossibilityRatio = 0.0
+    inputStrNoSpace = re.sub("\s", "", inputString)
+    totalCharNumLen = len(inputStrNoSpace)
+    if totalCharNumLen <= 0:
+        return lanType, lanPossibilityRatio
+
+    languagePatternList = [
+        {
+            "lanType" : LanguageType.ZHCN,
+            "lanPattern" : "[\\u4e00-\\u9fa5]"
+        },
+        {
+            "lanType" : LanguageType.EN,
+            "lanPattern" : "[a-zA-Z]"
+        },
+        {
+            "lanType" : LanguageType.JP,
+            "lanPattern" : "[\\u3040-\\u309F\\u30A0-\\u30FF]"
+        }
+    ]
+    for curPatternDict in languagePatternList:
+        # curCharNumList = re.compile(curPatternDict['lanPattern']).findall(inputStrNoSpace)
+        curCharNumList = re.findall(curPatternDict['lanPattern'], inputStrNoSpace)
+        curCharNumLen = len(curCharNumList)
+        curLanCharRatio = float(curCharNumLen)/float(totalCharNumLen)
+        if curLanCharRatio >= possibilityRatioThreshold:
+            lanType = curPatternDict['lanType']
+            lanPossibilityRatio = curLanCharRatio
+            break
+
+    return lanType, lanPossibilityRatio
 
 ################################################################################
 # Test
