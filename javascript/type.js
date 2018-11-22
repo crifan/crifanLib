@@ -2,13 +2,26 @@
  * Javascript type check realted functions
  * 
  * Author: Crifan Li
- * Updated: 20180802
+ * Updated: 20181122
  * 
  */
 
 export function isEmptyObj(obj) {
-  return Object.keys(obj).length === 0
-}
+// function isEmptyObj(obj) {
+    var isEmpty = false
+    if (obj === undefined){
+      isEmpty = true
+    } else {
+      isEmpty = (Object.keys(obj).length === 0)
+    }
+    return isEmpty
+  }
+  // console.debug("=== test empty object ===")
+  // var emptyObj = {}
+  // var undefinedObj = undefined
+  // console.log("emptyObj isEmpty=", isEmptyObj(emptyObj)) // true
+  // console.log("undefinedObj isEmpty=", isEmptyObj(undefinedObj)) // true
+  
 
 export function isString(curValue) {
   const isStr = (typeof curValue === 'string' || curValue instanceof String)

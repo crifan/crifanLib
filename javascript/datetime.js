@@ -2,7 +2,7 @@
  * Javascript datetime realted functions
  * 
  * Author: Crifan Li
- * Updated: 20180802
+ * Updated: 20181122
  * 
  */
 
@@ -74,13 +74,20 @@ Date.prototype.prevNextHours = function (hoursNumber) {
 
 // 对Date的扩展，返回时间戳(毫秒，13位)
 // 例子：
-// this=Tue Jun 06 2017 15:00:00 GMT+0800 (CST) -> timesamp=1496732400000
+// this=Tue Jun 06 2017 15:00:00 GMT+0800 (CST) -> 1496732400000
+// Mon Nov 12 2018 11:03:47 GMT+0800 (中国标准时间) -> 1541991827756
 Date.prototype.timestamp = function () {
   // console.log(`Date timesamp: this=${this}`);
   let timesamp = this.getTime();
   // console.log(`this=${this} -> timesamp=${timesamp}`);
-  return timesamp;
-};
+  return timesamp
+}
+// console.debug("=== Test Date.timestamp ===")
+// var curDate = new Date()
+// console.log("curDate=%o", curDate)
+// var curTimestamp = curDate.timestamp()
+// console.log("curTimestamp=%o", curTimestamp)
+
 
 // 对Date的扩展，将 Date 转化为指定格式的String
 // 月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符，
@@ -90,41 +97,46 @@ Date.prototype.timestamp = function () {
 // (new Date()).Format("yyyy-M-d h:H:s.S")      ==> 2006-7-2 8:9:4.18
 Date.prototype.Format = function (fmt) {
   const o = {
-    "M+": this.getMonth() + 1, //月份
-    "d+": this.getDate(), //日
-    "H+": this.getHours(), //小时
-    "m+": this.getMinutes(), //分
-    "s+": this.getSeconds(), //秒
-    "q+": Math.floor((this.getMonth() + 3) / 3), //季度
-    "S": this.getMilliseconds() //毫秒
+      "M+": this.getMonth() + 1, //月份
+      "d+": this.getDate(), //日
+      "H+": this.getHours(), //小时
+      "m+": this.getMinutes(), //分
+      "s+": this.getSeconds(), //秒
+      "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+      "S": this.getMilliseconds() //毫秒
   };
 
   if (/(y+)/.test(fmt)){
-    fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+      fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
   }
 
   for (const k in o){
-    if (new RegExp("(" + k + ")").test(fmt)){
+      if (new RegExp("(" + k + ")").test(fmt)){
       fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-    }
+      }
   }
   return fmt;
-};
+}
+// console.debug("=== Test Date.Format ===")
+// var curDate = new Date()
+// console.log("curDate=%o", curDate)
+// var curDateStr1 = curDate.Format("yyyy-MM-dd") //2017-06-09
+// var curDateStr2 = curDate.Format("yyyy-MM-dd HH:mm:ss") //2017-06-09 09:54:35
+// var curDateStr3 = curDate.Format("yyyyMMdd_HHmmss") //20170609_095435
+// console.log("curDateStr1=%o", curDateStr1)
+// console.log("curDateStr2=%o", curDateStr2)
+// console.log("curDateStr3=%o", curDateStr3)
 
-// var time1 = new Date().Format("yyyy-MM-dd");
-// var time2 = new Date().Format("yyyy-MM-dd HH:mm:ss");
-// console.log(time1);  //2017-06-09
-// console.log(time2);  //2017-06-09 09:54:35
 
 /** * 对Date的扩展，将 Date 转化为指定格式的String * 月(M)、日(d)、12小时(h)、24小时(H)、分(m)、秒(s)、周(E)、季度(q)
-    可以用 1-2 个占位符 * 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)
- * eg:
- * (new Date()).pattern("yyyy-MM-dd HH:mm:ss.S")==> 2006-07-02 08:09:04.423
- * (new Date()).pattern("yyyy-MM-dd E HH:mm:ss") ==> 2009-03-10 二 20:09:04
- * (new Date()).pattern("yyyy-MM-dd EE HH:mm:ss") ==> 2009-03-10 周二 08:09:04
- * (new Date()).pattern("yyyy-MM-dd EEE HH:mm:ss") ==> 2009-03-10 星期二 08:09:04
- * (new Date()).pattern("yyyy-M-d H:m:s.S") ==> 2006-7-2 8:9:4.18
- */
+   可以用 1-2 个占位符 * 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)
+* eg:
+* (new Date()).pattern("yyyy-MM-dd HH:mm:ss.S")==> 2006-07-02 08:09:04.423
+* (new Date()).pattern("yyyy-MM-dd E HH:mm:ss") ==> 2009-03-10 二 20:09:04
+* (new Date()).pattern("yyyy-MM-dd EE HH:mm:ss") ==> 2009-03-10 周二 08:09:04
+* (new Date()).pattern("yyyy-MM-dd EEE HH:mm:ss") ==> 2009-03-10 星期二 08:09:04
+* (new Date()).pattern("yyyy-M-d H:m:s.S") ==> 2006-7-2 8:9:4.18
+*/
 Date.prototype.pattern=function(fmt) {
   const o = {
     "M+" : this.getMonth()+1, //月份
@@ -152,9 +164,10 @@ Date.prototype.pattern=function(fmt) {
   }
 
   return fmt;
-};
+}
+// console.debug("=== Test Date.pattern ===")
+// var curDate = new Date()
+// console.log(curDate.pattern("yyyy-MM-dd EEE HH:mm:ss"))  //2017-06-09 星期五 10:16:12
+// console.log(curDate.pattern("yyyy-MM-dd EE HH:mm:ss"))   //2017-06-09 周五 10:16:12
+// console.log(curDate.pattern("yyyy-MM-dd E HH:mm:ss"))    //2017-06-09 五 10:16:12
 
-// var date = new Date();
-// console.log(date.pattern("yyyy-MM-dd EEE HH:mm:ss"));  //2017-06-09 星期五 10:16:12
-// console.log(date.pattern("yyyy-MM-dd EE HH:mm:ss"));   //2017-06-09 周五 10:16:12
-// console.log(date.pattern("yyyy-MM-dd E HH:mm:ss"));    //2017-06-09 五 10:16:12
