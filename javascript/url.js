@@ -81,7 +81,7 @@ function getCurQueryStr(){
     return curQuerySearch
 }
 
-  // input: None
+// input: None
 //    current url is: http://xxx/index.html?q=&tag=Lost%20and%20Found&difficulty=20
 // output: {q: "", tag: "Lost and Found", difficulty: "20"}
 function getCurQueryDict(){
@@ -103,3 +103,48 @@ function getQueryValueFromCurSearch(queryKey){
     var currentQueryDict = getCurQueryDict()
     return getValueFromDict(currentQueryDict, queryKey)
 }
+
+
+function redirectToUrl(baseUrl, queryParaDict={}){
+    console.log("redirectToUrl: baseUrl=%s, queryParaDict=%o", baseUrl, queryParaDict)
+  
+    var encodedQueryStr = ""
+    if (queryParaDict){
+        encodedQueryStr = encodeQueryDict(queryParaDict)
+    }
+    console.log("encodedQueryStr=", encodedQueryStr)
+  
+    var fullUrl = baseUrl
+    if (encodedQueryStr) {
+        fullUrl += "?" + encodedQueryStr
+    }
+    // console.log("fullUrl=", fullUrl)
+    console.log("Now redirect to url: %s", fullUrl)
+    window.location = fullUrl
+  }
+  
+  // from: file:///xxx/StorybookQueryWeb/index.html?q=&tag=Individuality&difficulty=7
+  // got: /xxx/StorybookQueryWeb/index.html
+  function getCurUrlPath(){
+    // var curUrl = window.location.href.substring(window.location.href.lastIndexOf('/') + 1).split("?")[0]
+    // console.log("curUrl=%o", curUrl)
+    // locationHref="file:///xxx/StorybookQueryWeb/index.html?q=&tag=Individuality&difficulty=7"
+    var locationPathname = window.location.pathname
+    console.log("locationPathname=%o", locationPathname)
+    return locationPathname
+  }
+  
+  
+  // clear query string in url: index.html?q=&tag=Individuality&difficulty=7
+  // to : index.html
+  function clearQueryStrInUrl(){
+    // var locationHref = window.location.href
+    // console.log("locationHref=%s", locationHref)
+    var curUrl = getCurUrlPath()
+    console.log("curUrl=%s", curUrl)
+    var curTitle = document.title
+    console.log("curTitle=%s", curTitle)
+    // window.history.pushState({"q": ""}, curTitle, curUrl)
+    window.history.pushState({}, curTitle, curUrl)
+  }
+  
