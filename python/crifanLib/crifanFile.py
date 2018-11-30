@@ -3,14 +3,14 @@
 """
 Filename: crifanFile.py
 Function: crifanLib's file related functions.
-Last Update: 20181122
+Last Update: 20181130
 Note:
 1. latest version and more can found here:
 https://github.com/crifan/crifanLib/blob/master/python/crifanLib
 """
 
 __author__ = "Crifan Li (admin@crifan.com)"
-__version__ = "v1.0"
+__version__ = "v20181130"
 __copyright__ = "Copyright (c) 2018, Crifan Li"
 __license__ = "GPL"
 
@@ -20,6 +20,7 @@ import shutil
 import codecs
 import pysrt
 import chardet
+import json
 
 # from . import crifanList
 import crifanLib.crifanList
@@ -96,24 +97,27 @@ def saveDataToFile(fullFilename, binaryData):
         fp.close()
         # logging.debug("Complete save file %s", fullFilename)
 
-def saveJsonToFile(fullFilename, jsonValue):
-    """save json dict into file"""
-    with codecs.open(fullFilename, 'w', encoding="utf-8") as jsonFp:
-        json.dump(jsonValue, jsonFp, indent=2, ensure_ascii=False)
-        logging.debug("Complete save json %s", fullFilename)
+def saveJsonToFile(fullFilename, jsonValue, indent=2, fileEncoding="utf-8"):
+    """
+        save json dict into file
+        for non-ascii string, output encoded string, without \\u xxxx
+    """
+    with codecs.open(fullFilename, 'w', encoding=fileEncoding) as jsonFp:
+        json.dump(jsonValue, jsonFp, indent=indent, ensure_ascii=False)
+        # logging.debug("Complete save json %s", fullFilename)
 
-def loadJsonFromFile(fullFilename):
+def loadJsonFromFile(fullFilename, fileEncoding="utf-8"):
     """load and parse json dict from file"""
-    with codecs.open(fullFilename, 'r', encoding="utf-8") as jsonFp:
+    with codecs.open(fullFilename, 'r', encoding=fileEncoding) as jsonFp:
         jsonDict = json.load(jsonFp)
-        logging.debug("Complete load json from %s", fullFilename)
+        # logging.debug("Complete load json from %s", fullFilename)
         return jsonDict
 
-def loadTextFromFile(fullFilename):
+def loadTextFromFile(fullFilename, fileEncoding="utf-8"):
     """load file text content from file"""
-    with codecs.open(fullFilename, 'r', encoding="utf-8") as fp:
+    with codecs.open(fullFilename, 'r', encoding=fileEncoding) as fp:
         allText = fp.read()
-        logging.debug("Complete load text from %s", fullFilename)
+        # logging.debug("Complete load text from %s", fullFilename)
         return allText
 
 ################################################################################
@@ -134,6 +138,83 @@ def createFolder(folderFullPath):
         Note: for Python 3.2+
     """
     os.makedirs(folderFullPath, exist_ok=True)
+
+
+################################################################################
+# File and Folder Function
+################################################################################
+
+def getFileFolderSize(fileOrFolderPath):
+  """get size for file or folder"""
+  totalSize = 0
+
+  if not os.path.exists(fileOrFolderPath):
+    return totalSize
+
+  if os.path.isfile(fileOrFolderPath):
+    totalSize = os.path.getsize(fileOrFolderPath) # 5041481
+    return totalSize
+
+  if os.path.isdir(fileOrFolderPath):
+    with os.scandir(fileOrFolderPath) as dirEntryList:
+      for curSubEntry in dirEntryList:
+        curSubEntryFullPath = os.path.join(fileOrFolderPath, curSubEntry.name)
+        if curSubEntry.is_dir():
+          curSubFolderSize = getFileFolderSize(curSubEntryFullPath) # 5800007
+          totalSize += curSubFolderSize
+        elif curSubEntry.is_file():
+          curSubFileSize = os.path.getsize(curSubEntryFullPath) # 1891
+          totalSize += curSubFileSize
+
+      return totalSize
+
+
+def formatSize(sizeInBytes, decimalNum=1, isUnitWithI=False):
+  """
+    format size to human readable
+
+    example:
+      3746 -> 3.7KB
+      87533 -> 85.5KiB
+      352 -> 352.0B
+      76383285 -> 72.84MB
+      763832854988542 -> 694.70TB
+      763832854988542665 -> 678.4199PB
+
+    refer:
+      https://stackoverflow.com/questions/1094841/reusable-library-to-get-human-readable-version-of-file-size
+      https://en.wikipedia.org/wiki/Binary_prefix#Specific_units_of_IEC_60027-2_A.2_and_ISO.2FIEC_80000
+
+    Unit:
+      K=kilo, M=mega, G=giga, T=tera, P=peta, E=exa, Z=zetta, Y=yotta
+  """
+  sizeUnitList = ['','K','M','G','T','P','E','Z']
+  largestUnit = 'Y'
+
+  if isUnitWithI:
+    sizeUnitListWithI = []
+    for curIdx, eachUnit in enumerate(sizeUnitList):
+      unitWithI = eachUnit
+      if curIdx >= 1:
+        unitWithI += 'i'
+      sizeUnitListWithI.append(unitWithI)
+
+    # sizeUnitListWithI = ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']
+    sizeUnitList = sizeUnitListWithI
+
+    largestUnit += 'i'
+
+  suffix = "B"
+  decimalFormat = "." + str(decimalNum) + "f" # ".1f"
+  # belowKBFormat = "%3" + decimalFormat + "%s%s" # "%3.1f%s%s"
+  normalFormat = "%" + decimalFormat + "%s%s" # "%.1f%s%s"
+  sizeNum = sizeInBytes
+  for sizeUnit in sizeUnitList:
+      if abs(sizeNum) < 1024.0:
+        # return belowKBFormat % (sizeNum, sizeUnit, suffix)
+        return normalFormat % (sizeNum, sizeUnit, suffix)
+      sizeNum /= 1024.0
+  return normalFormat % (sizeNum, largestUnit, suffix)
 
 
 ################################################################################
