@@ -3,14 +3,14 @@
 """
 Filename: crifanFile.py
 Function: crifanLib's file related functions.
-Last Update: 20181130
+Last Update: 20181201
 Note:
 1. latest version and more can found here:
 https://github.com/crifan/crifanLib/blob/master/python/crifanLib
 """
 
 __author__ = "Crifan Li (admin@crifan.com)"
-__version__ = "v20181130"
+__version__ = "v20181201"
 __copyright__ = "Copyright (c) 2018, Crifan Li"
 __license__ = "GPL"
 
@@ -18,9 +18,18 @@ import os
 import sys
 import shutil
 import codecs
-import pysrt
-import chardet
 import json
+
+try:
+    import pysrt
+except ImportError:
+    print("crifanFile: Can not found lib pysrt")
+
+try:
+    import chardet
+except ImportError:
+    print("crifanFile: Can not found lib chardet")
+
 
 # from . import crifanList
 import crifanLib.crifanList
