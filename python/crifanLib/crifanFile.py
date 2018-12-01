@@ -169,13 +169,14 @@ def getFileFolderSize(fileOrFolderPath):
       return totalSize
 
 
-def formatSize(sizeInBytes, decimalNum=1, isUnitWithI=False):
+def formatSize(sizeInBytes, decimalNum=1, isUnitWithI=False, sizeUnitSeperator=""):
   """
-    format size to human readable
+    format size to human readable string
 
     example:
       3746 -> 3.7KB
       87533 -> 85.5KiB
+      98654 -> 96.3 KB
       352 -> 352.0B
       76383285 -> 72.84MB
       763832854988542 -> 694.70TB
@@ -183,11 +184,9 @@ def formatSize(sizeInBytes, decimalNum=1, isUnitWithI=False):
 
     refer:
       https://stackoverflow.com/questions/1094841/reusable-library-to-get-human-readable-version-of-file-size
-      https://en.wikipedia.org/wiki/Binary_prefix#Specific_units_of_IEC_60027-2_A.2_and_ISO.2FIEC_80000
-
-    Unit:
-      K=kilo, M=mega, G=giga, T=tera, P=peta, E=exa, Z=zetta, Y=yotta
   """
+  # https://en.wikipedia.org/wiki/Binary_prefix#Specific_units_of_IEC_60027-2_A.2_and_ISO.2FIEC_80000
+  # K=kilo, M=mega, G=giga, T=tera, P=peta, E=exa, Z=zetta, Y=yotta
   sizeUnitList = ['','K','M','G','T','P','E','Z']
   largestUnit = 'Y'
 
@@ -206,15 +205,13 @@ def formatSize(sizeInBytes, decimalNum=1, isUnitWithI=False):
 
   suffix = "B"
   decimalFormat = "." + str(decimalNum) + "f" # ".1f"
-  # belowKBFormat = "%3" + decimalFormat + "%s%s" # "%3.1f%s%s"
-  normalFormat = "%" + decimalFormat + "%s%s" # "%.1f%s%s"
+  finalFormat = "%" + decimalFormat + sizeUnitSeperator + "%s%s" # "%.1f%s%s"
   sizeNum = sizeInBytes
   for sizeUnit in sizeUnitList:
       if abs(sizeNum) < 1024.0:
-        # return belowKBFormat % (sizeNum, sizeUnit, suffix)
-        return normalFormat % (sizeNum, sizeUnit, suffix)
+        return finalFormat % (sizeNum, sizeUnit, suffix)
       sizeNum /= 1024.0
-  return normalFormat % (sizeNum, largestUnit, suffix)
+  return finalFormat % (sizeNum, largestUnit, suffix)
 
 
 ################################################################################
