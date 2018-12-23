@@ -2,20 +2,27 @@
 # -*- coding: utf-8 -*-
 """
 Filename: crifanMultimedia.py
-Function: crifanLib's python multimedia (audio, video) related functions
-Version: v20181122
+Function: crifanLib's python multimedia (audio, video, image) related functions
+Version: v20181223
 Note:
 1. latest version and more can found here:
 https://github.com/crifan/crifanLib/blob/master/python/crifanLib
 """
 
 __author__ = "Crifan Li (admin@crifan.com)"
-__version__ = "v20181122"
+__version__ = "v20181223"
 __copyright__ = "Copyright (c) 2018, Crifan Li"
 __license__ = "GPL"
 
 import os
+import io
+try:
+    from PIL import Image
+except:
+    print("need Pillow if use crifanMultimedia Image functions")
+
 from crifanLib.crifanSystem import runCommand
+from crifanLib.crifanFile  import isFileObject
 
 ################################################################################
 # Config
@@ -211,6 +218,64 @@ def extractAudioFromVideo(
         extractedAudioPath = audioFullPath
 
     return extractIsOk, extractedAudioPath, errMsg
+
+
+#----------------------------------------
+# Image
+#----------------------------------------
+
+def resizeImage(inputImage,
+                newSize,
+                resample=Image.BICUBIC, # Image.LANCZOS,
+                outputFormat=None,
+                outputImageFile=None
+                ):
+    """
+        resize input image
+        resize normally means become smaller, reduce size
+    :param inputImage: image file object(fp) / filename / binary bytes
+    :param newSize: (width, height)
+    :param resample: PIL.Image.NEAREST, PIL.Image.BILINEAR, PIL.Image.BICUBIC, or PIL.Image.LANCZOS
+        https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image.thumbnail
+    :param outputFormat: PNG/JPEG/BMP/GIF/TIFF/WebP/..., more refer:
+        https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html
+        if input image is filename with suffix, can omit this -> will infer from filename suffix
+    :param outputImageFile: output image file filename
+    :return:
+        input image file filename: output resized image to outputImageFile
+        input image binary bytes: resized image binary bytes
+    """
+    openableImage = None
+    if isinstance(inputImage, str):
+        openableImage = inputImage
+    elif isFileObject(inputImage):
+        openableImage = inputImage
+    elif isinstance(inputImage, bytes):
+        inputImageLen = len(inputImage)
+        openableImage = io.BytesIO(inputImage)
+
+    imageFile = Image.open(openableImage) # <PIL.PngImagePlugin.PngImageFile image mode=RGBA size=3543x3543 at 0x1065F7A20>
+    imageFile.thumbnail(newSize, resample)
+    if outputImageFile:
+        # save to file
+        imageFile.save(outputImageFile)
+        imageFile.close()
+    else:
+        # save and return binary byte
+        imageOutput = io.BytesIO()
+        # imageFile.save(imageOutput)
+        outputImageFormat = None
+        if outputFormat:
+            outputImageFormat = outputFormat
+        elif imageFile.format:
+            outputImageFormat = imageFile.format
+        imageFile.save(imageOutput, outputImageFormat)
+        imageFile.close()
+        compressedImageBytes = imageOutput.getvalue()
+        compressedImageLen = len(compressedImageBytes)
+        compressRatio = float(compressedImageLen)/float(inputImageLen)
+        print("%s -> %s, resize ratio: %d%%" % (inputImageLen, compressedImageLen, int(compressRatio * 100)))
+        return compressedImageBytes
 
 ################################################################################
 # Test

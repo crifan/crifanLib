@@ -84,6 +84,19 @@ def genSufList():
 # File Function
 ################################################################################
 
+def isFileObject(fileObj):
+    """"check is file like object or not"""
+    if sys.version_info[0] == 2:
+        return isinstance(fileObj, file)
+    else:
+        # for python 3:
+        # has read() method for:
+        # io.IOBase
+        # io.BytesIO
+        # io.StringIO
+        # io.RawIOBase
+        return hasattr(fileObj, 'read')
+
 def saveBinDataToFile(binaryData, fileToSave):
     """save binary data into file"""
     saveOK = False
