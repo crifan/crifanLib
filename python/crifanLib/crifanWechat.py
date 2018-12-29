@@ -88,9 +88,13 @@ def decryptWechatInfo(appId, sessionKey, encryptedData, iv):
 
 def testdecryptWechatInfo():
     appId = 'wx1e89041e13bdd7b0'
-    sessionKey = 'lcYPydQya+PZiXcCTYL6FA=='
-    encryptedData = "x62TeNl4hBvBIl1WW81KClApM7iAoedv1d8cd0apaGwuggbEHXOt+Xaj8gOyr8yqtFlAQfbOIgaZcPxR+D5w9YfUHJ4gqXb8kSajx9ylMyQZU/TRQIEuVXhlqjjJwPj+Dil4YBpOCCTKQmJ4ZT4HlwfkTFkgMz86ldPTb1CHzetNVB9NK0gLKEOCJBNQgiX3u7My6r7Grj3P28ExgqDD4TDGlx1x9rSv41gBL1mPoptgUQXi67Q7n6NO8Z17V3ED9sFLWpUhVOnmRg1Y+0WldxpyXrUdtO2vyqWrB3I8knllzh1vJUUrinjBape8YnQyZKoif/eMw0EgW61opC9BNZWofLeP9SgAB+YlE8AqH7yJBBpNMElrqR2gpDisSzypFYkVPqnNxDEEoUJlpG3kOKozXyDXZE61BFcYifN8pp/FpYRbaS50EyWAk8AriKsIawAEpSfJpqU9gjI2GUUvyEGJRLMMcmw7eiO5jEag9ws="
-    iv = "eTy4gl9plMLDjJuvKU3CMQ=="
+    # sessionKey = 'lcYPydQya+PZiXcCTYL6FA=='
+    # encryptedData = "x62TeNl4hBvBIl1WW81KClApM7iAoedv1d8cd0apaGwuggbEHXOt+Xaj8gOyr8yqtFlAQfbOIgaZcPxR+D5w9YfUHJ4gqXb8kSajx9ylMyQZU/TRQIEuVXhlqjjJwPj+Dil4YBpOCCTKQmJ4ZT4HlwfkTFkgMz86ldPTb1CHzetNVB9NK0gLKEOCJBNQgiX3u7My6r7Grj3P28ExgqDD4TDGlx1x9rSv41gBL1mPoptgUQXi67Q7n6NO8Z17V3ED9sFLWpUhVOnmRg1Y+0WldxpyXrUdtO2vyqWrB3I8knllzh1vJUUrinjBape8YnQyZKoif/eMw0EgW61opC9BNZWofLeP9SgAB+YlE8AqH7yJBBpNMElrqR2gpDisSzypFYkVPqnNxDEEoUJlpG3kOKozXyDXZE61BFcYifN8pp/FpYRbaS50EyWAk8AriKsIawAEpSfJpqU9gjI2GUUvyEGJRLMMcmw7eiO5jEag9ws="
+    # iv = "eTy4gl9plMLDjJuvKU3CMQ=="
+
+    sessionKey = 'e8gYSMJzhfYK765H+Ih9Fg=='
+    encryptedData = "XxWQ7IZ3az1PFqSm02aMIF1xDtyJo5KBiVX4e8HRc01kiMejjtRbu8GxsgQq4S2OtEodr35PapQtoYkgTVxUfiHLaT8sE6h1FfpucuZTnXr7eCePjW0icJCjjl1OaJ1OrWoC6QRR30YcVVS1t80yJNzGP9hENUU6tJcPYgq0Gj9URNDkY5xrDAnmzgcFWa5+6GKEiucFaY8F13PYmFpualytjHX5qMxRY/tc9O2zL914qkU4yDWmAe4HryF9RLnweKdm/g7hmernKqC/lXWV8kQ5mY8FF7qAX26U4I8mCSUtV6KOKac5WAboCyRnFS++I2SHwsF4Wh1SiQ58vb8k9fNmyV5aQ9nTcCrXs5psFp4fyZU4M96Xh3IK5LGbDZa/gMMIAYHpyhrRizGXXDXJEX0SzXy7K34A1YSTNrdjc5T3YoXW0bkshQOu/Rc2TYdm1CcB1WxcG11xmz0DGzEoHRMS8ECCWV3Z9DmyAX+u5LI="
+    iv = "peOwPKnIiyFvjiDtbEtHZA=="
 
     decryptedInfo = decryptWechatInfo(appId, sessionKey, encryptedData, iv)
     print("decryptedInfo=%s" % decryptedInfo)
@@ -98,4 +102,4 @@ def testdecryptWechatInfo():
 
 if __name__ == '__main__':
     print("[crifanLib-%s] %s" % (CURRENT_LIB_FILENAME, __version__))
-    # testdecryptWechatInfo()
+    testdecryptWechatInfo()
