@@ -1,11 +1,0 @@
-Big Lizard ran  up on the rocks. Big Lizard ran fast. Little Lizard
-
-
- ran, too. Little Lizard ran  up on the rocks. 
- 估计加上点中文，非ASCII字符，试试是否能识别。
-
- 
-local的mongo中question的id是5c1777e1cc6df4563adf4b9b中包含特殊字符：
-work three hours
-Cooking for the child.
-等等
