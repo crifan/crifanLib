@@ -117,13 +117,13 @@ func getUrlRespJson_async(httpMethod:Alamofire.Method, url:String, parameters: [
                     message = ok;
                 }, value type=__NSCFDictionary)
                  
-                 15206188729 ->
+                 15212345678 ->
                 {
                     code = 403;
                     message = "The phone is not found ";
                 }
                  
-                 13862050544->
+                 13812345678->
                 {
                     code = 403;
                     message = "The phone is registered before ";
@@ -225,13 +225,13 @@ func getUrlRespDataJson_async(httpMethod:Alamofire.Method, url:String, parameter
                  */
                 
                 /*
-                 15206188729 ->
+                 15212345678 ->
                 {
                     code = 403;
                     message = "The phone is not found ";
                 }
                  
-                 13862050544->
+                 13812345678->
                 {
                     code = 403;
                     message = "The phone is registered before ";
