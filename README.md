@@ -1,9 +1,13 @@
-crifanLib
-=========
+# crifanLib
 
-crifan's library.
+Crifan's library for various programming language
 
-> previous location: [crifanLib on googlecode](https://code.google.com/p/crifanlib/)
+## repo
 
-More info please refer:
-[crifanLib – Crifan’s Library (C#/Python/PHP/C/…) | 在路上](http://www.crifan.com/crifan_released_all/crifanlib/)
+* https://github.com/crifan/crifanLib
+  * old: https://code.google.com/archive/p/crifanlib/
+
+## Dod
+
+* http://www.crifan.org/crifan_released_all/crifanlib/
+
