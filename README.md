@@ -7,7 +7,7 @@ Crifan's library for various programming language
 * https://github.com/crifan/crifanLib
   * old: https://code.google.com/archive/p/crifanlib/
 
-## Dod
+## Doc
 
-* http://www.crifan.org/crifan_released_all/crifanlib/
-
+* old
+  * http://www.crifan.org/crifan_released_all/crifanlib/
