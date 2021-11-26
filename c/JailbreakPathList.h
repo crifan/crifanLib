@@ -2,7 +2,8 @@
     File: JailbreakPathList.h
     Function: crifan's common jailbreak file path list header file
     Author: Crifan Li
-    Updated: 20211125_1558
+    Latest: https://github.com/crifan/crifanLib/blob/master/c/JailbreakPathList.h
+    Updated: 20211126_1913
 */
 
 // This will not work with all C++ compilers, but it works with clang and gcc

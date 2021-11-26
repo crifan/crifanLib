@@ -2,7 +2,8 @@
     File: JailbreakPathList.c
     Function: crifan's common jailbreak file path list
     Author: Crifan Li
-    Updated: 20211126_1617
+    Latest: https://github.com/crifan/crifanLib/blob/master/c/JailbreakPathList.c
+    Updated: 20211126_1913
 */
 
 #include "JailbreakPathList.h"
