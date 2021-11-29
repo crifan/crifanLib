@@ -3,7 +3,7 @@
     Function: crifan's common C libs implementation
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/crifanLib.c
-    Updated: 20211126_1902
+    Updated: 20211129_1409
 */
 
 #include "CrifanLib.h"
@@ -14,6 +14,17 @@
 
 char* boolToStr(bool curBool){
     return curBool ? "True": "False";
+}
+
+// "CYDIA://xxx" -> "cydia://xxx"
+char* strToLowercase(const char* origStr){
+    char* lowerStr = NULL;
+    asprintf(&lowerStr, "%s", origStr);
+//    size_t origStrLen = strlen(origStr);
+    for(int i = 0; lowerStr[i]; i++){
+        lowerStr[i] = tolower(lowerStr[i]);
+    }
+    return lowerStr;
 }
 
 bool strStartsWith(const char *fullStr, const char *prefixStr)

@@ -3,7 +3,7 @@
     Function: crifan's common C libs header file
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/CrifanLib.h
-    Updated: 20211126_1902
+    Updated: 20211129_1409
 */
 
 // This will not work with all C++ compilers, but it works with clang and gcc
@@ -27,9 +27,11 @@ extern "C" {
 #include <fcntl.h>
 #include <limits.h> /* PATH_MAX */
 #include <errno.h>
+#include <ctype.h>
 
 // string
 char* boolToStr(bool curBool);
+char* strToLowercase(const char* origStr);
 bool strStartsWith(const char *fullStr, const char *prefixStr);
 bool strEndsWith(const char* fullStr, const char* endStr);
 char* removeHead(const char* fullStr, const char* headStr);

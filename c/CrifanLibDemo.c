@@ -3,11 +3,100 @@
     Function: crifan's common C lib function demo
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/CrifanLibDemo.c
-    Updated: 20211126_1902
+    Updated: 20211129_1409
 */
 
-#include <stdio.h>
+//#include <stdio.h>
 #include <sys/time.h>
+
+#include "CrifanLib.h"
+#include "JailbreakPathList.h"
+
+//for debug: to pure path
+void testParsePurePath(void){
+    // for debug: parse to pure path via pure C
+    const char* specialPathList[] = {
+        "./relative/path",
+        "/Library/dpkg/./",
+        "/Library/dpkg/",
+        "/Library/dpkg/.",
+        "/./Library/../Library/./dpkg/.",
+        "/Applications/Cydia.app/../Cydia.app",
+        "/bin/bash",
+        "/./usr/././../usr/bin/./ssh-keyscan",
+        "/bin/bash/..",
+        "../bin/./bash/././..",
+        "../bin/bash/..",
+        "usr/local/bin/..",
+        "/./bin/../bin/./bash",
+        "/private/./etc/ssh/../ssh/sshd_config",
+    };
+    int specialPathListLen = sizeof(specialPathList)/sizeof(const char *);
+    for (int i=0; i < specialPathListLen; i++) {
+        const char* curSpeicalPath = specialPathList[i];
+        char* curRealPath = toPurePath(curSpeicalPath);
+        printf("orig: %s -> real: %s\n", curSpeicalPath, curRealPath);
+    }
+}
+
+//for debug
+void testPathCompare(void){
+    char* path1 = "/Library/dpkg";
+    char* path2 = "/Library/dpkg/";
+    bool isEqual = isPathEaqual(path1, path2);
+    printf("isEqual=%s\n", boolToStr(isEqual));
+
+    char* path3 = "/./Library/./../Library/./dpkg";
+//    char* path3 = ".././Library/./../Library/./dpkg";
+    char* path4 = "/Library/dpkg/";
+    bool isEqual2 = isPathEaqual(path3, path4);
+    printf("isEqual2=%s\n", boolToStr(isEqual2));
+}
+
+/**************************************************************************************************
+ jailbreak path
+****************************************************************************************************/
+
+//for debug: detect jb path
+void testJbPathDetect(void){
+    const char* jsPathList[] = {
+        "/usr/bin/ssh",
+        "/usr/bin/ssh-",
+        "/Applications/Cydia.app/Info.plist",
+        "/bin/bash",
+        "/Applications/Cydia.app/../Cydia.app",
+        "/./usr/././../usr/bin/./ssh-keyscan",
+        "/./bin/../bin/./bash",
+        "/private/./etc/ssh/../ssh/sshd_config",
+    };
+    int jbPathListLen = sizeof(jsPathList)/sizeof(const char *);
+    for (int i=0; i < jbPathListLen; i++) {
+        const char* curJbPath = jsPathList[i];
+        bool isJbPath = isJailbreakPath(curJbPath);
+        printf("curJbPath=%s -> isJbPath=%s\n", curJbPath, boolToStr(isJbPath));
+        printf("\n");
+    }
+}
+
+/**************************************************************************************************
+ string lowercase
+****************************************************************************************************/
+
+void testLowcase(void){
+    char* str1 = "CYDIA://xxx";
+    char* str2 = "Cydia://xxx";
+    char* startWithLower = "cydia://";
+    
+    char* lowerStr1 = strToLowercase(str1);
+    bool isEqual1 = strStartsWith(lowerStr1, startWithLower);
+    printf("isEqual1=%s\n", boolToStr(isEqual1));
+    free(lowerStr1);
+    
+    char* lowerStr2 = strToLowercase(str2);
+    bool isEqual2 = strStartsWith(lowerStr2, startWithLower);
+    printf("isEqual2=%s\n", boolToStr(isEqual2));
+    free(lowerStr2);
+}
 
 /**************************************************************************************************/
 /* Time */
