@@ -3,7 +3,7 @@
     Function: crifan's common C lib function demo
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/CrifanLibDemo.c
-    Updated: 20211129_1409
+    Updated: 20211129_1420
 */
 
 //#include <stdio.h>
@@ -12,6 +12,9 @@
 #include "CrifanLib.h"
 #include "JailbreakPathList.h"
 
+/**************************************************************************************************
+ to pure path
+****************************************************************************************************/
 //for debug: to pure path
 void testParsePurePath(void){
     // for debug: parse to pure path via pure C
@@ -38,6 +41,10 @@ void testParsePurePath(void){
         printf("orig: %s -> real: %s\n", curSpeicalPath, curRealPath);
     }
 }
+
+/**************************************************************************************************
+ path equal
+****************************************************************************************************/
 
 //for debug
 void testPathCompare(void){

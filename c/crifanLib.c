@@ -3,7 +3,7 @@
     Function: crifan's common C libs implementation
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/crifanLib.c
-    Updated: 20211129_1409
+    Updated: 20211129_1525
 */
 
 #include "CrifanLib.h"
@@ -18,11 +18,12 @@ char* boolToStr(bool curBool){
 
 // "CYDIA://xxx" -> "cydia://xxx"
 char* strToLowercase(const char* origStr){
-    char* lowerStr = NULL;
-    asprintf(&lowerStr, "%s", origStr);
-//    size_t origStrLen = strlen(origStr);
-    for(int i = 0; lowerStr[i]; i++){
-        lowerStr[i] = tolower(lowerStr[i]);
+    char* lowerStr = strdup(origStr);
+    char curChar = lowerStr[0];
+    for(int i = 0; curChar != '\0'; i++){
+        curChar = lowerStr[i];
+        char curCharLower = tolower(curChar);
+        lowerStr[i] = curCharLower;
     }
     return lowerStr;
 }
@@ -55,8 +56,7 @@ bool strEndsWith(const char* fullStr, const char* endStr)
 
 // "./relative/path", "./" -> "relative/path"
 char* removeHead(const char* fullStr, const char* headStr){
-    char *newStr = NULL;
-    asprintf(&newStr, "%s", fullStr);
+    char *newStr = strdup(fullStr);
 
     size_t fullLen = strlen(fullStr);
     size_t headLen = strlen(headStr);
@@ -74,8 +74,7 @@ char* removeHead(const char* fullStr, const char* headStr){
 
 // "/./Library/../Library/dpkg/.", "/." -> "/./Library/../Library/dpkg"
 char* removeTail(const char* fullStr, const char* tailStr){
-    char *newStr = NULL;
-    asprintf(&newStr, "%s", fullStr);
+    char *newStr = strdup(fullStr);
     
     size_t fullLen = strlen(fullStr);
     size_t tailLen = strlen(tailStr);
@@ -95,13 +94,14 @@ char* removeTail(const char* fullStr, const char* tailStr){
 // "/./Library/../Library/dpkg/" -> "/./Library/../Library/dpkg"
 char* removeEndSlash(const char* origPath)
 {
+    const char* slash = "/";
     char* newPath = NULL;
 
-    bool isRoot = (0 == strcmp(origPath, "/"));
+    bool isRoot = (0 == strcmp(origPath, slash));
     if (isRoot) {
-        asprintf(&newPath, "%s", "/");
+        newPath = strdup(slash);
     }else{
-        newPath = removeTail(origPath, "/");
+        newPath = removeTail(origPath, slash);
     }
 
     return newPath;
@@ -184,16 +184,14 @@ void strSplit(const char* fullStr, const char* delim, char*** resultSubStrListPt
     int curListIdx = 0;
     int curListLen = 0;
     
-    char *inputFullStr = NULL;
-    asprintf(&inputFullStr, "%s", fullStr);
+    char *inputFullStr = strdup(fullStr);
 
     /* get the first token */
     token = strtok(inputFullStr, delim);
 
     /* walk through other tokens */
     while( token != NULL ) {
-        char* tmpToken = NULL;
-        asprintf(&tmpToken, "%s", token);
+        char* tmpToken = strdup(token);
 //        printf("[%d] %s\n", curListIdx, tmpToken);
 
         tempSubStrListPtr[curListIdx] = tmpToken;
@@ -335,45 +333,43 @@ void fileModeToStr(mode_t mode, char * modeStrBuf) {
 //void fileTypeToStr(mode_t mode, char * fileStrBuf) {
 //char* fileTypeToStr(mode_t mode) {
 char* fileTypeToChar(mode_t mode) {
-//    char * fileStrBuf = NULL;
-//    asprintf(&fileStrBuf, "%s", "file type:");
     char * fileStrBuf = NULL;
     char* unknown = "?";
-    asprintf(&fileStrBuf, "%s", unknown);
+    fileStrBuf = strdup(unknown);
 
     bool isFifo = (bool)S_ISFIFO(mode);
     if (isFifo){
-        asprintf(&fileStrBuf, "%s", "p");
+        fileStrBuf = strdup("p");
     }
 
     bool isChar = (bool)S_ISCHR(mode);
     if (isChar){
-        asprintf(&fileStrBuf, "%s", "c");
+        fileStrBuf = strdup("c");
     }
 
     bool isDir = (bool)S_ISDIR(mode);
     if (isDir){
-        asprintf(&fileStrBuf, "%s", "d");
+        fileStrBuf = strdup("d");
     }
 
     bool isBlock = (bool)S_ISBLK(mode);
     if (isBlock){
-        asprintf(&fileStrBuf, "%s", "b");
+        fileStrBuf = strdup("b");
     }
 
     bool isRegular = (bool)S_ISREG(mode);
     if (isRegular){
-        asprintf(&fileStrBuf, "%s", "-");
+        fileStrBuf = strdup("-");
     }
 
     bool isLink = (bool)S_ISLNK(mode);
     if (isLink){
-        asprintf(&fileStrBuf, "%s", "l");
+        fileStrBuf = strdup("l");
     }
 
     bool isSocket = (bool)S_ISSOCK(mode);
     if (isSocket){
-        asprintf(&fileStrBuf, "%s", "s");
+        fileStrBuf = strdup("s");
     }
 
 ////    if (strcmp(fileStrBuf, "") != 0){
@@ -430,7 +426,6 @@ char* statToStr(struct stat* statInfo){
 //    sprintf(statStr, "stat info: st_mode=%s", stModeStr);
 
     char *statStr = NULL;
-//    asprintf(&statStr, "stat info: st_mode=[type=%s,mode=%s]", fileTypeStr, fileModeStr);
     asprintf(&statStr, "stat info: st_mode=%s, st_size=%s", fullFileModeStr, fileSizeStr);
     //statStr    char *    "stat info: st_mode=-rwxr-xr-x, st_size=3221225472"    0x00000002808c7180
 
@@ -474,7 +469,7 @@ char* removeTwoDotPart(const char* origPath){
     char* foundTwoDotPtr = strstr(origPath, twoDot);
     if(NULL == foundTwoDotPtr){
         // not found, return origin path
-        asprintf(&newPath, "%s", origPath);
+        newPath = strdup(origPath);
         return newPath;
     }
 
@@ -491,7 +486,7 @@ char* removeTwoDotPart(const char* origPath){
 //            char* curSubStr = subStrList[i];
 //            printf("[%d] %s\n", i, curSubStr);
 //        }
-        asprintf(&newPath, "%s", "");
+        newPath = strdup("");
         int curIdx = subStrLen - 1;
         while(curIdx >= 0){
             char* curSubStr = subStrList[curIdx];
@@ -549,7 +544,7 @@ char* removeTwoDotPart(const char* origPath){
     if(!isParseOk){
         toFreeStr = newPath;
         // restore origin path
-        asprintf(&newPath, "%s", origPath);
+        newPath = strdup(origPath);
         free(toFreeStr);
     }
 
@@ -664,7 +659,7 @@ char* toPurePath(const char* origPath){
     // if not contain '.', ignore
     char *foundDotPtr = strstr(origPath, dot);
     if (NULL != foundDotPtr){
-        asprintf(&purePath, "%s", origPath);
+        purePath = strdup(origPath);
 
         // 1. remove ./ or .
 
@@ -715,7 +710,7 @@ char* toPurePath(const char* origPath){
         // "/usr/../usr/bin/ssh-keyscan" -> "/usr/bin/ssh-keyscan"
         free(toFreeStr);
     } else {
-        asprintf(&purePath, "%s", origPath);
+        purePath = strdup(origPath);
     }
 
     // 3. remove end "/"
