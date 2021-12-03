@@ -18,8 +18,14 @@ extern "C" {
 
 #include "CrifanLib.h"
 
-extern const char* jailbreakFilePathList[];
-extern int jailbreakPathListLen;
+extern const int jailbreakPathListLen;
+extern const char* jailbreakPathList_Dylib[];
+extern const char* jailbreakPathList_Other[];
+extern const int jailbreakPathListLen_Dylib;
+extern const int jailbreakPathListLen_Other;
+
+//extern const char* jailbreakPathList[];
+const char** getJailbreakPathList(void);
 
 bool isJailbreakPath(const char *pathname);
 bool isJailbreakPath_pureC(const char *curPath);

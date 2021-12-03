@@ -16,7 +16,42 @@
 // when use isJailbreakPath_pureC, shold enable KEEP_SOFT_LINK
 #define KEEP_SOFT_LINK
 
-const char* jailbreakFilePathList[] = {
+const char* jailbreakPathList_Dylib[] = {
+    // common: tweak plugin libs
+    "/Library/MobileSubstrate/DynamicLibraries/0Shadow.dylib",
+    "/Library/MobileSubstrate/DynamicLibraries/afc2dService.dylib",
+    "/Library/MobileSubstrate/DynamicLibraries/afc2dSupport.dylib",
+    "/Library/MobileSubstrate/DynamicLibraries/AppSyncUnified-FrontBoard.dylib",
+    "/Library/MobileSubstrate/DynamicLibraries/AppSyncUnified-installd.dylib",
+    "/Library/MobileSubstrate/DynamicLibraries/dygz.dylib",
+    "/Library/MobileSubstrate/DynamicLibraries/LiveClock.dylib",
+    "/Library/MobileSubstrate/DynamicLibraries/MobileSafety.dylib",
+    "/Library/MobileSubstrate/DynamicLibraries/xCon.dylib",
+    "/Library/MobileSubstrate/DynamicLibraries/zorro.dylib",
+    "/Library/MobileSubstrate/DynamicLibraries/zzzzHeiBaoLib.dylib",
+
+    "/usr/lib/libsubstrate.dylib",
+
+    // Cydia Substrate libs
+    "/Library/MobileSubstrate/MobileSubstrate.dylib",
+    "/usr/lib/substrate/SubstrateInserter.dylib",
+    "/usr/lib/substrate/SubstrateLoader.dylib",
+    "/usr/lib/substrate/SubstrateBootstrap.dylib",
+
+    // Substitute libs
+    "/usr/lib/libsubstitute.dylib",
+    "/usr/lib/substitute-inserter.dylib",
+    "/usr/lib/substitute-loader.dylib",
+
+    // Other libs
+    "/private/var/lib/clutch/overdrive.dylib",
+    "/usr/lib/libapt-inst.2.0.dylib",
+    "/usr/lib/libapt-private.0.0.0.dylib",
+    "/usr/lib/libcycript.dylib",
+    "/usr/lib/tweakloader.dylib",
+};
+
+const char* jailbreakPathList_Other[] = {
     "/Applications/Activator.app",
     "/Applications/ALS.app",
     "/Applications/blackra1n.app",
@@ -67,28 +102,18 @@ const char* jailbreakFilePathList[] = {
 
     "/Library/MobileSubstrate/",
     "/Library/MobileSubstrate/DynamicLibraries/",
-    "/Library/MobileSubstrate/DynamicLibraries/0Shadow.dylib",
-    "/Library/MobileSubstrate/DynamicLibraries/afc2dService.dylib",
+
     "/Library/MobileSubstrate/DynamicLibraries/afc2dService.plist",
-    "/Library/MobileSubstrate/DynamicLibraries/afc2dSupport.dylib",
     "/Library/MobileSubstrate/DynamicLibraries/afc2dSupport.plist",
-    "/Library/MobileSubstrate/DynamicLibraries/AppSyncUnified-FrontBoard.dylib",
     "/Library/MobileSubstrate/DynamicLibraries/AppSyncUnified-FrontBoard.plist",
-    "/Library/MobileSubstrate/DynamicLibraries/AppSyncUnified-installd.dylib",
     "/Library/MobileSubstrate/DynamicLibraries/AppSyncUnified-installd.plist",
-    "/Library/MobileSubstrate/DynamicLibraries/dygz.dylib",
     "/Library/MobileSubstrate/DynamicLibraries/dygz.plist",
     "/Library/MobileSubstrate/DynamicLibraries/LiveClock.plist",
-    "/Library/MobileSubstrate/DynamicLibraries/MobileSafety.dylib",
     "/Library/MobileSubstrate/DynamicLibraries/MobileSafety.plist",
     "/Library/MobileSubstrate/DynamicLibraries/Veency.plist",
-    "/Library/MobileSubstrate/DynamicLibraries/xCon.dylib",
     "/Library/MobileSubstrate/DynamicLibraries/xCon.plist",
-    "/Library/MobileSubstrate/DynamicLibraries/zorro.dylib",
     "/Library/MobileSubstrate/DynamicLibraries/zorro.plist",
-    "/Library/MobileSubstrate/DynamicLibraries/zzzzHeiBaoLib.dylib",
     "/Library/MobileSubstrate/DynamicLibraries/zzzzHeiBaoLib.plist",
-    "/Library/MobileSubstrate/MobileSubstrate.dylib",
 
     "/private/etc/apt",
     "/private/etc/apt/preferences.d/checkra1n",
@@ -102,7 +127,6 @@ const char* jailbreakFilePathList[] = {
     "/private/var/db/stash",
     "/private/var/evasi0n",
     "/private/var/lib/apt/",
-    "/private/var/lib/clutch/overdrive.dylib",
     "/private/var/lib/cydia/",
     "/private/var/lib/dpkg/",
     
@@ -145,21 +169,13 @@ const char* jailbreakFilePathList[] = {
     "/usr/lib/cycript0.9/com/saurik/"
     "/usr/lib/cycript0.9/com/saurik/substrate/",
     "/usr/lib/cycript0.9/com/saurik/substrate/MS.cy",
-    "/usr/lib/libcycript.dylib",
 
 #ifdef KEEP_SOFT_LINK
     "/usr/lib/libsubstitute.0.dylib", // -> /usr/lib/libsubstrate.dylib
 #endif
-    "/usr/lib/libsubstitute.dylib",
-    "/usr/lib/libsubstrate.dylib",
-    "/usr/lib/substitute-inserter.dylib",
-    "/usr/lib/substitute-loader.dylib",
     "/usr/lib/substrate/",
-    "/usr/lib/substrate/SubstrateBootstrap.dylib",
-    "/usr/lib/substrate/SubstrateInserter.dylib",
-    "/usr/lib/substrate/SubstrateLoader.dylib",
+
     "/usr/lib/TweakInject",
-    "/usr/lib/tweakloader.dylib",
 
     "/usr/libexec/cydia/",
     "/usr/libexec/sftp-server",
@@ -179,10 +195,36 @@ const char* jailbreakFilePathList[] = {
     "/var/mobile/Library/Filza/pasteboard.plist",
     "/var/mobile/Library/Cydia/",
 #endif
-
 };
 
-int jailbreakPathListLen = sizeof(jailbreakFilePathList)/sizeof(const char *);
+const int jailbreakPathListLen_Dylib = sizeof(jailbreakPathList_Dylib)/sizeof(const char *);
+const int jailbreakPathListLen_Other = sizeof(jailbreakPathList_Other)/sizeof(const char *);
+
+const int jailbreakPathListLen = jailbreakPathListLen_Dylib + jailbreakPathListLen_Other;
+
+//int jailbreakPathListLen = sizeof(jailbreakPathList)/sizeof(const char *);
+
+const char** getJailbreakPathList(void){
+    int strPtrMaxIdx = jailbreakPathListLen;
+    int strPtrNum = strPtrMaxIdx + 1;
+    const char** jailbreakPathStrPtrList = malloc(sizeof(const char *) * strPtrNum);
+    // set each string
+    for(int curStrIdx = 0; curStrIdx < jailbreakPathListLen_Dylib; curStrIdx++){
+        const char* curStrPtr = jailbreakPathList_Dylib[curStrIdx];
+        jailbreakPathStrPtrList[curStrIdx] = curStrPtr;
+    }
+
+    for(int curStrIdx = jailbreakPathListLen_Dylib; curStrIdx < strPtrNum; curStrIdx++){
+        int otherStrPtrIdx = curStrIdx - jailbreakPathListLen_Dylib;
+        const char* curStrPtr = jailbreakPathList_Other[otherStrPtrIdx];
+        jailbreakPathStrPtrList[curStrIdx] = curStrPtr;
+    }
+    // set end
+    jailbreakPathStrPtrList[strPtrMaxIdx] = NULL;
+
+    return jailbreakPathStrPtrList;
+}
+
 
 /*==============================================================================
  Jailbreak Function
@@ -193,8 +235,9 @@ bool isJailbreakPath_pureC(const char *curPath){
     char* purePath = toPurePath(curPath);
     char* matchedJsPath = NULL;
 
+    const char** jailbreakPathList = getJailbreakPathList();
     for (int i=0; i < jailbreakPathListLen; i++) {
-        const char* curJbPath = jailbreakFilePathList[i];
+        const char* curJbPath = jailbreakPathList[i];
         if (isPathEaqual(purePath, curJbPath)){
             isJbPath = true;
             matchedJsPath = (char *)curJbPath;
@@ -244,11 +287,12 @@ bool isJailbreakPath_realpath(const char *pathname){
     int charPtrLen = sizeof(const char *);
 //    os_log(OS_LOG_DEFAULT, "isJailbreakPath: charPtrLen=%d", charPtrLen);
     printf("charPtrLen=%d", charPtrLen);
-//    int charPtrListLen = sizeof((char *[])jailbreakFilePathList);
+//    int charPtrListLen = sizeof((char *[])jailbreakPathList);
 //    os_log(OS_LOG_DEFAULT, "isJailbreakPath: jailbreakPathListLen=%d", jailbreakPathListLen);
 
+    const char** jailbreakPathList = getJailbreakPathList();
     for (int i=0; i < jailbreakPathListLen; i++) {
-        const char* curJbPath = jailbreakFilePathList[i];
+        const char* curJbPath = jailbreakPathList[i];
         char* curJbPathNoEndSlash = removeEndSlash(curJbPath);
 //        os_log(OS_LOG_DEFAULT, "isJailbreakPath: curJbPath=%{public}s -> curJbPathNoEndSlash=%{public}s", curJbPath, curJbPathNoEndSlash);
 
