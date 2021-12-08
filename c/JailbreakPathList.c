@@ -3,7 +3,7 @@
     Function: crifan's common jailbreak file path list
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/JailbreakPathList.c
-    Updated: 20211126_1913
+    Updated: 20211206_1410
 */
 
 #include "JailbreakPathList.h"
@@ -230,39 +230,98 @@ const char** getJailbreakPathList(void){
  Jailbreak Function
 ==============================================================================*/
 
-bool isJailbreakPath_pureC(const char *curPath){
-    bool isJbPath = false;
-    char* purePath = toPurePath(curPath);
-    char* matchedJsPath = NULL;
+bool isPathInList(
+      const char* inputPath,
+      const char** pathList,
+      int pathListLen,
+      bool isConvertToPurePath, // is convert to pure path or not
+      bool isCmpSubFolder // is compare sub foder or not
+){
+    bool isInside = false;
+    char* inputOrigOrPurePath = NULL;
+    if (isConvertToPurePath){
+        inputOrigOrPurePath = toPurePath(inputPath);
+    }else{
+        inputOrigOrPurePath = strdup(inputPath);
+    }
 
-    const char** jailbreakPathList = getJailbreakPathList();
-    for (int i=0; i < jailbreakPathListLen; i++) {
-        const char* curJbPath = jailbreakPathList[i];
-        if (isPathEaqual(purePath, curJbPath)){
-            isJbPath = true;
-            matchedJsPath = (char *)curJbPath;
+    char* matchedPath = NULL;
+    char* curPathNoEndSlash = NULL;
+    char * curPathWithEndSlash = NULL;
+
+    for (int i=0; i < pathListLen; i++) {
+        const char* curPath = pathList[i];
+        if (isPathEaqual(inputOrigOrPurePath, curPath)){
+            isInside = true;
+            matchedPath = (char *)curPath;
             break;
         }
 
-        // check sub folder
-        // "/Applications/Cydia.app/Info.plist" belong to "/Applications/Cydia.app/", should bypass
-        // but avoid: '/usr/bin/ssh-keyscan' starts with '/usr/bin/ssh'
-        char* curJbPathNoEndSlash = removeEndSlash(curJbPath);
-        char * curJbPathWithEndSlash = NULL;
-        asprintf(&curJbPathWithEndSlash, "%s/", curJbPathNoEndSlash);
+        if (isCmpSubFolder){
+            // check sub folder
+            // "/Applications/Cydia.app/Info.plist" belong to "/Applications/Cydia.app/", should bypass
+            // but avoid: '/usr/bin/ssh-keyscan' starts with '/usr/bin/ssh'
+            curPathNoEndSlash = removeEndSlash(curPath);
+            curPathWithEndSlash = NULL;
+            asprintf(&curPathWithEndSlash, "%s/", curPathNoEndSlash);
 
-        if (strStartsWith(purePath, curJbPathWithEndSlash)){
-            isJbPath = true;
-            matchedJsPath = (char *)curJbPath;
-            break;
+            if (strStartsWith(inputOrigOrPurePath, curPathWithEndSlash)){
+                isInside = true;
+                matchedPath = (char *)curPath;
+                break;
+            }
         }
     }
-    
-//    //for deubg
-//    if(isJbPath){
-//        printf("matchedJsPath=%s\n", matchedJsPath);
+
+    free(inputOrigOrPurePath);
+
+    if(NULL != curPathNoEndSlash){
+        free(curPathNoEndSlash);
+    }
+
+    if(NULL != curPathWithEndSlash){
+        free(curPathWithEndSlash);
+    }
+
+    return isInside;
+}
+
+bool isJailbreakPath_pureC(const char *curPath){
+    bool isJbPath = false;
+    const char** jailbreakPathList = getJailbreakPathList();
+
+//    char* purePath = toPurePath(curPath);
+//    char* matchedJsPath = NULL;
+//
+//    for (int i=0; i < jailbreakPathListLen; i++) {
+//        const char* curJbPath = jailbreakPathList[i];
+//        if (isPathEaqual(purePath, curJbPath)){
+//            isJbPath = true;
+//            matchedJsPath = (char *)curJbPath;
+//            break;
+//        }
+//
+//        // check sub folder
+//        // "/Applications/Cydia.app/Info.plist" belong to "/Applications/Cydia.app/", should bypass
+//        // but avoid: '/usr/bin/ssh-keyscan' starts with '/usr/bin/ssh'
+//        char* curJbPathNoEndSlash = removeEndSlash(curJbPath);
+//        char * curJbPathWithEndSlash = NULL;
+//        asprintf(&curJbPathWithEndSlash, "%s/", curJbPathNoEndSlash);
+//
+//        if (strStartsWith(purePath, curJbPathWithEndSlash)){
+//            isJbPath = true;
+//            matchedJsPath = (char *)curJbPath;
+//            break;
+//        }
 //    }
-    
+//
+////    //for deubg
+////    if(isJbPath){
+////        printf("matchedJsPath=%s\n", matchedJsPath);
+////    }
+
+    isJbPath = isPathInList(curPath, jailbreakPathList, jailbreakPathListLen, true, true);
+
     return isJbPath;
 }
 
@@ -318,7 +377,18 @@ bool isJailbreakPath_realpath(const char *pathname){
     return isJbPath;
 }
 
+
+// "/Applications/Cydia.app" -> true
 bool isJailbreakPath(const char *pathname){
 //    return isJailbreakPath_realpath(pathname);
     return isJailbreakPath_pureC(pathname);
+}
+
+// "/Library/MobileSubstrate/MobileSubstrate.dylib" -> true
+bool isJailbreakDylib(const char *pathname){
+    bool isJbDylib = false;
+
+    isJbDylib = isPathInList(pathname, jailbreakPathList_Dylib, jailbreakPathListLen_Dylib, true, false);
+
+    return isJbDylib;
 }

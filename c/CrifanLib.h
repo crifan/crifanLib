@@ -3,7 +3,7 @@
     Function: crifan's common C libs header file
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/CrifanLib.h
-    Updated: 20211129_1409
+    Updated: 20211207_1440
 */
 
 // This will not work with all C++ compilers, but it works with clang and gcc
@@ -28,6 +28,9 @@ extern "C" {
 #include <limits.h> /* PATH_MAX */
 #include <errno.h>
 #include <ctype.h>
+
+// integer
+bool isIntInList(int valueToCheck, int* intList, int intListLen);
 
 // string
 char* boolToStr(bool curBool);

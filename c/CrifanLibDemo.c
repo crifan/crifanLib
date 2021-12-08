@@ -3,7 +3,7 @@
     Function: crifan's common C lib function demo
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/CrifanLibDemo.c
-    Updated: 20211129_1420
+    Updated: 20211207_1440
 */
 
 //#include <stdio.h>
@@ -11,6 +11,16 @@
 
 #include "CrifanLib.h"
 #include "JailbreakPathList.h"
+
+/*
+ Test isIntInList
+ */
+void testIsIntInList(){
+    int testIntValue = 2;
+    int intList[] = {1, 2, 3, 4};
+    bool isInList = isIntInList(testIntValue, intList, 4);
+    printf("isInList=%d", isInList);
+}
 
 /**************************************************************************************************
  to pure path

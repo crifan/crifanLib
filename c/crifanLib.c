@@ -3,10 +3,29 @@
     Function: crifan's common C libs implementation
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/crifanLib.c
-    Updated: 20211129_1525
+    Updated: 20211207_2241
 */
 
 #include "CrifanLib.h"
+
+
+/*==============================================================================
+ Integer
+==============================================================================*/
+
+// 2, [1, 2, 3, 4], 4 -> true
+bool isIntInList(int valueToCheck, int* intList, int intListLen){
+    bool isInList = false;
+    for(int i = 0; i < intListLen; i++){
+        int curIntValue = intList[i];
+        if (curIntValue == valueToCheck){
+            isInList = true;
+            break;
+        }
+    }
+
+    return isInList;
+}
 
 /*==============================================================================
  String
@@ -319,6 +338,7 @@ long calulateFilesize_fstat(char* inputFilename)
 ==============================================================================*/
 
 // file mode to string
+// st_mode=16877 -> modeStrBuf="rwxr-xr-x"
 void fileModeToStr(mode_t mode, char * modeStrBuf) {
     // buf must have at least 10 bytes
     const char chars[] = "rwxrwxrwx";

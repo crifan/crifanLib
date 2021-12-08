@@ -27,9 +27,10 @@ extern const int jailbreakPathListLen_Other;
 //extern const char* jailbreakPathList[];
 const char** getJailbreakPathList(void);
 
-bool isJailbreakPath(const char *pathname);
 bool isJailbreakPath_pureC(const char *curPath);
 bool isJailbreakPath_realpath(const char *pathname);
+bool isJailbreakPath(const char *pathname);
+bool isJailbreakDylib(const char *pathname);
 
 #endif /* JailbreakPathList_h */
 
