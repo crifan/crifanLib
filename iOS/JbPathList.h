@@ -1,9 +1,10 @@
-//
-//  JbPathList.h
-//  ShowSysInfo
-//
-//  Created by crifan on 2021/11/8.
-//
+/*
+    File: JbPathList.h
+    Function: crifan's common iOS jailbreak list functions
+    Author: Crifan Li
+    Latest: https://github.com/crifan/crifanLib/blob/master/iOS/JbPathList.h
+    Updated: 20211210_1850
+*/
 
 #import <Foundation/Foundation.h>
 
