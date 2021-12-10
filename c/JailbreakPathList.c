@@ -3,7 +3,7 @@
     Function: crifan's common jailbreak file path list
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/JailbreakPathList.c
-    Updated: 20211206_1410
+    Updated: 20211209_1436
 */
 
 #include "JailbreakPathList.h"
@@ -12,8 +12,8 @@
  Jailbreak Path List
 ==============================================================================*/
 
-// when use isJailbreakPath_realpath, should disable KEEP_SOFT_LINK
-// when use isJailbreakPath_pureC, shold enable KEEP_SOFT_LINK
+// when use isJailbreakPath_realpath, should/could disable KEEP_SOFT_LINK
+// when use isJailbreakPath_pureC, shold enable KEEP_SOFT_LINK -> to include other soft link jailbreak path for later compare
 #define KEEP_SOFT_LINK
 
 const char* jailbreakPathList_Dylib[] = {
@@ -70,9 +70,14 @@ const char* jailbreakPathList_Other[] = {
     "/Applications/Snoop-itConfig.app",
     "/Applications/WinterBoard.app",
 
+#ifdef KEEP_SOFT_LINK
     "/bin/sh",
+#endif
     "/bin/bash",
 
+#ifdef KEEP_SOFT_LINK
+    "/etc/alternatives/sh",
+#endif
     "/etc/apt",
     "/etc/clutch.conf",
     "/etc/clutch_cracked.plist",

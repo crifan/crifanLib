@@ -27,6 +27,7 @@ typedef NS_ENUM(NSInteger, OpenFileFunctionType) {
     FUNC_SYSCALL_OPEN,
     FUNC_SVC_0X80_OPEN,
     FUNC_FOPEN,
+    FUNC_NSFILEMANAGER,
 };
 
 typedef NS_ENUM(NSInteger, ButtonId) {
@@ -40,6 +41,7 @@ typedef NS_ENUM(NSInteger, ButtonId) {
     BTN_SYSCALL_OPEN=8,
     BTN_SVC_0X80_OPEN=9,
     BTN_FOPEN=10,
+    BTN_NSFILEMANAGER=11,
 };
 
 NS_ASSUME_NONNULL_BEGIN

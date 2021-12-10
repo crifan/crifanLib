@@ -189,8 +189,30 @@ __attribute__((always_inline)) int svc_0x80_open(const char * pathname, int flag
             char *errMsg = strerror(errno);
             NSLog(@"errMsg=%s\n", errMsg);
         }
+    } else if (FUNC_NSFILEMANAGER == funcType) {
+        NSFileManager *defaultManager = [NSFileManager defaultManager];
+        NSString* filePathNsStr = [NSString stringWithFormat:@"%s", filePathStr];
+
+        BOOL isExisted = [defaultManager fileExistsAtPath: filePathNsStr];
+        NSLog(@"isExisted=%s", boolToStr(isExisted));
+
+        BOOL isDir = FALSE;
+        BOOL isExistedWithDir = [defaultManager fileExistsAtPath:filePathNsStr isDirectory: &isDir];
+        NSLog(@"isExistedWithDir=%s, isDir=%s", boolToStr(isExistedWithDir), boolToStr(isDir));
+
+        isOpenOk = isExisted || isExistedWithDir;
+
+        NSString* curResultStr = @"";
+
+        if(isExisted){
+            curResultStr = [NSString stringWithFormat:@"%@ 是否是目录：%@", @"路径存在", isDir ? @"是":@"否"];
+        } else{
+            curResultStr = [NSString stringWithFormat:@"%@", @"路径不存在"];
+        }
+
+        NSLog(@"fileExistsAtPath %@ -> %@", filePathNsStr, curResultStr);
     }
-    
+
     if (isUseStatInfo){
         NSLog(@"stat info open %@ -> openResult=%d", filePath, openResult);
 

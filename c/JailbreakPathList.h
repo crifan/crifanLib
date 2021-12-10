@@ -3,7 +3,7 @@
     Function: crifan's common jailbreak file path list header file
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/JailbreakPathList.h
-    Updated: 20211126_1913
+    Updated: 20211208_1100
 */
 
 // This will not work with all C++ compilers, but it works with clang and gcc
@@ -31,6 +31,14 @@ bool isJailbreakPath_pureC(const char *curPath);
 bool isJailbreakPath_realpath(const char *pathname);
 bool isJailbreakPath(const char *pathname);
 bool isJailbreakDylib(const char *pathname);
+
+bool isPathInList(
+      const char* inputPath,
+      const char** pathList,
+      int pathListLen,
+      bool isConvertToPurePath, // is convert to pure path or not
+      bool isCmpSubFolder // is compare sub foder or not
+);
 
 #endif /* JailbreakPathList_h */
 

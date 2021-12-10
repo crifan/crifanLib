@@ -3,7 +3,7 @@
     Function: crifan's common C libs header file
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/CrifanLib.h
-    Updated: 20211207_1440
+    Updated: 20211209_1554
 */
 
 // This will not work with all C++ compilers, but it works with clang and gcc
@@ -28,6 +28,7 @@ extern "C" {
 #include <limits.h> /* PATH_MAX */
 #include <errno.h>
 #include <ctype.h>
+#include <dlfcn.h>
 
 // integer
 bool isIntInList(int valueToCheck, int* intList, int intListLen);
@@ -59,6 +60,9 @@ char* removeTwoDotPart(const char* origPath);
 bool isPathEaqual(const char* path1, const char* path2);
 char* toPurePath(const char* origPath);
 bool parseRealPath(const char* curPath, char* gotRealPath);
+
+// iOS: system
+int iOS_system(const char* command);
 
 #endif /* CrifanLib_h */
 

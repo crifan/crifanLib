@@ -3,7 +3,7 @@
     Function: crifan's common C libs implementation
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/crifanLib.c
-    Updated: 20211207_2241
+    Updated: 20211209_1554
 */
 
 #include "CrifanLib.h"
@@ -742,4 +742,31 @@ char* toPurePath(const char* origPath){
 
 //    printf("\torigPath=%s =>> purePath=%s\n", origPath, purePath);
     return purePath;
+}
+
+/*==============================================================================
+ iOS: implement deprecated system()
+==============================================================================*/
+
+int iOS_system(const char* command){
+    const int SYSTEM_FAIL = -1;
+
+    int systemRet = SYSTEM_FAIL;
+
+    typedef int (*function_system) (const char *command);
+    char* dyLibSystem = "/usr/lib/libSystem.dylib";
+    void *libHandle = dlopen(dyLibSystem, RTLD_GLOBAL | RTLD_NOW);
+    if (NULL == libHandle) {
+        char* errStr = dlerror();
+        printf("Failed to open %s, error: %s", dyLibSystem, errStr);
+    } else {
+        function_system libSystem_system = dlsym(libHandle, "system");
+        if (NULL != libSystem_system){
+            systemRet = libSystem_system(command);
+//            return systemRet;
+        }
+        dlclose(libHandle);
+    }
+
+    return systemRet;
 }

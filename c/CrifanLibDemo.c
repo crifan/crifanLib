@@ -1,21 +1,21 @@
 /*
     File: CrifanLibDemo.c
-    Function: crifan's common C lib function demo
+    Function: crifan's common C lib function demo implementation
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/CrifanLibDemo.c
-    Updated: 20211207_1440
+    Updated: 20211208_1058
 */
 
 //#include <stdio.h>
 #include <sys/time.h>
-
+#include "CrifanLibDemo.h"
 #include "CrifanLib.h"
 #include "JailbreakPathList.h"
 
-/*
+/**************************************************************************************************
  Test isIntInList
- */
-void testIsIntInList(){
+****************************************************************************************************/
+void testIsIntInList(void){
     int testIntValue = 2;
     int intList[] = {1, 2, 3, 4};
     bool isInList = isIntInList(testIntValue, intList, 4);
@@ -118,7 +118,6 @@ void testLowcase(void){
 /**************************************************************************************************/
 /* Time */
 /**************************************************************************************************/
-void showCalculateElapsedTime(void);
 
 /* use for only test several times in a loop */
 #define MAX_TEST_COUNT              15
