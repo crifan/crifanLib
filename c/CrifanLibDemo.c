@@ -3,7 +3,7 @@
     Function: crifan's common C lib function demo implementation
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/CrifanLibDemo.c
-    Updated: 20211208_1058
+    Updated: 20211215_1605
 */
 
 //#include <stdio.h>
@@ -68,6 +68,31 @@ void testPathCompare(void){
     char* path4 = "/Library/dpkg/";
     bool isEqual2 = isPathEaqual(path3, path4);
     printf("isEqual2=%s\n", boolToStr(isEqual2));
+}
+
+/**************************************************************************************************
+ path join
+****************************************************************************************************/
+void testPathJoin(void){
+    const char* path1 = NULL;
+    const char* path2 = NULL;
+    const char* path3 = NULL;
+
+    path1 = "/first";
+    path2 = "second";
+    char* joinedPath1 = strPathJoin(path1, path2);
+    printf("joinedPath1=%s", joinedPath1);
+
+    path1 = "/first/";
+    path2 = "second/";
+    char* joinedPath2 = strPathJoin(path1, path2);
+    printf("joinedPath2=%s", joinedPath2);
+
+    path1 = "/first/";
+    path2 = "./second/";
+    path3 = "third";
+    char* joinedPath3 = strPathJoin(path1, path2, path3);
+    printf("joinedPath3=%s", joinedPath3);
 }
 
 /**************************************************************************************************

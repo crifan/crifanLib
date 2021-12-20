@@ -3,7 +3,7 @@
     Function: crifan's common jailbreak file path list
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/JailbreakPathList.c
-    Updated: 20211209_1436
+    Updated: 20211217_0956
 */
 
 #include "JailbreakPathList.h"
@@ -382,7 +382,6 @@ bool isJailbreakPath_realpath(const char *pathname){
     return isJbPath;
 }
 
-
 // "/Applications/Cydia.app" -> true
 bool isJailbreakPath(const char *pathname){
 //    return isJailbreakPath_realpath(pathname);
@@ -392,8 +391,10 @@ bool isJailbreakPath(const char *pathname){
 // "/Library/MobileSubstrate/MobileSubstrate.dylib" -> true
 bool isJailbreakDylib(const char *pathname){
     bool isJbDylib = false;
-
-    isJbDylib = isPathInList(pathname, jailbreakPathList_Dylib, jailbreakPathListLen_Dylib, true, false);
+    
+    if (NULL != pathname){
+        isJbDylib = isPathInList(pathname, jailbreakPathList_Dylib, jailbreakPathListLen_Dylib, true, false);
+    }
 
     return isJbDylib;
 }

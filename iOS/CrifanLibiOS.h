@@ -3,7 +3,7 @@
     Function: crifan's common iOS function
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/CrifanLibiOS.h
-    Updated: 20211203_1339
+    Updated: 20211215_1125
 */
 
 #import <Foundation/Foundation.h>
@@ -28,6 +28,13 @@ typedef NS_ENUM(NSInteger, OpenFileFunctionType) {
     FUNC_SVC_0X80_OPEN,
     FUNC_FOPEN,
     FUNC_NSFILEMANAGER,
+    FUNC_ACCESS,
+    FUNC_FACCESSAT,
+    FUNC_LSTAT,
+    FUNC_REALPATH,
+    FUNC_OPENDIR,
+    FUNC___OPENDIR2,
+    FUNC_NSURL,
 };
 
 typedef NS_ENUM(NSInteger, ButtonId) {
@@ -42,6 +49,13 @@ typedef NS_ENUM(NSInteger, ButtonId) {
     BTN_SVC_0X80_OPEN=9,
     BTN_FOPEN=10,
     BTN_NSFILEMANAGER=11,
+    BTN_ACCESS=12,
+    BTN_FACCESSAT=13,
+    BTN_LSTAT=14,
+    BTN_REALPATH=15,
+    BTN_OPENDIR=16,
+    BTN___OPENDIR2=17,
+    BTN_NSURL=18,
 };
 
 NS_ASSUME_NONNULL_BEGIN

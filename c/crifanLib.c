@@ -3,7 +3,7 @@
     Function: crifan's common C libs implementation
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/crifanLib.c
-    Updated: 20211209_1554
+    Updated: 20211215_1605
 */
 
 #include "CrifanLib.h"
@@ -47,6 +47,7 @@ char* strToLowercase(const char* origStr){
     return lowerStr;
 }
 
+// "/somePath", "/" -> true
 bool strStartsWith(const char *fullStr, const char *prefixStr)
 {
     bool isStartsWith = (0 == strncmp(prefixStr, fullStr, strlen(prefixStr)));
@@ -338,7 +339,7 @@ long calulateFilesize_fstat(char* inputFilename)
 ==============================================================================*/
 
 // file mode to string
-// st_mode=16877 -> modeStrBuf="rwxr-xr-x"
+// mode=16877 -> modeStrBuf="rwxr-xr-x"
 void fileModeToStr(mode_t mode, char * modeStrBuf) {
     // buf must have at least 10 bytes
     const char chars[] = "rwxrwxrwx";
@@ -352,6 +353,7 @@ void fileModeToStr(mode_t mode, char * modeStrBuf) {
 
 //void fileTypeToStr(mode_t mode, char * fileStrBuf) {
 //char* fileTypeToStr(mode_t mode) {
+// mode=10804 -> fileStrBuf="c"
 char* fileTypeToChar(mode_t mode) {
     char * fileStrBuf = NULL;
     char* unknown = "?";
@@ -412,12 +414,21 @@ char* fileTypeToChar(mode_t mode) {
     return fileStrBuf;
 }
 
+// 0 -> "0"
 char* fileSizeToStr(off_t fileStSize){
     char* fileSizeStr = NULL;
     asprintf(&fileSizeStr, "%lld", (long long)fileStSize);
     return fileSizeStr;
 }
 
+/*
+ statInfo stat *
+    st_dev=16777222
+    st_mode=10804
+ =>
+ statStr="stat info: st_mode=c---rw-r--, st_size=0"
+ */
+//
 char* statToStr(struct stat* statInfo){
 //    char fileTypeStr[100];
     char *fileTypeStr=NULL;
@@ -742,6 +753,44 @@ char* toPurePath(const char* origPath){
 
 //    printf("\torigPath=%s =>> purePath=%s\n", origPath, purePath);
     return purePath;
+}
+
+/*
+ "/first/", "second" -> "/first/second"
+ "/first", "second/" -> "/first/second"
+ "/first/", "./second/", "third/" -> "/first/./second/third"
+ */
+//char* strPathJoin(const char* firstPath, ...) {
+char* _strPathJoin(const char* firstPath, ...) {
+    int MaxSupportArgNum_strPathJoin = 10;
+    char* joinedPath = removeEndSlash(firstPath);
+
+    // calculate all parameter
+    char *paraPtr, *paraList[MaxSupportArgNum_strPathJoin];
+    va_list argList;
+    int curParaNum = 0;
+    va_start(argList, firstPath);
+    while ((paraPtr = (char *) va_arg(argList, char *))) {
+        paraList[curParaNum] = paraPtr;
+        curParaNum += 1;
+        printf("[%d] paraPtr=%p, paraPtr=%s\n", curParaNum, paraPtr, paraPtr);
+    }
+    va_end(argList);
+
+    for(int i=0; i < curParaNum; i++){
+        char* curPath = paraList[i];
+        char* curPathNoEndSlash = removeEndSlash(curPath);
+//        if (joinedPath != NULL){
+        char* oldJoinedPath = joinedPath;
+        asprintf(&joinedPath, "%s/%s", joinedPath, curPathNoEndSlash);
+        free(oldJoinedPath);
+//        } else {
+//            asprintf(&joinedPath, "%s", curPathNoEndSlash);
+//        }
+        free(curPathNoEndSlash);
+    }
+    printf("joinedPath=%s\n", joinedPath);
+    return joinedPath;
 }
 
 /*==============================================================================

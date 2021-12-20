@@ -3,7 +3,7 @@
     Function: crifan's common iOS function
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/CrifanLibiOS.m
-    Updated: 20211203_1339
+    Updated: 20211215_1125
 */
 
 #import "CrifanLibiOS.h"
@@ -12,6 +12,12 @@ const int OPEN_OK = 0;
 const int OPEN_FAILED = -1;
 
 const int OPEN_FD_INVALID = -1;
+
+const int ACCESS_OK = 0;
+const int ACCESS_FAILED = -1;
+
+const int STAT_OK = 0;
+const int STAT_FAILED = -1;
 
 @implementation CrifanLibiOS
 
@@ -211,6 +217,121 @@ __attribute__((always_inline)) int svc_0x80_open(const char * pathname, int flag
         }
 
         NSLog(@"fileExistsAtPath %@ -> %@", filePathNsStr, curResultStr);
+        
+    } else if (FUNC_NSURL == funcType) {
+        NSString* fileStr = [NSString stringWithUTF8String:filePathStr];
+        NSString* fileWithFilePrefix = [NSString stringWithFormat:@"file://%@", fileStr];
+        NSURL* fileUrl = [NSURL URLWithString:fileWithFilePrefix];
+        NSError* error = NULL;
+        BOOL isReachable = [fileUrl checkResourceIsReachableAndReturnError:&error];
+        NSLog(@"isReachable=%s, error=%@", boolToStr(isReachable), (error != NULL) ? error : @"");
+
+        // for debug
+        if (isReachable){
+            NSLog(@"fileStr=%@", fileStr);
+        }
+
+        isOpenOk = isReachable;
+        NSLog(@"NSURL checkResourceIsReachableAndReturnError %@ -> %s", fileStr, boolToStr(isReachable));
+    } else if (FUNC_ACCESS == funcType) {
+        int retValue = access(filePathStr, F_OK);
+        NSLog(@"access %s -> %d", filePathStr, retValue);
+
+        if (retValue != ACCESS_OK){
+            isOpenOk = FALSE;
+        } else {
+            isOpenOk = TRUE;
+        }
+    } else if (FUNC_FACCESSAT == funcType) {
+        int curDirFd = 0;
+
+//        // 1. test relative path
+////        const char* curDir = "/private/var/mobile/Library/Filza/";
+////        const char* curFile = "scripts/README.url";
+//
+////        const char* curDir = "/private/var/mobile/Library/";
+//        const char* curDir = "/private/./var/../var/mobile/Library/./";
+////        const char* curFile = "Filza/scripts/README.url";
+//        const char* curFile = "Filza/./scripts/../scripts/README.url";
+//
+//        curDirFd = open(curDir, O_RDONLY);
+//        NSLog(@"curDir=%s -> curDirFd=%d", curDir, curDirFd);
+//
+//        // for debug: get file path from fd
+//        char filePath[PATH_MAX];
+//        int fcntlRet = fcntl(curDirFd, F_GETPATH, filePath);
+//        const int FCNTL_FAILED = -1;
+//        if (fcntlRet != FCNTL_FAILED){
+//            NSLog(@"fcntl OK: curDirFd=%d -> filePath=%s", curDirFd, filePath);
+//        } else {
+//            NSLog(@"fcntl fail for curDirFd=%d", curDirFd);
+//        }
+//        int retValue = faccessat(curDirFd, curFile, F_OK, AT_EACCESS);
+//        NSLog(@"faccessat curDir=%s,curFile=%s -> %d", curDir, curFile, retValue);
+
+        // 2. test input path
+        const int FAKE_FD = 0;
+        curDirFd = FAKE_FD;
+        int retValue = faccessat(curDirFd, filePathStr, F_OK, AT_EACCESS);
+        NSLog(@"faccessat curDirFd=%d, filePathStr=%s -> %d", curDirFd, filePathStr, retValue);
+        
+        if (retValue != ACCESS_FAILED){
+            isOpenOk = TRUE;
+        } else {
+            isOpenOk = FALSE;
+        }
+    } else if (FUNC_LSTAT == funcType) {
+        isOpenOk = FALSE;
+        bool isLink = FALSE;
+
+        struct stat statInfo;
+        int lstatRet = lstat(filePathStr, &statInfo);
+        if (STAT_OK == lstatRet){
+//            isLink = statInfo.st_mode & S_IFLNK;
+            isLink = S_ISLNK(statInfo.st_mode);
+            if (isLink) {
+                isOpenOk = TRUE;
+            }
+        }
+
+        NSLog(@"lstat filePathStr=%s -> isLink=%s -> isOpenOk=%s", filePathStr, boolToStr(isLink), boolToStr(isOpenOk));
+    } else if (FUNC_REALPATH == funcType) {
+        char parsedRealPath[PATH_MAX];
+        char *resolvedPtr = realpath(filePathStr, parsedRealPath);
+        if (NULL != resolvedPtr){
+            NSLog(@"realpath OK: filePathStr=%s -> parsedRealPath=%s", filePathStr, parsedRealPath);
+            isOpenOk = TRUE;
+        } else {
+            NSLog(@"realpath fail for filePathStr=%s", filePathStr);
+            isOpenOk = FALSE;
+        }
+        NSLog(@"realpath filePathStr=%s -> isOpenOk=%s", filePathStr, boolToStr(isOpenOk));
+    } else if (FUNC_OPENDIR == funcType) {
+        DIR* retDir = opendir(filePathStr);
+        if (NULL != retDir){
+            NSLog(@"opendir OK: filePathStr=%s -> retDir=%p", filePathStr, retDir);
+            NSLog(@"\tDIR: __dd_fd=%d,__dd_loc=%ld,__dd_size=%ld,__dd_buf=%s,__dd_len=%d,__dd_seek=%ld,__padding=%ld,__dd_flags=%d",
+                retDir->__dd_fd, retDir->__dd_loc, retDir->__dd_size, retDir->__dd_buf, retDir->__dd_len, retDir->__dd_seek, retDir->__padding, retDir->__dd_flags);
+            isOpenOk = TRUE;
+        } else {
+            NSLog(@"opendir fail for filePathStr=%s", filePathStr);
+            isOpenOk = FALSE;
+        }
+
+        NSLog(@"opendir filePathStr=%s -> retDir=%p -> isOpenOk=%s", filePathStr, retDir, boolToStr(isOpenOk));
+    } else if (FUNC___OPENDIR2 == funcType) {
+        DIR* retDir = __opendir2(filePathStr, DTF_HIDEW|DTF_NODUP);
+        if (NULL != retDir){
+            NSLog(@"__opendir2 OK: filePathStr=%s -> retDir=%p", filePathStr, retDir);
+            NSLog(@"\tDIR: __dd_fd=%d,__dd_loc=%ld,__dd_size=%ld,__dd_buf=%s,__dd_len=%d,__dd_seek=%ld,__padding=%ld,__dd_flags=%d",
+                retDir->__dd_fd, retDir->__dd_loc, retDir->__dd_size, retDir->__dd_buf, retDir->__dd_len, retDir->__dd_seek, retDir->__padding, retDir->__dd_flags);
+            isOpenOk = TRUE;
+        } else {
+            NSLog(@"__opendir2 fail for filePathStr=%s", filePathStr);
+            isOpenOk = FALSE;
+        }
+
+        NSLog(@"__opendir2 filePathStr=%s -> retDir=%p -> isOpenOk=%s", filePathStr, retDir, boolToStr(isOpenOk));
     }
 
     if (isUseStatInfo){
