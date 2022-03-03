@@ -3,10 +3,14 @@
     Function: crifan's common iOS function
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/CrifanLibiOS.m
-    Updated: 20211215_1125
+    Updated: 20220303_1002
 */
 
 #import "CrifanLibiOS.h"
+
+/*==============================================================================
+ Const
+==============================================================================*/
 
 const int OPEN_OK = 0;
 const int OPEN_FAILED = -1;
@@ -19,6 +23,33 @@ const int ACCESS_FAILED = -1;
 const int STAT_OK = 0;
 const int STAT_FAILED = -1;
 
+const int FORK_FAILED = -1;
+
+const int PTRACE_OK = 0;
+const int PTRACE_FAILED = -1;
+
+const int FOPEN_OPEN_FAILED = NULL;
+
+const int FCNTL_FAILED = -1;
+
+//const char* _Nullable REALPATH_FAILED = NULL;
+char* _Nullable REALPATH_FAILED = NULL;
+
+//int OPENDIR_FAILED = NULL;
+//const int OPENDIR_FAILED = NULL;
+//const char* _Nullable OPENDIR_FAILED = NULL;
+//char* _Nullable OPENDIR_FAILED = NULL;
+//const DIR* _Nullable OPENDIR_FAILED = NULL;
+DIR* OPENDIR_FAILED = NULL;
+
+const int StrPointerSize = sizeof(const char *);
+
+const int DLADDR_FAILED = 0;
+
+const int DYLD_IMAGE_INDEX_INVALID = -1;
+const long DYLD_IMAGE_SLIDE_INVALID = 0;
+
+
 @implementation CrifanLibiOS
 
 /*==============================================================================
@@ -28,10 +59,12 @@ const int STAT_FAILED = -1;
 + (NSArray *) strListToNSArray: (char**)strList listCount:(int)listCount
 {
     NSMutableArray * nsArr = [NSMutableArray array];
-    for(int i = 0; i < listCount; i++){
-        char* curStr = strList[i];
-        NSString* curNSStr = [NSString stringWithUTF8String: curStr];
-        [nsArr addObject: curNSStr];
+    if (strList) {
+        for(int i = 0; i < listCount; i++){
+            char* curStr = strList[i];
+            NSString* curNSStr = [NSString stringWithUTF8String: curStr];
+            [nsArr addObject: curNSStr];
+        }
     }
     return nsArr;
 }
@@ -370,4 +403,189 @@ __attribute__((always_inline)) int svc_0x80_open(const char * pathname, int flag
     return isOpenOk;
 }
 
+/*==============================================================================
+ Codesign
+==============================================================================*/
+
+// get embedded.mobileprovision path
+// /private/var/containers/Bundle/Application/4366136E-242E-4C5D-9CC8-CF100A0B6FB2/ShowSysInfo.app/embedded.mobileprovision"
++ (NSString*) getEmbeddedCodesign {
+    NSString *embeddedPath = [[NSBundle mainBundle] pathForResource:@"embedded" ofType:@"mobileprovision"]; // embeddedPath    __NSCFString *    @"/private/var/containers/Bundle/Application/4366136E-242E-4C5D-9CC8-CF100A0B6FB2/ShowSysInfo.app/embedded.mobileprovision"    0x0000000282c11830
+    return embeddedPath;
+}
+
+// is embedded.mobileprovision exist or not
++ (BOOL) isCodeSignExist {
+    BOOL isExist = FALSE;
+    NSString *embeddedPath = [CrifanLibiOS getEmbeddedCodesign];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:embeddedPath]) {
+        isExist = TRUE;
+    } else {
+        isExist = FALSE;
+    }
+    
+    return isExist;
+}
+
+// get application-identifier from embedded.mobileprovision
++ (NSString*) getAppId {
+    NSString* appIdStr = NULL;
+    if(![CrifanLibiOS isCodeSignExist]) {
+        return NULL;
+    }
+
+    NSString *embeddedPath = [CrifanLibiOS getEmbeddedCodesign];
+    if (NULL == embeddedPath) {
+        return NULL;
+    }
+
+    // 注意：读取(application-identifier)描述文件的编码要使用: NSASCIIStringEncoding
+    NSStringEncoding fileEncoding = NSASCIIStringEncoding;
+//    NSStringEncoding fileEncoding = NSUTF8StringEncoding;
+    NSString *embeddedProvisioning = [NSString stringWithContentsOfFile:embeddedPath encoding:fileEncoding error:nil];
+    NSArray<NSString *> *embeddedProvisioningLines = [embeddedProvisioning componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+    if (NULL == embeddedProvisioningLines) {
+        return NULL;
+    }
+
+    for (int i = 0; i < embeddedProvisioningLines.count; i++) {
+        if ([embeddedProvisioningLines[i] rangeOfString:@"application-identifier"].location != NSNotFound) {
+            NSString *identifierString = embeddedProvisioningLines[i + 1];
+            // <string>L2ZY2L7GYS.com.xx.xxx</string>
+            // "\t\t<string>3WRHBBSBW4.*</string>"
+            NSRange fromRange = [identifierString rangeOfString:@"<string>"];
+            NSInteger fromPosition = fromRange.location + fromRange.length;
+            NSInteger toPosition = [identifierString rangeOfString:@"</string>"].location;
+            NSRange range;
+            range.location = fromPosition;
+            range.length = toPosition - fromPosition;
+            NSString *fullIdentifier = [identifierString substringWithRange:range];
+//            NSScanner *scanner = [NSScanner scannerWithString:fullIdentifier];
+//            NSString *teamIdString;
+//            [scanner scanUpToString:@"." intoString:&teamIdString];
+//            NSRange teamIdRange = [fullIdentifier rangeOfString:teamIdString];
+//            NSString *appIdentifier = [fullIdentifier substringFromIndex:teamIdRange.length + 1];
+//            appIdStr = appIdentifier;
+            
+            appIdStr = fullIdentifier;
+            break;
+        }
+    }
+
+    return appIdStr;
+}
+
+// check app id is same with embedded.mobileprovision's application-identifier
++ (BOOL) isSelfAppId: (NSString*) selfAppId {
+    BOOL isSelfId = FALSE;
+    NSString* foundAddId = [CrifanLibiOS getAppId];
+    // 对比签名teamID或者identifier信息
+//   if (![foundAddId isEqualToString:identifier] || ![teamId isEqualToString:foundAddId]) {
+    if ([foundAddId isEqualToString: selfAppId]) {
+        isSelfId = TRUE;
+    } else {
+        isSelfId = FALSE;
+//        // exit(0)
+//        asm(
+//            "mov X0,#0\n"
+//            "mov w16,#1\n"
+//            "svc #0x80"
+//            );
+    }
+
+    return isSelfId;
+}
+
+/*==============================================================================
+ Process
+==============================================================================*/
+
+// Get the running processes
+// Note: refer: https://developer.apple.com/forums/thread/9440
+//  for iOS 9.0+,  KERN_PROC_ALL not working
++ (NSArray *)runningProcesses {
+    // Define the int array of the kernel's processes
+    int mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0};
+//    size_t miblen = 4;
+    int miblen = 4;
+    
+    // Make a new size and int of the sysctl calls
+    size_t size = 0;
+//    int st;
+    int st = sysctl(mib, miblen, NULL, &size, NULL, 0);
+
+    // Make new structs for the processes
+    struct kinfo_proc * process = NULL;
+    struct kinfo_proc * newprocess = NULL;
+    
+    // Do get all the processes while there are no errors
+    do {
+        // Add to the size
+        size += (size / 10);
+        // Get the new process
+        newprocess = realloc(process, size);
+        // If the process selected doesn't exist
+        if (!newprocess){
+            // But the process exists
+            if (process){
+                // Free the process
+                free(process);
+            }
+            // Return that nothing happened
+            return nil;
+        }
+        
+        // Make the process equal
+        process = newprocess;
+        
+        // Set the st to the next process
+//        st = sysctl(mib, (int)miblen, process, &size, NULL, 0);
+        st = sysctl(mib, miblen, process, &size, NULL, 0);
+    } while (st == -1 && errno == ENOMEM);
+
+    // As long as the process list is empty
+    if (st == 0){
+        // And the size of the processes is 0
+        if (size % sizeof(struct kinfo_proc) == 0){
+            // Define the new process
+            int nprocess = (int)(size / sizeof(struct kinfo_proc));
+            // If the process exists
+            if (nprocess){
+                // Create a new array
+                NSMutableArray * array = [[NSMutableArray alloc] init];
+                // Run through a for loop of the processes
+                for (int i = nprocess - 1; i >= 0; i--){
+                    // Get the process ID
+                    NSString * processID = [[NSString alloc] initWithFormat:@"%d", process[i].kp_proc.p_pid];
+                    // Get the process Name
+                    NSString * processName = [[NSString alloc] initWithFormat:@"%s", process[i].kp_proc.p_comm];
+                    // Get the process Priority
+                    NSString *processPriority = [[NSString alloc] initWithFormat:@"%d", process[i].kp_proc.p_priority];
+                    // Get the process running time
+                    NSDate   *processStartDate = [NSDate dateWithTimeIntervalSince1970:process[i].kp_proc.p_un.__p_starttime.tv_sec];
+                    // Create a new dictionary containing all the process ID's and Name's
+                    NSDictionary *dict = [[NSDictionary alloc] initWithObjects:[NSArray arrayWithObjects:processID, processPriority, processName, processStartDate, nil]
+                                                                       forKeys:[NSArray arrayWithObjects:@"ProcessID", @"ProcessPriority", @"ProcessName", @"ProcessStartDate", nil]];
+                    
+                    // Add the dictionary to the array
+                    [array addObject:dict];
+                }
+                // Free the process array
+                free(process);
+                
+                // Return the process array
+                return array;
+                
+            }
+        }
+    }
+    
+    // Free the process array
+    free(process);
+    
+    // If no processes are found, return nothing
+    return nil;
+}
+
 @end
+

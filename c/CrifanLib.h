@@ -3,7 +3,7 @@
     Function: crifan's common C libs header file
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/CrifanLib.h
-    Updated: 20211215_1605
+    Updated: 20220124_1552
 */
 
 // This will not work with all C++ compilers, but it works with clang and gcc
@@ -31,16 +31,28 @@ extern "C" {
 #include <dlfcn.h>
 #include <stdarg.h>
 #include <dirent.h>
+#include <time.h>
 
 // integer
 bool isIntInList(int valueToCheck, int* intList, int intListLen);
 
+// Date Time
+//char* getCompileDateTimeStr(void);
+char* parseTimeInfo(char* dateTimeStr, struct tm* outTimeInfo);
+bool isTimeExpired(const char* expiredTimeStr);
+
+// char
+void initRandomChar(void);
+char randomChar(const char* choiceStr);
+
 // string
+char* randomStr(int strLen, const char* choiceStr);
 char* boolToStr(bool curBool);
 char* strToLowercase(const char* origStr);
 bool strStartsWith(const char *fullStr, const char *prefixStr);
 bool strEndsWith(const char* fullStr, const char* endStr);
-char* removeHead(const char* fullStr, const char* headStr);
+//char* removeHead(const char* fullStr, const char* headStr);
+char* removeHead(const char* fullStr, const char* headStr, char** toFreePtr);
 char* removeTail(const char* fullStr, const char* tailStr);
 char* removeEndSlash(const char* origPath);
 char* strReplace(const char *fullStr, const char *replaceFromStr, const char *replaceToStr);
@@ -66,8 +78,11 @@ bool parseRealPath(const char* curPath, char* gotRealPath);
 #define strPathJoin(...) _strPathJoin(__VA_ARGS__, NULL);
 char* _strPathJoin(const char* firstPath, ...);
 
-// iOS: system
+// iOS
 int iOS_system(const char* command);
+void iOS_antiDebug_ptrace(void);
+void iOS_antiDebug_syscall(void);
+void iOS_antiDebug_svc0x80_syscall(void);
 
 #endif /* CrifanLib_h */
 
