@@ -3,7 +3,7 @@
     Function: crifan's common iOS function
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/CrifanLibiOS.h
-    Updated: 20220303_1002
+    Updated: 20220316_1717
 */
 
 #import <Foundation/Foundation.h>
@@ -11,6 +11,9 @@
 #import <dlfcn.h>
 #import <sys/types.h>
 #import <sys/sysctl.h>
+#import <fcntl.h>
+#import <sys/param.h>
+#import <sys/mount.h>
 
 #import "CrifanLib.h"
 
@@ -118,7 +121,7 @@ do { if (IOS_LOG_ERROR_ENABLE) os_log(OS_LOG_DEFAULT, "%s %s: " format, HOOK_FIL
 //    do { if (IOS_LOG_ERROR_ENABLE) os_log(OS_LOG_DEFAULT, "%s %s: " format, __FILE_NAME__, PURE_FUNC, __VA_ARGS__); } while(0)
 
 /*==============================================================================
- Global Variable
+ Exported Global Variable
 ==============================================================================*/
 
 extern const int OPEN_OK;
@@ -131,6 +134,9 @@ extern const int ACCESS_FAILED;
 
 extern const int STAT_OK;
 extern const int STAT_FAILED;
+
+extern const int STATFS_OK;
+extern const int STATFS_FAILED;
 
 extern const int FORK_FAILED;
 
@@ -157,6 +163,10 @@ extern const int DLADDR_FAILED;
 extern const int DYLD_IMAGE_INDEX_INVALID;
 extern const long DYLD_IMAGE_SLIDE_INVALID;
 
+extern const int SYSCTL_OK;
+extern const int SYSCTL_FAIL;
+
+
 /*==============================================================================
  Global Type
 ==============================================================================*/
@@ -181,6 +191,19 @@ typedef NS_ENUM(NSInteger, OpenFileFunctionType) {
     FUNC_OPENDIR,
     FUNC___OPENDIR2,
     FUNC_NSURL,
+    FUNC_STATFS,
+    FUNC_STATFS64,
+    FUNC_FSTATFS,
+    FUNC_FSTATAT,
+    FUNC_FSTAT,
+    FUNC_SYSCALL_LSTAT,
+    FUNC_SYSCALL_FSTAT,
+    FUNC_SYSCALL_FSTATAT,
+    FUNC_SYSCALL_STATFS,
+    FUNC_SYSCALL_FSTATFS,
+    FUNC_SYSCALL_FOPEN,
+    FUNC_SYSCALL_ACCESS,
+    FUNC_SYSCALL_FACCESSAT,
 };
 
 typedef NS_ENUM(NSInteger, ButtonId) {
@@ -202,6 +225,19 @@ typedef NS_ENUM(NSInteger, ButtonId) {
     BTN_OPENDIR=16,
     BTN___OPENDIR2=17,
     BTN_NSURL=18,
+    BTN_STATFS=19,
+    BTN_STATFS64=20,
+    BTN_FSTATFS=21,
+    BTN_FSTATAT=22,
+    BTN_FSTAT=23,
+    BTN_SYSCALL_LSTAT=24,
+    BTN_SYSCALL_FSTAT=25,
+    BTN_SYSCALL_FSTATAT=26,
+    BTN_SYSCALL_STATFS=27,
+    BTN_SYSCALL_FSTATFS=28,
+    BTN_SYSCALL_FOPEN=29,
+    BTN_SYSCALL_ACCESS=30,
+    BTN_SYSCALL_FACCESSAT=31,
 };
 
 

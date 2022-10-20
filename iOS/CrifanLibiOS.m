@@ -3,7 +3,7 @@
     Function: crifan's common iOS function
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/CrifanLibiOS.m
-    Updated: 20220303_1002
+    Updated: 20220316_1645
 */
 
 #import "CrifanLibiOS.h"
@@ -22,6 +22,9 @@ const int ACCESS_FAILED = -1;
 
 const int STAT_OK = 0;
 const int STAT_FAILED = -1;
+
+const int STATFS_OK = 0;
+const int STATFS_FAILED = -1;
 
 const int FORK_FAILED = -1;
 
@@ -49,6 +52,8 @@ const int DLADDR_FAILED = 0;
 const int DYLD_IMAGE_INDEX_INVALID = -1;
 const long DYLD_IMAGE_SLIDE_INVALID = 0;
 
+const int SYSCTL_OK = 0;
+const int SYSCTL_FAIL = -1;
 
 @implementation CrifanLibiOS
 
@@ -196,6 +201,48 @@ __attribute__((always_inline)) int svc_0x80_open(const char * pathname, int flag
     } else if (FUNC_SYSCALL_STAT64 == funcType){
         isUseStatInfo = TRUE;
         openResult = syscall(SYS_stat64, filePathStr, &stat_info);
+    } else if (FUNC_SYSCALL_LSTAT == funcType){
+        isUseStatInfo = TRUE;
+        openResult = syscall(SYS_lstat, filePathStr, &stat_info);
+    } else if (FUNC_SYSCALL_FSTAT == funcType){
+        isUseStatInfo = TRUE;
+
+        int curFd = open(filePathStr, O_RDONLY);
+        if (curFd > 0){
+            openResult = syscall(SYS_fstat, curFd, &stat_info);
+        } else {
+            isOpenOk = FALSE;
+        }
+    } else if (FUNC_SYSCALL_FSTATAT == funcType){
+        // NOTE: syscall(SYS_fstatat) not work until 20220316 -> awalys return -1
+
+        // int fstatat(int fd, const char* pathname, struct stat* buf, int flags);
+        isUseStatInfo = TRUE;
+
+//        int curFd = open(filePathStr, O_RDONLY);
+//        if (curFd > 0){
+//            openResult = syscall(SYS_fstatat, curFd, filePathStr, &stat_info, F_DUPFD);
+//        } else {
+//            isOpenOk = FALSE;
+//        }
+
+//        int notUsedDirfd = -1;
+//        openResult = syscall(SYS_fstatat, notUsedDirfd, filePathStr, &stat_info, F_DUPFD);
+//        openResult = syscall(SYS_fstatat, notUsedDirfd, filePathStr, &stat_info, 0);
+        openResult = syscall(SYS_fstatat, AT_FDCWD, filePathStr, &stat_info, 0);
+    } else if (FUNC_SYSCALL_STATFS == funcType){
+        isUseStatInfo = TRUE;
+        // int statfs(const char *path, struct statfs *buf);
+        openResult = syscall(SYS_statfs, filePathStr, &stat_info);
+    } else if (FUNC_SYSCALL_FSTATFS == funcType){
+        isUseStatInfo = TRUE;
+        // int fstatfs(int fd, struct statfs *buf);
+        int curFd = open(filePathStr, O_RDONLY);
+        if (curFd > 0){
+            openResult = syscall(SYS_fstatfs, curFd, &stat_info);
+        } else {
+            isOpenOk = FALSE;
+        }
     } else if (FUNC_SVC_0X80_STAT == funcType) {
         isUseStatInfo = TRUE;
         //Note: for open normal file, return 0 is OK, but st_mode is abnormal !
@@ -210,6 +257,8 @@ __attribute__((always_inline)) int svc_0x80_open(const char * pathname, int flag
         isUseFd = TRUE;
 //        retFd = syscall(SYS_open, filePathStr, O_RDONLY);
         retFd = syscall(SYS_open, filePathStr, O_RDONLY, MODE_NONE);
+    } else if (FUNC_SYSCALL_FOPEN == funcType){
+        // no SYS_fopen
     } else if (FUNC_SVC_0X80_OPEN == funcType) {
         isUseFd = TRUE;
 //        retFd = svc_0x80_open(filePathStr, O_RDONLY, MODE_NONE);
@@ -275,39 +324,87 @@ __attribute__((always_inline)) int svc_0x80_open(const char * pathname, int flag
         } else {
             isOpenOk = TRUE;
         }
+    } else if (FUNC_SYSCALL_ACCESS == funcType) {
+        int retValue = syscall(SYS_access, filePathStr, F_OK);
+        NSLog(@"SYS_access %s -> %d", filePathStr, retValue);
+        if (retValue != ACCESS_OK){
+            isOpenOk = FALSE;
+        } else {
+            isOpenOk = TRUE;
+        }
+    } else if (FUNC_FSTATAT == funcType) {
+        isOpenOk = FALSE;
+
+        int tmpFd = open(filePathStr, O_RDONLY);
+
+        if (tmpFd > 0){
+            isOpenOk = TRUE;
+
+            struct stat statInfo;
+            memset(&statInfo, 0, sizeof(struct stat));
+            int fstatatRet = fstatat(tmpFd, filePathStr, &statInfo, F_DUPFD);
+            if (STATFS_OK == fstatatRet) {
+                isOpenOk = TRUE;
+            } else {
+                isOpenOk = FALSE;
+            }
+        } else {
+            // when fd < 0, normally is -1, means open file failed
+            isOpenOk = FALSE;
+            NSLog(@"open() failed for %@", filePath);
+        }
     } else if (FUNC_FACCESSAT == funcType) {
         int curDirFd = 0;
+        int retValue = ACCESS_FAILED;
 
 //        // 1. test relative path
 ////        const char* curDir = "/private/var/mobile/Library/Filza/";
 ////        const char* curFile = "scripts/README.url";
 //
 ////        const char* curDir = "/private/var/mobile/Library/";
-//        const char* curDir = "/private/./var/../var/mobile/Library/./";
 ////        const char* curFile = "Filza/scripts/README.url";
-//        const char* curFile = "Filza/./scripts/../scripts/README.url";
+////        const char* curDir = "/private/./var/../var/mobile/Library/./";
+////        const char* curFile = "Filza/./scripts/../scripts/README.url";
+//        const char* curDir = "/usr/lib";
+//        const char* curFile = "libsubstrate.dylib";
 //
 //        curDirFd = open(curDir, O_RDONLY);
 //        NSLog(@"curDir=%s -> curDirFd=%d", curDir, curDirFd);
 //
-//        // for debug: get file path from fd
-//        char filePath[PATH_MAX];
-//        int fcntlRet = fcntl(curDirFd, F_GETPATH, filePath);
-//        const int FCNTL_FAILED = -1;
-//        if (fcntlRet != FCNTL_FAILED){
-//            NSLog(@"fcntl OK: curDirFd=%d -> filePath=%s", curDirFd, filePath);
-//        } else {
-//            NSLog(@"fcntl fail for curDirFd=%d", curDirFd);
-//        }
-//        int retValue = faccessat(curDirFd, curFile, F_OK, AT_EACCESS);
+////        // for debug: get file path from fd
+////        char filePath[PATH_MAX];
+////        int fcntlRet = fcntl(curDirFd, F_GETPATH, filePath);
+////        const int FCNTL_FAILED = -1;
+////        if (fcntlRet != FCNTL_FAILED){
+////            NSLog(@"fcntl OK: curDirFd=%d -> filePath=%s", curDirFd, filePath);
+////        } else {
+////            NSLog(@"fcntl fail for curDirFd=%d", curDirFd);
+////        }
+//
+//        retValue = faccessat(curDirFd, curFile, F_OK, AT_EACCESS);
 //        NSLog(@"faccessat curDir=%s,curFile=%s -> %d", curDir, curFile, retValue);
 
         // 2. test input path
         const int FAKE_FD = 0;
         curDirFd = FAKE_FD;
-        int retValue = faccessat(curDirFd, filePathStr, F_OK, AT_EACCESS);
+        retValue = faccessat(curDirFd, filePathStr, F_OK, AT_EACCESS);
         NSLog(@"faccessat curDirFd=%d, filePathStr=%s -> %d", curDirFd, filePathStr, retValue);
-        
+
+        if (retValue != ACCESS_FAILED){
+            isOpenOk = TRUE;
+        } else {
+            isOpenOk = FALSE;
+        }
+    } else if (FUNC_SYSCALL_FACCESSAT == funcType) {
+        // NOTE: syscall(SYS_faccessat) not work until 20220317 -> awalys return -1
+
+        int curDirFd = 0;
+        int retValue = ACCESS_FAILED;
+
+        const int FAKE_FD = 0;
+        curDirFd = FAKE_FD;
+//        retValue = syscall(SYS_faccessat, curDirFd, filePathStr, F_OK, AT_EACCESS);
+        retValue = syscall(SYS_faccessat, curDirFd, filePathStr, F_OK, 0);
         if (retValue != ACCESS_FAILED){
             isOpenOk = TRUE;
         } else {
@@ -328,6 +425,61 @@ __attribute__((always_inline)) int svc_0x80_open(const char * pathname, int flag
         }
 
         NSLog(@"lstat filePathStr=%s -> isLink=%s -> isOpenOk=%s", filePathStr, boolToStr(isLink), boolToStr(isOpenOk));
+    } else if (FUNC_STATFS == funcType) {
+        isOpenOk = FALSE;
+        struct statfs statfsInfo;
+        int statfsRet = statfs(filePathStr, &statfsInfo);
+        if (STATFS_OK == statfsRet) {
+            isOpenOk = TRUE;
+        } else {
+            isOpenOk = FALSE;
+        }
+        NSLog(@"statfs filePathStr=%s -> isOpenOk=%s", filePathStr, boolToStr(isOpenOk));
+    } else if (FUNC_STATFS64 == funcType) {
+        isOpenOk = FALSE;
+        // NOTE: iOS not support struct statfs64 -> only macOS support struct statfs64
+//        struct statfs64 statfs64Info; // Variable has incomplete type 'struct statfs64'
+//        int statfs64Ret = statfs64(filePathStr, &statfs64Info); // Implicit declaration of function 'statfs64' is invalid in C99
+    } else if (FUNC_FSTATFS == funcType) {
+        isOpenOk = FALSE;
+        int tmpFd = open(filePathStr, O_RDONLY);
+
+        if (tmpFd > 0){
+            isOpenOk = TRUE;
+
+            struct statfs statfsInfo;
+            memset(&statfsInfo, 0, sizeof(struct statfs));
+            int fstatfsRet = fstatfs(tmpFd, &statfsInfo);
+            if (STATFS_OK == fstatfsRet) {
+                isOpenOk = TRUE;
+            } else {
+                isOpenOk = FALSE;
+            }
+        } else {
+            // when fd < 0, normally is -1, means open file failed
+            isOpenOk = FALSE;
+            NSLog(@"open() failed for %@", filePath);
+        }
+    } else if (FUNC_FSTAT == funcType) {
+        isOpenOk = FALSE;
+        int tmpFd = open(filePathStr, O_RDONLY);
+
+        if (tmpFd > 0){
+            isOpenOk = TRUE;
+
+            struct stat statInfo;
+            memset(&statInfo, 0, sizeof(struct stat));
+            int fstatRet = fstat(tmpFd, &statInfo);
+            if (STAT_OK == fstatRet) {
+                isOpenOk = TRUE;
+            } else {
+                isOpenOk = FALSE;
+            }
+        } else {
+            // when fd < 0, normally is -1, means open file failed
+            isOpenOk = FALSE;
+            NSLog(@"open() failed for %@", filePath);
+        }
     } else if (FUNC_REALPATH == funcType) {
         char parsedRealPath[PATH_MAX];
         char *resolvedPtr = realpath(filePathStr, parsedRealPath);

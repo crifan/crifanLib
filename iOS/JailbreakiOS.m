@@ -3,7 +3,7 @@
     Function: crifan's common iOS jailbreak functions
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/JailbreakiOS.m
-    Updated: 20220303_1402
+    Updated: 20220308_1002
 */
 
 #import "JailbreakiOS.h"
@@ -69,11 +69,11 @@ const char* _Nonnull FILE_PREFIX = "file://";
 
 //        free(pathNoFilePrefix);
 //        if (NULL != toFreePtr) {
-        NSLog(@"Now to free: toFreePtr=%p", toFreePtr);
+//        NSLog(@"Now to free: toFreePtr=%p", toFreePtr);
         free(toFreePtr);
 //        }
     }
-    NSLog(@"curPath=%@ -> isJbPath=%d", curPath, isJbPath);
+//    NSLog(@"curPath=%@ -> isJbPath=%d", curPath, isJbPath);
     return isJbPath;
 }
 

@@ -3,7 +3,7 @@
     Function: crifan's common C libs implementation
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/crifanLib.c
-    Updated: 20220210_1540
+    Updated: 20220315_1455
 */
 
 #include "CrifanLib.h"
@@ -1026,6 +1026,20 @@ char* _strPathJoin(const char* firstPath, ...) {
     }
     // printf("joinedPath=%s\n", joinedPath);
     return joinedPath;
+}
+
+// get file path from fd (file descriptor)
+// fd=4, char filePath[PATH_MAX]; -> outFilePath=/usr/lib/libsubstrate.dylib
+bool getFilePath(int fd, char* outFilePath){
+    const int FCNTL_FAILED = -1;
+    bool isOk = false;
+    int fcntlRet = fcntl(fd, F_GETPATH, outFilePath);
+    if (fcntlRet != FCNTL_FAILED){
+        isOk = true;
+    } else {
+        isOk = false;
+    }
+    return isOk;
 }
 
 /*==============================================================================

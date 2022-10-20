@@ -3,7 +3,7 @@
     Function: crifan's common jailbreak file path list
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/JailbreakPathList.c
-    Updated: 20220117_1035
+    Updated: 20220315_1605
 */
 
 #include "JailbreakPathList.h"
@@ -78,8 +78,16 @@ const char* jailbreakPathList_Dylib[] = {
     // Other libs
     "/private/var/lib/clutch/overdrive.dylib",
     "/usr/lib/frida/frida-agent.dylib",
+
+#ifdef KEEP_SOFT_LINK
     "/usr/lib/libapt-inst.2.0.dylib",
+    "/usr/lib/libapt-pkg.5.0.dylib",
+    "/usr/lib/libapt-private.0.0.dylib",
+#endif
+    "/usr/lib/libapt-inst.2.0.0.dylib",
+    "/usr/lib/libapt-pkg.5.0.2.dylib",
     "/usr/lib/libapt-private.0.0.0.dylib",
+
     "/usr/lib/libcycript.dylib",
     "/usr/lib/librocketbootstrap.dylib",
     "/usr/lib/tweakloader.dylib",

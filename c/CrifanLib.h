@@ -3,7 +3,7 @@
     Function: crifan's common C libs header file
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/CrifanLib.h
-    Updated: 20220124_1552
+    Updated: 20220315_1114
 */
 
 // This will not work with all C++ compilers, but it works with clang and gcc
@@ -77,6 +77,8 @@ bool parseRealPath(const char* curPath, char* gotRealPath);
 
 #define strPathJoin(...) _strPathJoin(__VA_ARGS__, NULL);
 char* _strPathJoin(const char* firstPath, ...);
+
+bool getFilePath(int fd, char* outFilePath);
 
 // iOS
 int iOS_system(const char* command);
