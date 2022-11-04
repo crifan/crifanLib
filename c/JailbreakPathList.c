@@ -3,7 +3,7 @@
     Function: crifan's common jailbreak file path list
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/JailbreakPathList.c
-    Updated: 20220315_1605
+    Updated: 20221104_1730
 */
 
 #include "JailbreakPathList.h"
@@ -47,7 +47,6 @@ const char* jailbreakPathList_Dylib[] = {
     "/Library/MobileSubstrate/DynamicLibraries/dygz.dylib",
     "/Library/MobileSubstrate/DynamicLibraries/LiveClock.dylib",
     "/Library/MobileSubstrate/DynamicLibraries/MobileSafety.dylib",
-    "/Library/MobileSubstrate/DynamicLibraries/MuJiaBaiHuoTweak.dylib",
     "/Library/MobileSubstrate/DynamicLibraries/PreferenceLoader.dylib",
     "/Library/MobileSubstrate/DynamicLibraries/RocketBootstrap.dylib",
     "/Library/MobileSubstrate/DynamicLibraries/Veency.dylib",
@@ -164,7 +163,6 @@ const char* jailbreakPathList_Other[] = {
     "/Library/MobileSubstrate/DynamicLibraries/dygz.plist",
     "/Library/MobileSubstrate/DynamicLibraries/LiveClock.plist",
     "/Library/MobileSubstrate/DynamicLibraries/MobileSafety.plist",
-    "/Library/MobileSubstrate/DynamicLibraries/MuJiaBaiHuoTweak.plist",
     "/Library/MobileSubstrate/DynamicLibraries/PreferenceLoader.plist",
     "/Library/MobileSubstrate/DynamicLibraries/RocketBootstrap.plist",
     "/Library/MobileSubstrate/DynamicLibraries/Veency.plist",
