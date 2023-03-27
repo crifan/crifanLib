@@ -2,7 +2,7 @@
     File: OpenFileiOS.h
     Function: crifan's common iOS open file functions header
     Author: Crifan Li
-    Latest: https://github.com/crifan/crifanLib/blob/master/iOS/openFileiOS.h
+    Latest: https://github.com/crifan/crifanLib/blob/master/iOS/OpenFileiOS.h
     Updated: 20230327_1111
 */
 

@@ -2,7 +2,7 @@
     File: OpenFileiOS.m
     Function: crifan's common iOS open file functions
     Author: Crifan Li
-    Latest: https://github.com/crifan/crifanLib/blob/master/iOS/openFileiOS.m
+    Latest: https://github.com/crifan/crifanLib/blob/master/iOS/OpenFileiOS.m
     Updated: 20230327_1111
 */
 
