@@ -3,7 +3,7 @@
     Function: crifan's common iOS hook log functions header
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/HookLogiOS.h
-    Updated: 20230327_1111
+    Updated: 20230331_1455
 */
 
 #import <Foundation/Foundation.h>
@@ -114,6 +114,22 @@ do { if (IOS_LOG_ERROR_ENABLE) os_log(OS_LOG_DEFAULT, "%s %s: " format, HOOK_FIL
 
 
 NS_ASSUME_NONNULL_BEGIN
+
+/*==============================================================================
+ Global Config
+==============================================================================*/
+
+// output one log every N time
+extern long LOG_ONCE_PER_NUM;
+
+/*==============================================================================
+ Global Variable
+==============================================================================*/
+
+extern long gCurLogNum;
+
+extern long gNoUse;
+
 
 @interface HookLogiOS : NSObject
 
