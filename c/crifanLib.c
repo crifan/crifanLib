@@ -3,7 +3,7 @@
     Function: crifan's common C libs implementation
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/crifanLib.c
-    Updated: 20220315_1455
+    Updated: 20220404_2147
 */
 
 #include "CrifanLib.h"
@@ -1108,11 +1108,14 @@ void iOS_antiDebug_ptrace(void) {
     }
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 // #define    SYS_ptrace         26
 void iOS_antiDebug_syscall(void) {
     int syscallPtraceRetValue = syscall(SYS_ptrace, PT_DENY_ATTACH, 0, NULL, 0);
     printf("syscallPtraceRetValue=%d\n", syscallPtraceRetValue);
 }
+#pragma clang diagnostic pop
 
 void iOS_antiDebug_svc0x80_syscall(void) {
 //    // for debug
