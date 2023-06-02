@@ -3,7 +3,7 @@
     Function: crifan's common C libs implementation
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/crifanLib.c
-    Updated: 20220404_2147
+    Updated: 20220602_1526
 */
 
 #include "CrifanLib.h"
@@ -407,6 +407,17 @@ void strSplit(const char* fullStr, const char* delim, char*** resultSubStrListPt
     }
 }
 
+// write string to file
+void writeStrToFile(char* filePath, char* outputStr){
+    FILE *fp = fopen(filePath, "w");
+    printf("fp=%p", fp);
+    if(fp != NULL){
+        fprintf(fp, "%s", outputStr);
+        fclose(fp);
+    } else {
+        printf("Failed to open file %s", filePath);
+    }
+}
 
 /*==============================================================================
  File Size

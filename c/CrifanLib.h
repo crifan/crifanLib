@@ -3,7 +3,7 @@
     Function: crifan's common C libs header file
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/CrifanLib.h
-    Updated: 20220315_1114
+    Updated: 20220602_1526
 */
 
 // This will not work with all C++ compilers, but it works with clang and gcc
@@ -57,6 +57,7 @@ char* removeTail(const char* fullStr, const char* tailStr);
 char* removeEndSlash(const char* origPath);
 char* strReplace(const char *fullStr, const char *replaceFromStr, const char *replaceToStr);
 void strSplit(const char* fullStr, const char* delim, char*** resultSubStrListPtr, int* resultListLenPtr);
+void writeStrToFile(char* filePath, char* outputStr);
 
 // file size
 long calulateFilesize_fgetc(char* inputFilename);
