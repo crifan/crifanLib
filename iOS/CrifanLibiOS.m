@@ -3,7 +3,7 @@
     Function: crifan's common iOS function
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/CrifanLibiOS.m
-    Updated: 20230327_1111
+    Updated: 20230605_1609
 */
 
 #import "CrifanLibiOS.h"
@@ -25,6 +25,26 @@
         }
     }
     return nsArr;
+}
+
+// Split large NSString into multiple line sub string array
+//NSMutableArray* splitToLines(NSString* largeStr, int maxLenPerLine){
++(NSMutableArray*) splitToLines: (NSString*)largeStr maxLenPerLine:(int)maxLenPerLine {
+    NSMutableArray *subNsstrList = [[NSMutableArray alloc] init];
+    int nsstrLen = (int)[largeStr length];
+//    os_log(OS_LOG_DEFAULT, "nsstrLen=%d", nsstrLen);
+    if (nsstrLen > maxLenPerLine){
+        int curCharIdx = 0;
+        while( (curCharIdx + maxLenPerLine) < nsstrLen) {
+            NSString* curSubNsstr = [largeStr substringWithRange:NSMakeRange(curCharIdx, maxLenPerLine)];
+//            os_log(OS_LOG_DEFAULT, "curSubNsstr len=%lu", (unsigned long)[curSubNsstr length]);
+            [subNsstrList addObject: curSubNsstr];
+            curCharIdx += maxLenPerLine;
+        }
+        [subNsstrList addObject:[largeStr substringFromIndex: curCharIdx]];
+    }
+//    os_log(OS_LOG_DEFAULT, "largeStr=%@, maxLenPerLine=%d -> subNsstrList=%@", largeStr, maxLenPerLine, subNsstrList);
+    return subNsstrList;
 }
 
 /*==============================================================================
