@@ -3,7 +3,7 @@
     Function: crifan's common iOS function
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/CrifanLibiOS.h
-    Updated: 20230605_1609
+    Updated: 20230607_1444
 */
 
 #import <Foundation/Foundation.h>
@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 ==============================================================================*/
 
 //+ (NSArray *) strListToNSArray: (char*_Nullable*_Nullable)strList listCount:(int)listCount;
-+ (NSArray *) strListToNSArray: (char**)strList listCount:(int)listCount;
++ (NSArray *) strListToNSArray: (char*_Nonnull*_Nonnull)strList listCount:(int)listCount;
 //NSMutableArray* splitToLines(NSString* largeStr, int maxLenPerLine);
 +(NSMutableArray*) splitToLines: (NSString*)largeStr maxLenPerLine:(int)maxLenPerLine;
 

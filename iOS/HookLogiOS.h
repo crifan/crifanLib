@@ -3,11 +3,50 @@
     Function: crifan's common iOS hook log functions header
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/HookLogiOS.h
-    Updated: 20230331_1455
+    Updated: 20230607_1450
 */
+
+// This will not work with all C++ compilers, but it works with clang and gcc
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifndef HookLogiOS_h
+#define HookLogiOS_h
+
 
 #import <Foundation/Foundation.h>
 #import <os/log.h>
+
+/*==============================================================================
+ Global Config
+==============================================================================*/
+
+// Note: os_log max length/limit is 1K=1024
+// when split large NSString, for single line string length will use this definition
+extern int LOG_MAX_LEN_ONCE;
+
+// output one log every N time
+extern long LOG_ONCE_PER_NUM;
+
+/*==============================================================================
+ Global Variable
+==============================================================================*/
+
+extern long gCurLogNum;
+
+extern long gNoUse;
+
+/*==============================================================================
+ Functions
+==============================================================================*/
+
+bool nonEmptyHeader(id _Nullable curHeaderDict);
+void logLargeStr(NSString* _Nonnull largeStr);
+void logPossibleLargeStr(NSString* _Nonnull possibleLargeStr);
+
+void dbgWriteClsDescToFile(char* _Nonnull className, id _Nonnull classObj);
+
 
 /*==============================================================================
  Common Define
@@ -115,24 +154,15 @@ do { if (IOS_LOG_ERROR_ENABLE) os_log(OS_LOG_DEFAULT, "%s %s: " format, HOOK_FIL
 
 NS_ASSUME_NONNULL_BEGIN
 
-/*==============================================================================
- Global Config
-==============================================================================*/
-
-// output one log every N time
-extern long LOG_ONCE_PER_NUM;
-
-/*==============================================================================
- Global Variable
-==============================================================================*/
-
-extern long gCurLogNum;
-
-extern long gNoUse;
-
-
 @interface HookLogiOS : NSObject
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+
+#endif /* HookLogiOS_h */
+
+#ifdef __cplusplus
+}
+#endif
