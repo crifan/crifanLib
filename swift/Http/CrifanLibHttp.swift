@@ -1,6 +1,6 @@
 //
 //  CrifanLibHttp.swift
-//  SalesApp
+//  Xxx
 //
 //  Created by licrifan on 16/6/3.
 //  Copyright © 2016年 licrifan. All rights reserved.
@@ -188,7 +188,7 @@ func getUrlRespJson_async(httpMethod:Alamofire.Method, url:String, parameters: [
 func getUrlRespDataJson_async(httpMethod:Alamofire.Method, url:String, parameters: [String : AnyObject]? = nil, headers: [String : String]? = nil, extraPara:Dictionary<String, AnyObject>? = nil, respJsonHandler: (Alamofire.Result<JSON, NSError>, mergedAllPara:Dictionary<String, AnyObject>) -> Void) {
     gLog.info("httpMethod=\(httpMethod), url=\(url), parameters=\(parameters), headers=\(headers), extraPara=\(extraPara), respJsonHandler=\(respJsonHandler)")
     //httpMethod=GET, url=http://qapp.chinacloudapp.cn/open/phone/13812345678, parameters=nil, headers=nil, respJsonHandler=(Function)
-    //httpMethod=GET, url=http://qapp.chinacloudapp.cn/app/user/10000010/customer/160602000001, parameters=nil, headers=nil, extraPara=Optional(["curCustomerItem": <SalesApp.CustomerItem: 0x78e9b9e0>,name=范奇峰老婆6,isStar=false]), respJsonHandler=(Function)
+    //httpMethod=GET, url=http://qapp.chinacloudapp.cn/app/user/10000010/customer/160602000001, parameters=nil, headers=nil, extraPara=Optional(["curCustomerItem": <Xxx.CustomerItem: 0x78e9b9e0>,name=范奇峰老婆6,isStar=false]), respJsonHandler=(Function)
 
     dispatchBackground_async({
         var curHeader = headers ?? Dictionary<String, String>()

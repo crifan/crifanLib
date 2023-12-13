@@ -1,6 +1,6 @@
 //
 //  LeftLabelRightRadioButtonTableViewCell.swift
-//  SalesApp
+//  Xxx
 //
 //  Created by licrifan on 16/6/10.
 //  Copyright © 2016年 licrifan. All rights reserved.
@@ -117,7 +117,7 @@ class LeftLabelRightRadioButtonTableViewCell: LeftLabelRightTextfieldTableViewCe
     
     func radioButtonCommonSetup(radioButton:DLRadioButton, buttonSelectedTarget:UIViewController?, buttonSelectedHandler:Selector) {
         gLog.verbose("radioButton=\(radioButton), buttonSelectedTarget=\(buttonSelectedTarget), buttonSelectedHandler=\(buttonSelectedHandler)")
-        //radioButton=<DLRadioButton: 0x79eccf90; baseClass = UIButton; frame = (0 0; 0 0); opaque = NO; layer = <CALayer: 0x79ebddd0>>, buttonSelectedTarget=Optional(<SalesApp.CustomerDetailViewController: 0x79ecd940>), buttonSelectedHandler=radioButtonSelected:
+        //radioButton=<DLRadioButton: 0x79eccf90; baseClass = UIButton; frame = (0 0; 0 0); opaque = NO; layer = <CALayer: 0x79ebddd0>>, buttonSelectedTarget=Optional(<Xxx.CustomerDetailViewController: 0x79ecd940>), buttonSelectedHandler=radioButtonSelected:
         
 //        radioButton.titleLabel?.textAlignment = .Left
         radioButton.titleLabel!.font = RightTextFieldTextFont

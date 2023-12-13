@@ -1,6 +1,6 @@
 //
 //  LeftLabelRightTextfieldTableViewCell.swift
-//  SalesApp
+//  Xxx
 //
 //  Created by licrifan on 16/6/10.
 //  Copyright © 2016年 licrifan. All rights reserved.
