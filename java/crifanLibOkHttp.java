@@ -17,15 +17,23 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import crifanLib;
+
 public class crifanLibOkHttp {
 
 	public crifanLibOkHttp()
 	{
 	}
 
-	public static Response doPost(String url, String postBodyStr) throws IOException {
-		// Utils.logD(String.format("doPost: url=%s, postBodyStr=%s", url, postBodyStr));
-		RequestBody reqBody = RequestBody.create(MEDIA_TYPE_JSON, postBodyStr);
+	/**
+	 * do/execute http POST request, body format is JSON (not Form)
+	 * @param url url
+	 * @param bodyJsonStr post body string
+	 * @return the response
+	 */
+	public static Response doPost(String url, String bodyJsonStr) throws IOException {
+		// Utils.logD(String.format("doPost: url=%s, bodyJsonStr=%s", url, bodyJsonStr));
+		RequestBody reqBody = RequestBody.create(MEDIA_TYPE_JSON, bodyJsonStr);
 		// Utils.logD(String.format("reqBody=%s", reqBody));
 		Request request = new Request.Builder()
 						.url(url)
@@ -37,9 +45,15 @@ public class crifanLibOkHttp {
 		return response;
 	}
 
+	/**
+	 * do/execute http POST request, body format is JSON (not Form)
+	 * @param url url
+	 * @param paramDict body parameter dict/map
+	 * @return the response
+	 */
 	public static Response doPost(String url, Map<String, String> paramDict) throws IOException {
 		// Utils.logD(String.format("doPost: url=%s, paramDict=%s", url, paramDict));
-		String postJsonStr = Utils.mapToJsonStr(paramDict);
+		String postJsonStr = crifanLib.mapToJsonStr(paramDict);
 		// Utils.logD(String.format("postJsonStr=%s", postJsonStr));
 		return doPost(url, postJsonStr);
 	}

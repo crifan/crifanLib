@@ -12,23 +12,32 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
-//import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+
 //import java.net.CookieManager;
 //import java.net.CookiePolicy;
 //import java.net.HttpCookie;
+import java.net.URISyntaxException;
+import java.net.URI;
+import java.net.URLDecoder;
+
 import java.text.SimpleDateFormat;
+
 //import java.util.Calendar;
 import java.util.Date;
 //import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
-//import java.util.Map;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+
+import java.nio.charset.StandardCharsets;
 
 import org.json.JSONObject;
 
@@ -218,6 +227,41 @@ public class crifanLib {
 	public static String mapToJsonStr(Map<String, String> mapDict){
 			String jsonObjStr = mapToJson(mapDict).toString();
 			return jsonObjStr;
+	}
+
+	/**
+	 * Parse out query string map/dict from url
+	 * @param url url
+	 * @return query string map/dict
+	 */
+	public static Map<String, String> parseUrlQsPara(String url) throws URISyntaxException, UnsupportedEncodingException {
+			// Utils.logD(String.format("parseUrlQsPara: url=%s", url));
+			Map<String, String> urlQsParaDict = new HashMap<String, String>();
+			URI uri = new URI(url);
+			// Utils.logD(String.format("uri=%s", uri));
+			String scheme = uri.getScheme();
+			String host = uri.getHost();
+			// Utils.logD(String.format("scheme=%s, host=%s", scheme, host));
+			String rawQuery = uri.getRawQuery();
+			// Utils.logD(String.format("rawQuery=%s", rawQuery));
+//        String decodedQuery = null;
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+//            decodedQuery = URLDecoder.decode(rawQuery, StandardCharsets.UTF_8);
+//        }
+			String decodedQuery = URLDecoder.decode(rawQuery, StandardCharsets.UTF_8.toString());
+			// Utils.logD(String.format("decodedQuery=%s", decodedQuery));
+//        String[] paraList = rawQuery.split("&");
+			String[] paraList = decodedQuery.split("&");
+			// Utils.logD(String.format("paraList=%s", paraList.toString()));
+			for (String eachPara : paraList) {
+					// Utils.logD(String.format("eachPara=%s", eachPara));
+					String[] paraKeyValueList = eachPara.split("=");
+					String paraKey = paraKeyValueList[0];
+					String paraValue = paraKeyValueList[1];
+					urlQsParaDict.put(paraKey, paraValue);
+			}
+			// Utils.logD(String.format("urlQsParaDict=%s", urlQsParaDict));
+			return urlQsParaDict;
 	}
 
 /*==============================================================================
