@@ -217,6 +217,18 @@ public class crifanLib {
 	}
 
 /*==============================================================================
+ List
+==============================================================================*/
+
+	// for  [a, b, c] and [c, b, a, b], here isListEqual -> true = means equal
+	// if you think is not equal -> then should modify isListEqual's code logic
+	public static boolean isListEqual(List list1, List list2){
+//        boolean isEqual = CollectionUtils.isEqualCollection(list1, list2));
+			boolean isEqual = list1.containsAll(list2) && list2.containsAll(list1);
+			return isEqual;
+	}
+
+/*==============================================================================
  Map & Dict & Json
 ==============================================================================*/
 
@@ -246,6 +258,52 @@ public class crifanLib {
 			String jsonObjStr = mapToJson(mapDict).toString();
 			return jsonObjStr;
 	}
+
+	public static JSONObject strToJson(String jsonStr){
+		JSONObject jsonObj = null;
+		// Utils.logD(String.format("strToJson: jsonStr=%s", jsonStr));
+		try {
+				jsonObj = new JSONObject(jsonStr);
+				// Utils.logD(String.format("strToJson: jsonObj=%s", jsonObj));
+		}catch (JSONException err){
+				// Utils.logD(String.format("strToJson failed: %s", err.toString()));
+		}
+		return jsonObj;
+	}
+
+	public static List<Object> jsonArrToList(JSONArray array) throws JSONException {
+			List<Object> list = new ArrayList<>();
+			for(int i = 0; i < array.length(); i++) {
+					Object value = array.get(i);
+					if (value instanceof JSONArray) {
+							value = jsonArrToList((JSONArray) value);
+					}
+					else if (value instanceof JSONObject) {
+							value = jsonToMap((JSONObject) value);
+					}
+					list.add(value);
+			}   return list;
+	}
+
+	public static Map<String, Object> jsonToMap(JSONObject jsonObj) throws JSONException {
+			Map<String, Object> jsonMap = new HashMap<String, Object>();
+			Iterator<String> keys = jsonObj.keys();
+			while(keys.hasNext()) {
+					String key = keys.next();
+					Object value = jsonObj.get(key);
+					if (value instanceof JSONArray) {
+							value = jsonArrToList((JSONArray) value);
+					} else if (value instanceof JSONObject) {
+							value = jsonToMap((JSONObject) value);
+					}
+					jsonMap.put(key, value);
+			}
+			return jsonMap;
+	}
+
+/*==============================================================================
+ Url
+==============================================================================*/
 
 	/**
 	 * Parse out query string map/dict from url
