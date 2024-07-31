@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.json.JSONObject;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -202,6 +204,15 @@ public class crifanLib {
 		//24 hour format
 		curDatetimeStr = dateToString(curDate, "yyyy-MM-dd_HHmmss"); //2013-11-21_181156
 		return curDatetimeStr;
+	}
+
+/*==============================================================================
+ Map & Dict
+==============================================================================*/
+
+	public JSONObject mapToJson(Map<String, String> mapDict){
+    JSONObject jsonObj = new JSONObject(mapDict);
+    return jsonObj;
 	}
 
 /*==============================================================================
