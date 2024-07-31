@@ -1,38 +1,10 @@
-/**
- * [File]
- * crifanLib.java
- * 
- * [Function]
- * 1. implement crifan's common functions
- * https://code.google.com/p/crifanlib/source/browse/trunk/java/crifanLib.java
- *  
- * [Version]
- * v2.7
- * 
- * [Contact]
- * http://www.crifan.com/about/me/
- * 
- * [Note]
- * 1. need add apache http lib:
- * 【已解决】Eclipse的java代码出错：The import org.apache cannot be resolved
- * http://www.crifan.com/java_eclipse_the_import_org_apache_cannot_be_resolved/
- * 
- * [History]
- * [v2.7, 2013-11-21]
- * 1. added getCurrentDatetimeStr, combinePath, trimQuote, getFileEncode, readFileContentStr
- * 2. updated outputStringToFile, dateToString
- * 
- * [v2.0, 2013-09-17]
- * 1. update getUrlResponse and getUrlRespHtml
- * 2. add getCurCookieList, getCurCookieStore, setCurCookieStore, setCurCookieList
- *  
- * [v1.4,  2013-07-17]
- * 1. add calcTimeStart, calcTimeEnd
- * 2. add dateToString, outputStringToFile
- * 
- * [v1.0]
- * 1. add http related func and regex related func
- */
+/*
+	File: crifanLib.java
+	Function: crifan's common java related functions
+	Author: Crifan Li
+	Latest: https://github.com/crifan/crifanLib/blob/master/java/crifanLib.java
+	Updated: 20240731
+*/
 
 //package crifan.com;
 
@@ -135,6 +107,58 @@ public class crifanLib {
 		calcTimeKeyDict = new HashMap<String, Long>();
 	}
 
+/*==============================================================================
+ String
+==============================================================================*/
+
+	//remove first and last quote char "
+	//eg: "xxx" -> xxx
+	public static String trimQuote(String inputStr){
+		String trimmedStr = null;
+		if(null != inputStr){
+			trimmedStr = inputStr;
+			if(trimmedStr.startsWith("\"")){
+				//remove first "
+				trimmedStr = trimmedStr.substring(1);
+			}
+			
+			if(trimmedStr.endsWith("\"")){
+				//remove last "
+				trimmedStr = trimmedStr.substring(0, trimmedStr.length() - 1);
+			}
+		}
+		return trimmedStr;
+	}
+
+	/** Extract single string from input whole string
+	 *	Note:
+	 *    1. input pattern should include one group, like 'xxx(xxx)xxx'
+	 *    2. output is in extractedStr
+	*/
+	public Boolean extractSingleStr(String pattern, String extractFrom, int flags, StringBuilder extractedStr)
+	{
+		Pattern strP = Pattern.compile(pattern, flags);
+		Matcher foundStr = strP.matcher(extractFrom);
+		Boolean found = foundStr.find();
+		if(found)
+		{
+			extractedStr.append(foundStr.group(1));
+		}
+		return found;
+	}
+
+	/**
+	 * None pattern version of extractSingleStr
+	*/
+	public Boolean extractSingleStr(String pattern, String extractFrom, StringBuilder extractedStr)
+	{
+		return extractSingleStr(pattern, extractFrom, 0, extractedStr);
+	}
+
+/*==============================================================================
+ Date & Time
+==============================================================================*/
+
 	/** start calculate time */
 	public long calcTimeStart(String uniqueKey)
 	{
@@ -180,30 +204,15 @@ public class crifanLib {
 		return curDatetimeStr;
 	}
 
+/*==============================================================================
+ File & Folder
+==============================================================================*/
+
 	public static String combinePath(String path1, String path2)
 	{
 	    File file1 = new File(path1);
 	    File file2 = new File(file1, path2);
 	    return file2.getPath();
-	}
-	
-	//remove first and last quote char "
-	//eg: "xxx" -> xxx
-	public static String trimQuote(String inputStr){
-		String trimmedStr = null;
-		if(null != inputStr){
-			trimmedStr = inputStr;
-			if(trimmedStr.startsWith("\"")){
-				//remove first "
-				trimmedStr = trimmedStr.substring(1);
-			}
-			
-			if(trimmedStr.endsWith("\"")){
-				//remove last "
-				trimmedStr = trimmedStr.substring(0, trimmedStr.length() - 1);
-			}
-		}
-		return trimmedStr;
 	}
 	
 	public String getFileEncode(String path) throws IllegalArgumentException, FileNotFoundException, IOException {
@@ -222,7 +231,6 @@ public class crifanLib {
 		else
 			return null;
 	}
-	
 
 	public static String readFileContentStr(String fullFilename)
 	{
@@ -263,41 +271,44 @@ public class crifanLib {
         
         return readOutStr;
 	}
-	
 
 	/* output string into file */
 	public static boolean outputStringToFile(String strToOutput, String fullFilename)
 	{
 		boolean ouputOk = true;
 				
-        try {
-        	/* Method1 */
-            File newTextFile = new File(fullFilename);
-            FileWriter fw;
+		try {
+			/* Method1 */
+			File newTextFile = new File(fullFilename);
+			FileWriter fw;
 			fw = new FileWriter(newTextFile);
-	        fw.write(strToOutput);
-	        fw.close();
-	        
-	        /* Method2 */
-	        /*
-			//FileOutputStream ouputStream = openFileOutput(fullFilename, MODE_PRIVATE);
-			FileOutputStream ouputStream = new FileOutputStream(fullFilename);
-			byte [] preprocessedBytes = strToOutput.getBytes(); 
-			ouputStream.write(preprocessedBytes); 
-			ouputStream.close();
+			fw.write(strToOutput);
+			fw.close();
+
+			/* Method2 */
+			/*
+				//FileOutputStream ouputStream = openFileOutput(fullFilename, MODE_PRIVATE);
+				FileOutputStream ouputStream = new FileOutputStream(fullFilename);
+				byte [] preprocessedBytes = strToOutput.getBytes(); 
+				ouputStream.write(preprocessedBytes); 
+				ouputStream.close();
 			*/
-	        
+
 			//Log.d("outputStringToFile", "Successfully to save string to file: "+fullFilename);
-        } catch (IOException e) {
-        	ouputOk = false;
-        	
-	    	//e.printStackTrace();
-	    	//Log.d("outputStringToFile", "Fail to save string to file: "+fullFilename);
-		}
-        
-        return ouputOk;
-	}
+		} catch (IOException e) {
+			ouputOk = false;
 			
+			//e.printStackTrace();
+			//Log.d("outputStringToFile", "Fail to save string to file: "+fullFilename);
+		}
+
+		return ouputOk;
+	}
+
+/*==============================================================================
+ Http Network
+==============================================================================*/
+
 	public void dbgPrintCookies(List<Cookie> cookieList, String url)
 	{
 		if((null != url) && (!url.isEmpty()))
@@ -359,60 +370,59 @@ public class crifanLib {
 	}
 	
 	
-    /** Get response from url  */
-    public HttpResponse getUrlResponse(
-    		String url,
-    		List<NameValuePair> headerDict,
-    		List<NameValuePair> postDict,
-    		int timeout
-    		)
-    {
-    	// init
-    	HttpResponse response = null;
-    	HttpUriRequest request = null;
-    	DefaultHttpClient httpClient = new DefaultHttpClient();
-    	
-    	//HttpParams headerParams = new HttpParams();
-    	//HttpParams headerParams = new DefaultedHttpParams(headerParams, headerParams);
-    	//HttpParams headerParams = new BasicHttpParams();
-    	BasicHttpParams headerParams = new BasicHttpParams();
-    	//HttpConnectionParams.
+	/** Get response from url  */
+	public HttpResponse getUrlResponse(
+			String url,
+			List<NameValuePair> headerDict,
+			List<NameValuePair> postDict,
+			int timeout
+			)
+	{
+		// init
+		HttpResponse response = null;
+		HttpUriRequest request = null;
+		DefaultHttpClient httpClient = new DefaultHttpClient();
+		
+		//HttpParams headerParams = new HttpParams();
+		//HttpParams headerParams = new DefaultedHttpParams(headerParams, headerParams);
+		//HttpParams headerParams = new BasicHttpParams();
+		BasicHttpParams headerParams = new BasicHttpParams();
+		//HttpConnectionParams.
 		//default enable auto redirect
-    	headerParams.setParameter(CoreProtocolPNames.USER_AGENT, gUserAgent);
-    	headerParams.setParameter(ClientPNames.HANDLE_REDIRECTS, Boolean.TRUE);
-    	
-    	headerParams.setParameter(CoreConnectionPNames.SO_KEEPALIVE, Boolean.TRUE);
-    	
-    	if(postDict != null)
-    	{
-    		HttpPost postReq = new HttpPost(url);
-    		
-    		try{
-    			HttpEntity postBodyEnt = new UrlEncodedFormEntity(postDict);
-    			postReq.setEntity(postBodyEnt);
-    		}
-    		catch(Exception e){
-    			e.printStackTrace();
-    		}
+		headerParams.setParameter(CoreProtocolPNames.USER_AGENT, gUserAgent);
+		headerParams.setParameter(ClientPNames.HANDLE_REDIRECTS, Boolean.TRUE);
+		
+		headerParams.setParameter(CoreConnectionPNames.SO_KEEPALIVE, Boolean.TRUE);
+		
+		if(postDict != null)
+		{
+			HttpPost postReq = new HttpPost(url);
+			
+			try{
+				HttpEntity postBodyEnt = new UrlEncodedFormEntity(postDict);
+				postReq.setEntity(postBodyEnt);
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
 
-    		request = postReq;
-    	}
-    	else
-    	{
-        	HttpGet getReq = new HttpGet(url);
-        	
-        	request = getReq;
-    	}
+			request = postReq;
+		}
+		else
+		{
+				HttpGet getReq = new HttpGet(url);
+				
+				request = getReq;
+		}
 
-    	if(headerParams != null)
-    	{
-    		//HttpProtocolParams.setUserAgent(headerParams, gUserAgent);
-    		//headerParams.setHeader(HttpMethodParams.USER_AGENT, gUserAgent);
-    		request.setParams(headerParams);
-    	}
-    	
-    	//request.setHeader("User-Agent", gUserAgent);
-    	
+		if(headerParams != null)
+		{
+			//HttpProtocolParams.setUserAgent(headerParams, gUserAgent);
+			//headerParams.setHeader(HttpMethodParams.USER_AGENT, gUserAgent);
+			request.setParams(headerParams);
+		}
+		
+		//request.setHeader("User-Agent", gUserAgent);
 
 		try{			
 			HttpContext localContext = new BasicHttpContext();
@@ -429,16 +439,16 @@ public class crifanLib {
 			    [version: 0][name: H_PS_PSSID][value: 3361_2777_1465_2975_3109][domain: .baidu.com][path: /][expiry: null]=java.lang.Object@55ba1c2b
 			}*/
 		} catch (ClientProtocolException cpe) {
-            // TODO Auto-generated catch block
-        	cpe.printStackTrace();
-        } catch (IOException ioe) {
-            // TODO Auto-generated catch block
-        	ioe.printStackTrace();
-        }
+				// TODO Auto-generated catch block
+				cpe.printStackTrace();
+			} catch (IOException ioe) {
+				// TODO Auto-generated catch block
+				ioe.printStackTrace();
+			}
 		
     	return response;
     }
-    
+
     /** Get response from url  */
     public HttpResponse getUrlResponse(String url)
     {
@@ -450,9 +460,9 @@ public class crifanLib {
     							String url,
     							List<NameValuePair> headerDict,
     							List<NameValuePair> postDict,
-    				    		int timeout,
-    				    		String htmlCharset
-								)
+									int timeout,
+									String htmlCharset
+		)
     {
     	// init
     	String respHtml = "";
@@ -467,24 +477,21 @@ public class crifanLib {
     	//HttpUriRequest request;
     	
     	//headerParams.setParameter(CoreProtocolPNames.HTTP_CONTENT_CHARSET, htmlCharset);
-
-		try{
-			
-			HttpResponse response = getUrlResponse(url, headerDict, postDict, timeout);
-			
-			if(response.getStatusLine().getStatusCode()==HttpStatus.SC_OK){
-				HttpEntity respEnt = response.getEntity();
+			try{
+				HttpResponse response = getUrlResponse(url, headerDict, postDict, timeout);
 				
-				respHtml = EntityUtils.toString(respEnt, htmlCharset);
-	        }
-	        
-        } catch (ClientProtocolException cpe) {
-            // TODO Auto-generated catch block
-        	cpe.printStackTrace();    
-        } catch (IOException ioe) {
-            // TODO Auto-generated catch block
-        	ioe.printStackTrace();
-        }
+				if(response.getStatusLine().getStatusCode()==HttpStatus.SC_OK){
+					HttpEntity respEnt = response.getEntity();
+
+					respHtml = EntityUtils.toString(respEnt, htmlCharset);
+				}	        
+			} catch (ClientProtocolException cpe) {
+				// TODO Auto-generated catch block
+				cpe.printStackTrace();    
+			} catch (IOException ioe) {
+				// TODO Auto-generated catch block
+				ioe.printStackTrace();
+			}
 		
     	return respHtml;
     }
@@ -524,45 +531,44 @@ public class crifanLib {
     	
     	HttpResponse response = getUrlResponse(url, headerDict, null, 0);
 
-		if(response.getStatusLine().getStatusCode()==HttpStatus.SC_OK){
-			
-			HttpEntity respEnt = response.getEntity();
-			
-			System.out.println("isChunked" + respEnt.isChunked());
-			System.out.println("Streaming" + respEnt.isStreaming());
-			
-			Boolean isStream = respEnt.isStreaming();
-			if(isStream){
-				try {
-					InputStream fileInStream = respEnt.getContent();
-					
-					FileOutputStream fileOutStream = new FileOutputStream(fullFilename);
-					
-					long totalSize = respEnt.getContentLength();
-					byte[] tmpBuf = new byte[8192];
-					int bufLen = 0;
-					long downloadedSize = 0;
-					while( (bufLen = fileInStream.read(tmpBuf)) > 0 ) {
-						fileOutStream.write(tmpBuf,0, bufLen);
-						downloadedSize += bufLen;
+			if(response.getStatusLine().getStatusCode()==HttpStatus.SC_OK){
+				HttpEntity respEnt = response.getEntity();
+
+				System.out.println("isChunked" + respEnt.isChunked());
+				System.out.println("Streaming" + respEnt.isStreaming());
+				
+				Boolean isStream = respEnt.isStreaming();
+				if(isStream){
+					try {
+						InputStream fileInStream = respEnt.getContent();
 						
-						//System.out.println(Long.toString((downloadedSize/totalSize)*100)+"%");
-						//System.out.println(Long.toString((downloadedSize*100)/totalSize)+"%");
-						updateProgressCallbak.updateProgress(downloadedSize, totalSize);
+						FileOutputStream fileOutStream = new FileOutputStream(fullFilename);
+						
+						long totalSize = respEnt.getContentLength();
+						byte[] tmpBuf = new byte[8192];
+						int bufLen = 0;
+						long downloadedSize = 0;
+						while( (bufLen = fileInStream.read(tmpBuf)) > 0 ) {
+							fileOutStream.write(tmpBuf,0, bufLen);
+							downloadedSize += bufLen;
+							
+							//System.out.println(Long.toString((downloadedSize/totalSize)*100)+"%");
+							//System.out.println(Long.toString((downloadedSize*100)/totalSize)+"%");
+							updateProgressCallbak.updateProgress(downloadedSize, totalSize);
+						}
+						fileOutStream.close();
+						downloadOk = Boolean.TRUE;
+					} catch (IllegalStateException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-					fileOutStream.close();
-					downloadOk = Boolean.TRUE;
-				} catch (IllegalStateException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				}
 			}
-        }
 
-		return downloadOk;
+			return downloadOk;
     }
 
     /**
@@ -571,31 +577,6 @@ public class crifanLib {
     public String downlodFile(String url, String fullFilename)
     {
     	return downlodFile(url, fullFilename);
-    }
-    
-    /** Extract single string from input whole string
-     *	Note:
-     * 1. input pattern should include one group, like 'xxx(xxx)xxx'
-     * 2. output is in extractedStr
-     *  */
-    public Boolean extractSingleStr(String pattern, String extractFrom, int flags, StringBuilder extractedStr)
-    {
-    	Pattern strP = Pattern.compile(pattern, flags);
-    	Matcher foundStr = strP.matcher(extractFrom);
-    	Boolean found = foundStr.find();
-    	if(found)
-    	{
-    		extractedStr.append(foundStr.group(1));
-    	}
-    	return found;
-    }
-
-    /**
-     * None pattern version of  extractSingleStr
-     * */
-    public Boolean extractSingleStr(String pattern, String extractFrom, StringBuilder extractedStr)
-    {
-    	return extractSingleStr(pattern, extractFrom, 0, extractedStr);
     }
 
 }
