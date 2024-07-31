@@ -35,11 +35,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import java.util.Iterator;
 
 import java.nio.charset.StandardCharsets;
 
 import org.json.JSONObject;
+import org.json.JSONException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -216,8 +217,25 @@ public class crifanLib {
 	}
 
 /*==============================================================================
- Map & Dict
+ Map & Dict & Json
 ==============================================================================*/
+
+	public static JSONObject mergeJson(JSONObject json1, JSONObject json2) throws JSONException {
+		JSONObject mergedJson = new JSONObject();
+		JSONObject[] jsonObjList = new JSONObject[] { json1, json2 };
+		// Utils.logD(String.format("jsonObjList=%s", jsonObjList));
+		for (JSONObject jsonObj : jsonObjList) {
+				Iterator keyIterator = jsonObj.keys();
+				// Utils.logD(String.format("keyIterator=%s", keyIterator));
+				while (keyIterator.hasNext()) {
+					String curKey = (String)keyIterator.next();
+					Object curValue = jsonObj.opt(curKey);
+					// Utils.logD(String.format("curKey=%s, curValue=%s", curKey, curValue));
+					mergedJson.put(curKey, curValue);
+				}
+		}
+		return mergedJson;
+	}
 
 	public static JSONObject mapToJson(Map<String, String> mapDict){
 			JSONObject jsonObj = new JSONObject(mapDict);
