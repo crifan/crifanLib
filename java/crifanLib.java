@@ -210,9 +210,14 @@ public class crifanLib {
  Map & Dict
 ==============================================================================*/
 
-	public JSONObject mapToJson(Map<String, String> mapDict){
-    JSONObject jsonObj = new JSONObject(mapDict);
-    return jsonObj;
+	public static JSONObject mapToJson(Map<String, String> mapDict){
+			JSONObject jsonObj = new JSONObject(mapDict);
+			return jsonObj;
+	}
+
+	public static String mapToJsonStr(Map<String, String> mapDict){
+			String jsonObjStr = mapToJson(mapDict).toString();
+			return jsonObjStr;
 	}
 
 /*==============================================================================
