@@ -3,13 +3,18 @@
 	Function: crifan's common java related functions
 	Author: Crifan Li
 	Latest: https://github.com/crifan/crifanLib/blob/master/java/crifanLib.java
-	Updated: 20240731
+	Updated: 20240803
 */
 
 //package crifan.com;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
+
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -32,12 +37,12 @@ import java.util.Date;
 //import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Iterator;
 
-import java.nio.charset.StandardCharsets;
 
 import org.json.JSONObject;
 import org.json.JSONException;
@@ -439,6 +444,17 @@ public class crifanLib {
 		}
 
 		return ouputOk;
+	}
+
+	public static List<String> readFile(String absFilePath){
+			List<String> fileContentStrList = null;
+			try {
+					fileContentStrList = Files.readAllLines(Paths.get(absFilePath));
+//            Utils.logD(String.format("fileContentStrList=%s", fileContentStrList));
+			} catch (IOException err) {
+					Utils.logE(String.format("Error %s when read file %s", err, absFilePath));
+			}
+			return fileContentStrList;
 	}
 
 /*==============================================================================
