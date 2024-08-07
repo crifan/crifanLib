@@ -15,8 +15,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class JsonMapUtil {
+
+    public static boolean isJsonEmpty(JSONObject curJson){
+        return (null != curJson) && (0 == curJson.length());
+    }
 
     public static JSONObject mapToJson(Map<String, String> mapDict){
         JSONObject jsonObj = new JSONObject(mapDict);
@@ -35,7 +40,7 @@ public class JsonMapUtil {
             jsonObj = new JSONObject(jsonStr);
 //            Utils.logD(String.format("strToJson: jsonObj=%s", jsonObj));
         }catch (JSONException err){
-            // Utils.logD(String.format("strToJson failed: %s", err.toString()));
+            Utils.logD(String.format("strToJson failed: %s", err.toString()));
         }
         return jsonObj;
     }
@@ -43,14 +48,14 @@ public class JsonMapUtil {
     public static JSONObject mergeJson(JSONObject json1, JSONObject json2) throws JSONException {
         JSONObject mergedJson = new JSONObject();
         JSONObject[] jsonObjList = new JSONObject[] { json1, json2 };
-        // Utils.logD(String.format("jsonObjList=%s", jsonObjList.toString()));
+        Utils.logD(String.format("jsonObjList=%s", jsonObjList.toString()));
         for (JSONObject jsonObj : jsonObjList) {
             Iterator keyIterator = jsonObj.keys();
-            // Utils.logD(String.format("keyIterator=%s", keyIterator));
+            Utils.logD(String.format("keyIterator=%s", keyIterator));
             while (keyIterator.hasNext()) {
                 String curKey = (String)keyIterator.next();
                 Object curValue = jsonObj.opt(curKey);
-                // Utils.logD(String.format("curKey=%s, curValue=%s", curKey, curValue));
+                Utils.logD(String.format("curKey=%s, curValue=%s", curKey, curValue));
                 mergedJson.put(curKey, curValue);
             }
 //            Set<Map.Entry<String,Object>> jsonEntrySet = jsonObj.en
@@ -103,9 +108,14 @@ public class JsonMapUtil {
             }
 
             if (value instanceof JSONObject) {
-                Map<String, Object> flattenedSubMap = flattenJsonToMap((JSONObject)value);
+                JSONObject jsonValObj = (JSONObject)value;
+                if (JsonMapUtil.isJsonEmpty(jsonValObj)){
+                    flattenedMap.put(key, value);
+                } else {
+                    Map<String, Object> flattenedSubMap = flattenJsonToMap((JSONObject)value);
 //                Utils.logD(String.format("flattenedSubMap=%s", flattenedSubMap));
-                flattenedMap.putAll(flattenedSubMap);
+                    flattenedMap.putAll(flattenedSubMap);
+                }
             } else {
                 flattenedMap.put(key, value);
             }
@@ -114,6 +124,61 @@ public class JsonMapUtil {
         return flattenedMap;
     }
 
+    // If some sub filed value is json dict type string, auto find it, then flatten it
+    // only flatten first sub level json dict type string, not recursively process
+    public static Map<String, Object> flattenSubFieldJsonStr(Map<String, Object> originParentMap) {
+        Utils.logD(String.format("flattenSubFieldJsonStr: originParentMap=%s", originParentMap));
+
+        Map<String, Object> resultParentMap = new HashMap<>();
+        Set<String> keyStrSet = originParentMap.keySet();
+        for(String curKey: keyStrSet){
+            Utils.logD(String.format("curKey=%s", curKey));
+//            Object curValObj = originParentMap.getOrDefault(curKey, "");
+            Object curValObj = originParentMap.get(curKey);
+            Utils.logD(String.format("curValObj=%s", curValObj));
+            resultParentMap.put(curKey, curValObj);
+
+            if (null == curValObj) {
+                Utils.logD(String.format("Current %s's value is null", curKey));
+                continue;
+            }
+
+            if (!(curValObj instanceof String)) {
+                Utils.logD(String.format("Current %s's value type is not string but %s", curKey, curValObj.getClass()));
+                continue;
+            }
+
+            String curValStr = (String) curValObj;
+            Utils.logD(String.format("curValStr=%s", curValStr));
+            if (!StringUtil.isNotNullEmpty(curValStr)){
+                Utils.logD(String.format("Current %s's value is empty string or null", curKey));
+                continue;
+            }
+
+            if (!JsonMapUtil.isJsonDictStr(curValStr)){
+                Utils.logD(String.format("Current %s's value is string, but not json dict str", curKey));
+                continue;
+            }
+
+            String curValJsonStr = curValStr;
+            Utils.logD(String.format("curValJsonStr=%s", curValJsonStr));
+            JSONObject subFieldJson = JsonMapUtil.strToJson(curValJsonStr);
+            Utils.logD(String.format("flattenSubFieldJsonStr: subFieldJson=%s", subFieldJson));
+            if (null != subFieldJson) {
+                resultParentMap.remove(curKey);
+
+                Map<String, Object> flattenedSubFieldMap = JsonMapUtil.flattenJsonToMap(subFieldJson);
+                Utils.logD(String.format("flattenSubFieldJsonStr: flattenedSubFieldMap=%s", flattenedSubFieldMap));
+                resultParentMap.putAll(flattenedSubFieldMap);
+                Utils.logD(String.format("resultParentMap=%s", resultParentMap));
+            } else {
+                Utils.logD(String.format("Current %s's value is json dict str, but convert failed", curKey));
+            }
+        }
+
+        Utils.logD(String.format("flattenSubFieldJsonStr: resultParentMap=%s", resultParentMap));
+        return resultParentMap;
+    }
 
     // sub field is json string -> convert to json/map then merge to parent map
     public static Map<String, Object> flattenSubFieldJsonStr(Map<String, Object> originParentMap, String subFieldKey){
@@ -137,10 +202,18 @@ public class JsonMapUtil {
                 }
             }
         } else {
-            // Utils.logD(String.format("Map not contain key: %s", subFieldKey));
+            Utils.logD(String.format("Map not contain key: %s", subFieldKey));
         }
-        // Utils.logD(String.format("After flatten %s -> flattenedParentMap=%s", subFieldKey, flattenedParentMap));
+        Utils.logD(String.format("After flatten %s -> flattenedParentMap=%s", subFieldKey, flattenedParentMap));
         return flattenedParentMap;
+    }
+
+    // check whether is: json string of dict type, like this: "{"someKey":someValue,...}"
+    public static boolean isJsonDictStr(String jsonStr){
+        String rePattern_jsonDict = "^\\{\"\\w+\":\\s*.+\\}$";
+        boolean isJsonDict = RegexUtil.isMatchRePattern(jsonStr, rePattern_jsonDict);
+        Utils.logD(String.format("isJsonDict=%s for str=%s", isJsonDict, jsonStr));
+        return isJsonDict;
     }
 
 }
