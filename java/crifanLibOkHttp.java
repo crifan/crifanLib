@@ -3,7 +3,7 @@
 	Function: crifan's common java's OkHttp network related functions
 	Author: Crifan Li
 	Latest: https://github.com/crifan/crifanLib/blob/master/java/crifanLibOkHttp.java
-	Updated: 20240731
+	Updated: 20240807
 */
 
 import okhttp3.Call;
@@ -31,18 +31,23 @@ public class crifanLibOkHttp {
 	 * @param bodyJsonStr post body string
 	 * @return the response
 	 */
-	public static Response doPost(String url, String bodyJsonStr) throws IOException {
-		// Utils.logD(String.format("doPost: url=%s, bodyJsonStr=%s", url, bodyJsonStr));
-		RequestBody reqBody = RequestBody.create(MEDIA_TYPE_JSON, bodyJsonStr);
-		// Utils.logD(String.format("reqBody=%s", reqBody));
-		Request request = new Request.Builder()
-						.url(url)
-						.post(reqBody)
-						.build();
-		// Utils.logD(String.format("request=%s", request));
-		Response response = client.newCall(request).execute();
-		// Utils.logD(String.format("response=%s", response));
-		return response;
+	public static Response doPost(String url, String bodyJsonStr) {
+			Response response = null;
+			// Utils.logD(String.format("doPost: url=%s, bodyJsonStr=%s", url, bodyJsonStr));
+			RequestBody reqBody = RequestBody.create(MEDIA_TYPE_JSON, bodyJsonStr);
+			// Utils.logD(String.format("reqBody=%s", reqBody));
+			Request request = new Request.Builder()
+							.url(url)
+							.post(reqBody)
+							.build();
+			// Utils.logD(String.format("request=%s", request));
+			try {
+					response = client.newCall(request).execute();
+			} catch (IOException err) {
+					// Utils.logE(String.format("err=%s for POST url=%s", err, url));
+			}
+			// Utils.logD(String.format("response=%s", response));
+			return response;
 	}
 
 	/**
@@ -51,10 +56,11 @@ public class crifanLibOkHttp {
 	 * @param paramDict body parameter dict/map
 	 * @return the response
 	 */
-	public static Response doPost(String url, Map<String, String> paramDict) throws IOException {
-		// Utils.logD(String.format("doPost: url=%s, paramDict=%s", url, paramDict));
-		String postJsonStr = crifanLib.mapToJsonStr(paramDict);
-		// Utils.logD(String.format("postJsonStr=%s", postJsonStr));
-		return doPost(url, postJsonStr);
+	public static Response doPost(String url, Map<String, String> paramDict) {
+			// Utils.logD(String.format("doPost: url=%s, paramDict=%s", url, paramDict));
+			String postJsonStr = JsonMapUtil.mapToJsonStr(paramDict);
+			// Utils.logD(String.format("postJsonStr=%s", postJsonStr));
+			return doPost(url, postJsonStr);
 	}
+
 }

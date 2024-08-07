@@ -3,7 +3,7 @@
 	Function: crifan's common java related functions
 	Author: Crifan Li
 	Latest: https://github.com/crifan/crifanLib/blob/master/java/crifanLib.java
-	Updated: 20240803
+	Updated: 20240807
 */
 
 //package crifan.com;
@@ -42,7 +42,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Iterator;
-
 
 import org.json.JSONObject;
 import org.json.JSONException;
@@ -127,6 +126,12 @@ public class crifanLib {
 /*==============================================================================
  String
 ==============================================================================*/
+
+	public static boolean isNotNullEmpty(String curStr){
+			boolean isNotNull = null != curStr;
+			boolean isNotEmpty = !curStr.isEmpty();
+			return isNotNull && isNotEmpty;
+	}
 
 	//remove first and last quote char "
 	//eg: "xxx" -> xxx
@@ -219,130 +224,6 @@ public class crifanLib {
 		//24 hour format
 		curDatetimeStr = dateToString(curDate, "yyyy-MM-dd_HHmmss"); //2013-11-21_181156
 		return curDatetimeStr;
-	}
-
-/*==============================================================================
- List
-==============================================================================*/
-
-	// for  [a, b, c] and [c, b, a, b], here isListEqual -> true = means equal
-	// if you think is not equal -> then should modify isListEqual's code logic
-	public static boolean isListEqual(List list1, List list2){
-//        boolean isEqual = CollectionUtils.isEqualCollection(list1, list2));
-			boolean isEqual = list1.containsAll(list2) && list2.containsAll(list1);
-			return isEqual;
-	}
-
-/*==============================================================================
- Map & Dict & Json
-==============================================================================*/
-
-	public static JSONObject mergeJson(JSONObject json1, JSONObject json2) throws JSONException {
-		JSONObject mergedJson = new JSONObject();
-		JSONObject[] jsonObjList = new JSONObject[] { json1, json2 };
-		// Utils.logD(String.format("jsonObjList=%s", jsonObjList));
-		for (JSONObject jsonObj : jsonObjList) {
-				Iterator keyIterator = jsonObj.keys();
-				// Utils.logD(String.format("keyIterator=%s", keyIterator));
-				while (keyIterator.hasNext()) {
-					String curKey = (String)keyIterator.next();
-					Object curValue = jsonObj.opt(curKey);
-					// Utils.logD(String.format("curKey=%s, curValue=%s", curKey, curValue));
-					mergedJson.put(curKey, curValue);
-				}
-		}
-		return mergedJson;
-	}
-
-	public static JSONObject mapToJson(Map<String, String> mapDict){
-			JSONObject jsonObj = new JSONObject(mapDict);
-			return jsonObj;
-	}
-
-	public static String mapToJsonStr(Map<String, String> mapDict){
-			String jsonObjStr = mapToJson(mapDict).toString();
-			return jsonObjStr;
-	}
-
-	public static JSONObject strToJson(String jsonStr){
-		JSONObject jsonObj = null;
-		// Utils.logD(String.format("strToJson: jsonStr=%s", jsonStr));
-		try {
-				jsonObj = new JSONObject(jsonStr);
-				// Utils.logD(String.format("strToJson: jsonObj=%s", jsonObj));
-		}catch (JSONException err){
-				// Utils.logD(String.format("strToJson failed: %s", err.toString()));
-		}
-		return jsonObj;
-	}
-
-	public static List<Object> jsonArrToList(JSONArray array) throws JSONException {
-			List<Object> list = new ArrayList<>();
-			for(int i = 0; i < array.length(); i++) {
-					Object value = array.get(i);
-					if (value instanceof JSONArray) {
-							value = jsonArrToList((JSONArray) value);
-					}
-					else if (value instanceof JSONObject) {
-							value = jsonToMap((JSONObject) value);
-					}
-					list.add(value);
-			}   return list;
-	}
-
-	public static Map<String, Object> jsonToMap(JSONObject jsonObj) throws JSONException {
-			Map<String, Object> jsonMap = new HashMap<String, Object>();
-			Iterator<String> keys = jsonObj.keys();
-			while(keys.hasNext()) {
-					String key = keys.next();
-					Object value = jsonObj.get(key);
-					if (value instanceof JSONArray) {
-							value = jsonArrToList((JSONArray) value);
-					} else if (value instanceof JSONObject) {
-							value = jsonToMap((JSONObject) value);
-					}
-					jsonMap.put(key, value);
-			}
-			return jsonMap;
-	}
-
-/*==============================================================================
- Url
-==============================================================================*/
-
-	/**
-	 * Parse out query string map/dict from url
-	 * @param url url
-	 * @return query string map/dict
-	 */
-	public static Map<String, String> parseUrlQsPara(String url) throws URISyntaxException, UnsupportedEncodingException {
-			// Utils.logD(String.format("parseUrlQsPara: url=%s", url));
-			Map<String, String> urlQsParaDict = new HashMap<String, String>();
-			URI uri = new URI(url);
-			// Utils.logD(String.format("uri=%s", uri));
-			String scheme = uri.getScheme();
-			String host = uri.getHost();
-			// Utils.logD(String.format("scheme=%s, host=%s", scheme, host));
-			String rawQuery = uri.getRawQuery();
-			// Utils.logD(String.format("rawQuery=%s", rawQuery));
-//        String decodedQuery = null;
-//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-//            decodedQuery = URLDecoder.decode(rawQuery, StandardCharsets.UTF_8);
-//        }
-			String decodedQuery = URLDecoder.decode(rawQuery, StandardCharsets.UTF_8.toString());
-			// Utils.logD(String.format("decodedQuery=%s", decodedQuery));
-//        String[] paraList = rawQuery.split("&");
-			String[] paraList = decodedQuery.split("&");
-			// Utils.logD(String.format("paraList=%s", paraList.toString()));
-			for (String eachPara : paraList) {
-					// Utils.logD(String.format("eachPara=%s", eachPara));
-					String[] paraKeyValueList = eachPara.split("=");
-					String paraKey = paraKeyValueList[0];
-					String paraValue = paraKeyValueList[1];
-					urlQsParaDict.put(paraKey, paraValue);
-			}
-			// Utils.logD(String.format("urlQsParaDict=%s", urlQsParaDict));
-			return urlQsParaDict;
 	}
 
 /*==============================================================================
