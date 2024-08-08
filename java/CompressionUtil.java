@@ -3,7 +3,7 @@
 	Function: crifan's common java's compress & decompress related functions
 	Author: Crifan Li
 	Latest: https://github.com/crifan/crifanLib/blob/master/java/CompressionUtil.java
-	Updated: 20240807
+	Updated: 20240808
 */
 
 import java.io.BufferedReader;
@@ -71,6 +71,16 @@ public class CompressionUtil {
         }
         byte uncompressedBytes[] = outputBytes.toByteArray();
         return uncompressedBytes;
+    }
+
+    public static String decodeGzipHexStr(String gzipHexStr) throws IOException {
+        byte[] bodyBytes = ByteUtil.hexStrToBytes(gzipHexStr);
+        Utils.logD(String.format("bodyBytes=%s", bodyBytes));
+        byte[] uncompressedBodyBytes = CompressionUtil.decompressToBytes(bodyBytes);
+        Utils.logD(String.format("uncompressedBodyBytes=%s", uncompressedBodyBytes));
+        String decodedStr = new String(uncompressedBodyBytes, StandardCharsets.UTF_8);
+        Utils.logD(String.format("decodedStr=%s", decodedStr));
+        return decodedStr;
     }
 
 }
