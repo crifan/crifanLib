@@ -14,13 +14,10 @@ class FridaiOSUtil {
   *******************************************************************************/
   // Print Function Stack Call
   static isUseCache = true
-  // print only once stack for every function
-  static isPrintOnlyOnceStack = true
 
   /*******************************************************************************
    * Global Variables
   *******************************************************************************/
-
 
   static gAddrToModuleInfoDict = {}
   static gModulePathToSlideDict = {}
@@ -223,7 +220,7 @@ class FridaiOSUtil {
     var moduleInfoDict = null
     var needAddToCache = false
 
-    if (isUseCache){
+    if (FridaiOSUtil.isUseCache){
       if (address in FridaiOSUtil.gAddrToModuleInfoDict){
         moduleInfoDict = FridaiOSUtil.gAddrToModuleInfoDict[address]
         // XLOG("Found: address=" + address + " in FridaiOSUtil.gAddrToModuleInfoDict, moduleInfoDict=" + JsUtil.toJsonStr(moduleInfoDict))
@@ -277,7 +274,7 @@ class FridaiOSUtil {
 
     var needAddToCache = false
 
-    if (isUseCache){
+    if (FridaiOSUtil.isUseCache){
       if (modulePath in FridaiOSUtil.gModulePathToSlideDict){
         moduleSlide = FridaiOSUtil.gModulePathToSlideDict[modulePath]
         // XLOG("Found: modulePath=" + modulePath + " in FridaiOSUtil.gModulePathToSlideDict, moduleSlide=" + moduleSlide)
@@ -318,7 +315,7 @@ class FridaiOSUtil {
 
     var needAddToCache = false
 
-    if (isUseCache){
+    if (FridaiOSUtil.isUseCache){
       if (modulePath in FridaiOSUtil.gModulePathToClassesDict){
         classes = FridaiOSUtil.gModulePathToClassesDict[modulePath]
         // XLOG("Found: modulePath=" + modulePath + " in FridaiOSUtil.gModulePathToClassesDict, classes=" + classes)
@@ -367,7 +364,7 @@ class FridaiOSUtil {
 
     var needAddToCache = false
 
-    if (isUseCache){
+    if (FridaiOSUtil.isUseCache){
       if (classname in FridaiOSUtil.gClassnameToAllMethodsDict){
         allMethods = FridaiOSUtil.gClassnameToAllMethodsDict[classname]
         // XLOG("Found: classname=" + classname + " in FridaiOSUtil.gClassnameToAllMethodsDict, allMethods=" + toJsonStr(allMethods))
@@ -441,7 +438,7 @@ class FridaiOSUtil {
 
     var needAddToCache = false
 
-    if (isUseCache){
+    if (FridaiOSUtil.isUseCache){
       if (modulePathAddr in FridaiOSUtil.gModulePathAddrToSymbolDict){
         symbol = FridaiOSUtil.gModulePathAddrToSymbolDict[modulePathAddr]
         // XLOG("Found: modulePathAddr=" + modulePathAddr + " in FridaiOSUtil.gModulePathAddrToSymbolDict, symbol=" + symbol)
