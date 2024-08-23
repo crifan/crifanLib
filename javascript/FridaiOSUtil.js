@@ -15,6 +15,9 @@ class FridaiOSUtil {
   // Print Function Stack Call
   static isUseCache = true
 
+  // if you want use printFunctionCallStack_symbol, then set this to true
+  static isUsePrintStackSymbol = false
+
   /*******************************************************************************
    * Global Variables
   *******************************************************************************/
@@ -37,7 +40,9 @@ class FridaiOSUtil {
   static objc_copyClassNamesForImage = null
 
   static {
-    FridaiOSUtil.initCommonLibFunctions()
+    if (FridaiOSUtil.isUsePrintStackSymbol) {
+      FridaiOSUtil.initCommonLibFunctions()
+    }
   }
 
   constructor() {

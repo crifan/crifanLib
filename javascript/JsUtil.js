@@ -17,16 +17,12 @@ class JsUtil {
   }
 
   /*---------- Log ----------*/
-  static logStr(curStr){
-    let delimiterStr = "--------------------"
-    console.log(delimiterStr + " " + curStr + " " + delimiterStr)
-  }
 
   // Generate single line log string
   // input: logStr="Called: -[NSURLRequest initWithURL:]"
   // output: "=============================== Called: -[NSURLRequest initWithURL:] ==============================="
-  static generateLineStr(logStr, isWithSpace=true, paddingChar="=", lineWidth=120){
-    // console.log("logStr=" + logStr, ", isWithSpace=" + isWithSpace + ", paddingChar=" + paddingChar + ", lineWidth=" + lineWidth)
+  static generateLineStr(logStr, isWithSpace=true, delimiterChar="=", lineWidth=80){
+    // console.log("logStr=" + logStr, ", isWithSpace=" + isWithSpace + ", delimiterChar=" + delimiterChar + ", lineWidth=" + lineWidth)
     var lineStr = ""
 
     var realLogStr = ""
@@ -46,7 +42,7 @@ class JsUtil {
     var paddingLen = lineWidth - realLogStrLen
     if (paddingLen > 0) {
       var leftRightPaddingLen = paddingLen / 2
-      leftRightPaddingStr = times(paddingChar, leftRightPaddingLen)
+      leftRightPaddingStr = JsUtil.times(delimiterChar, leftRightPaddingLen)
     }
 
     lineStr = leftRightPaddingStr + realLogStr + leftRightPaddingStr
@@ -54,6 +50,14 @@ class JsUtil {
     // console.log("lineStr:\n" + lineStr)
     return lineStr
   }
+
+  static logStr(curStr, isWithSpace=true, delimiterChar="=", lineWidth=80){
+    // let delimiterStr = "--------------------"
+    // console.log(delimiterStr + " " + curStr + " " + delimiterChar)
+    var lineStr = JsUtil.generateLineStr(curStr, isWithSpace, delimiterChar, lineWidth)
+    console.log(lineStr)
+  }
+
 
   /*---------- Object: Dict/List/... ----------*/
 
