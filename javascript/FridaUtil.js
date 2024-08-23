@@ -69,38 +69,6 @@ class FridaUtil {
     return className
   }
 
-  static findSymbolFromLib(soLibName, callback_isFound) {
-    console.log("soLibName=" + soLibName + ", callback_isFound=" + callback_isFound)
-  
-    var foundSymbolList = []
-    let libSymbolList = Module.enumerateSymbolsSync(soLibName)
-    // console.log("libSymbolList=" + libSymbolList)
-    for (let i = 0; i < libSymbolList.length; i++) {
-        var curSymbol = libSymbolList[i]
-        // console.log("[" + i  + "] curSymbol=" + curSymbol)
-  
-        var symbolName = curSymbol.name
-        // console.log("[" + i  + "] symbolName=" + symbolName)
-
-        // var isFound = callback_isFound(symbolName)
-        var isFound = callback_isFound(curSymbol)
-        // console.log("isFound=" + isFound)
-  
-        if (isFound) {
-          console.log("[" + i  + "] curSymbol=" + curSymbol)
-
-          var symbolAddr = curSymbol.address
-          // console.log("symbolAddr=" + symbolAddr)
-
-          foundSymbolList.push(curSymbol)
-          console.log("+++ Found smbol: addr=" + symbolAddr + ", name=" + symbolName)
-        }
-    }
-  
-    console.log("foundSymbolList=" + foundSymbolList)
-    return foundSymbolList
-  }
-
   static waitForLibLoading(libraryName, callback_afterLibLoaded){
     console.log("libraryName=" + libraryName + ", callback_afterLibLoaded=" + callback_afterLibLoaded)
     var android_dlopen_ext = Module.getExportByName(null, 'android_dlopen_ext')
@@ -134,6 +102,115 @@ class FridaUtil {
       }
     })
   
+  }
+
+  static findSymbolFromLib(soLibName, jniFuncName, callback_isFound) {
+    console.log("soLibName=" + soLibName + ", jniFuncName=" + jniFuncName + ", callback_isFound=" + callback_isFound)
+  
+    var foundSymbolList = []
+    let libSymbolList = Module.enumerateSymbolsSync(soLibName)
+    // console.log("libSymbolList=" + libSymbolList)
+    for (let i = 0; i < libSymbolList.length; i++) {
+        var curSymbol = libSymbolList[i]
+        // console.log("[" + i  + "] curSymbol=" + curSymbol)
+  
+        var symbolName = curSymbol.name
+        // console.log("[" + i  + "] symbolName=" + symbolName)
+
+        // var isFound = callback_isFound(symbolName)
+        var isFound = callback_isFound(curSymbol, jniFuncName)
+        // console.log("isFound=" + isFound)
+  
+        if (isFound) {
+          var symbolAddr = curSymbol.address
+          // console.log("symbolAddr=" + symbolAddr)
+
+          foundSymbolList.push(curSymbol)
+          console.log("+++ Found [" + i + "] symbol: addr=" + symbolAddr + ", name=" + symbolName)
+        }
+    }
+  
+    // console.log("foundSymbolList=" + foundSymbolList)
+    return foundSymbolList
+  }
+
+  static android_findFunction_libart_so(jniFuncName, func_isFound) {
+    var foundSymbolList = FridaUtil.findSymbolFromLib("libart.so", jniFuncName, func_isFound)
+    console.log("foundSymbolList=" + foundSymbolList)
+    return foundSymbolList
+  }
+
+  static android_isFoundSymbol(curSymbol, symbolName){
+    // return symbolName.includes("NewStringUTF")
+    // return symbolName.includes("CheckJNI12NewStringUTF")
+    // return symbol.name.includes("CheckJNI12NewStringUTF")
+
+    // _ZN3art12_GLOBAL__N_18CheckJNI12NewStringUTFEP7_JNIEnvPKc.llvm.16005601603641821307
+    // _ZN3art3JNIILb0EE12NewStringUTFEP7_JNIEnvPKc
+    // _ZN3art2gc4Heap24AllocObjectWithAllocatorILb1ELb1ENS_12_GLOBAL__N_119NewStringUTFVisitorEEEPNS_6mirror6ObjectEPNS_6ThreadENS_6ObjPtrINS5_5ClassEEEmNS0_13AllocatorTypeERKT1_
+    // _ZNK3art12_GLOBAL__N_119NewStringUTFVisitorclENS_6ObjPtrINS_6mirror6ObjectEEEm
+    // _ZN3art2gc4Heap16AllocLargeObjectILb1ENS_12_GLOBAL__N_119NewStringUTFVisitorEEEPNS_6mirror6ObjectEPNS_6ThreadEPNS_6ObjPtrINS5_5ClassEEEmRKT0_
+    // _ZZN3art2gc4Heap24AllocObjectWithAllocatorILb1ELb0ENS_12_GLOBAL__N_119NewStringUTFVisitorEEEPNS_6mirror6ObjectEPNS_6ThreadENS_6ObjPtrINS5_5ClassEEEmNS0_13AllocatorTypeERKT1_ENKUlvE_clEv
+    // _ZN3art3JNIILb1EE12NewStringUTFEP7_JNIEnvPKc
+    // _ZZN3art3JNIILb0EE12NewStringUTFEP7_JNIEnvPKcE19prev_bad_input_time
+    // _ZZN3art3JNIILb1EE12NewStringUTFEP7_JNIEnvPKcE19prev_bad_input_time
+    // return symbol.name.includes("NewStringUTF")
+
+    // symbolName.includes("RegisterNatives") && symbolName.includes("CheckJNI")
+    // return symbolName.includes("CheckJNI15RegisterNatives")
+    // return symbolName.includes("RegisterNatives")
+
+    // _ZN3art12_GLOBAL__N_18CheckJNI15RegisterNativesEP7_JNIEnvP7_jclassPK15JNINativeMethodi.llvm.16005601603641821307
+    // _ZN3art3JNIILb0EE15RegisterNativesEP7_JNIEnvP7_jclassPK15JNINativeMethodi
+    // _ZN3art3JNIILb1EE15RegisterNativesEP7_JNIEnvP7_jclassPK15JNINativeMethodi
+    // return symbol.name.includes("RegisterNatives")
+
+    // return symbolName.includes("CheckJNI11GetMethodID")
+    // return symbolName.includes("GetMethodID")
+
+    // _ZN3art12_GLOBAL__N_18CheckJNI19GetMethodIDInternalEPKcP7_JNIEnvP7_jclassS3_S3_b
+    // _ZN3art12_GLOBAL__N_18CheckJNI11GetMethodIDEP7_JNIEnvP7_jclassPKcS7_.llvm.16005601603641821307
+    // _ZN3art3JNIILb0EE11GetMethodIDEP7_JNIEnvP7_jclassPKcS7_
+    // _ZN3art3JNIILb1EE11GetMethodIDEP7_JNIEnvP7_jclassPKcS7_
+    // return symbol.name.includes("GetMethodID")
+
+    return curSymbol.name.includes(symbolName)
+  }
+
+  static android_findJniFunc(jniFuncName){
+    var jniSymbolList = FridaUtil.android_findFunction_libart_so(jniFuncName, FridaUtil.android_isFoundSymbol)
+    return jniSymbolList
+  }
+
+  static android_doHookJniFunc_multipleMatch(foundSymbolList, callback_hookFunc){
+    if (null == foundSymbolList){
+      return
+    }
+
+    var symbolNum = foundSymbolList.length
+    console.log("symbolNum=" + symbolNum)
+    if (symbolNum == 0){
+      return
+    }
+
+    for(var i = 0; i < symbolNum; ++i) {
+      var eachSymbol = foundSymbolList[i]
+      // console.log("eachSymbol=" + eachSymbol)
+      var curSymbolAddr = eachSymbol.address
+      console.log("curSymbolAddr=" + curSymbolAddr)
+
+      Interceptor.attach(curSymbolAddr, {
+        onEnter: function (args) {
+          callback_hookFunc(eachSymbol, args)
+        }
+      })
+    }
+  
+  }
+
+  static android_hookJniFunc(jniFuncName, hookFunc){
+    var jniSymbolList = FridaUtil.android_findJniFunc(jniFuncName)
+    FridaUtil.android_doHookJniFunc_multipleMatch(jniSymbolList, hookFunc)
   }
 
   static printFunctionCallStack_addr(curContext){
