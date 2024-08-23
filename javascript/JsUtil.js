@@ -16,10 +16,46 @@ class JsUtil {
   static {
   }
 
+  /*---------- Log ----------*/
   static logStr(curStr){
     let delimiterStr = "--------------------"
     console.log(delimiterStr + " " + curStr + " " + delimiterStr)
   }
+
+  // Generate single line log string
+  // input: logStr="Called: -[NSURLRequest initWithURL:]"
+  // output: "=============================== Called: -[NSURLRequest initWithURL:] ==============================="
+  static generateLineStr(logStr, isWithSpace=true, paddingChar="=", lineWidth=120){
+    // console.log("logStr=" + logStr, ", isWithSpace=" + isWithSpace + ", paddingChar=" + paddingChar + ", lineWidth=" + lineWidth)
+    var lineStr = ""
+
+    var realLogStr = ""
+    if (isWithSpace) {
+      realLogStr = " " + logStr + " "
+    } else {
+      realLogStr = logStr
+    }
+
+    var realLogStrLen = realLogStr.length
+    if ((realLogStrLen % 2) > 0){
+      realLogStr += " "
+      realLogStrLen = realLogStr.length
+    }
+
+    var leftRightPaddingStr = ""
+    var paddingLen = lineWidth - realLogStrLen
+    if (paddingLen > 0) {
+      var leftRightPaddingLen = paddingLen / 2
+      leftRightPaddingStr = times(paddingChar, leftRightPaddingLen)
+    }
+
+    lineStr = leftRightPaddingStr + realLogStr + leftRightPaddingStr
+
+    // console.log("lineStr:\n" + lineStr)
+    return lineStr
+  }
+
+  /*---------- Object: Dict/List/... ----------*/
 
   // convert Object(dict/list/...) to JSON string
   // function toJsonStr(curObj, singleLine=false, space=2){
@@ -34,6 +70,58 @@ class JsUtil {
     return jsonStr
     // return curObj.toString()
   }
+
+  /*---------- List ----------*/
+
+  // check whether is item inside the list
+  // eg: curItem="abc", curList=["abc", "def"] => true
+  static isItemInList(curItem, curList){
+    // method1:
+    return curList.includes(curItem)
+    // // method2:
+    // return curList.indexOf(curItem) > -1
+  }
+
+  /*---------- String ----------*/
+
+  /** Function that count occurrences of a substring in a string;
+   * @param {String} string               The string
+   * @param {String} subString            The sub string to search for
+   * @param {Boolean} [allowOverlapping]  Optional. (Default:false)
+   *
+   * @author Vitim.us https://gist.github.com/victornpb/7736865
+   * @see Unit Test https://jsfiddle.net/Victornpb/5axuh96u/
+   * @see https://stackoverflow.com/a/7924240/938822
+   */
+  static occurrences(string, subString, allowOverlapping) {
+    // console.log("string=" + string + ",subString=" + subString + ", allowOverlapping=" + allowOverlapping)
+    string += "";
+    subString += "";
+    if (subString.length <= 0) return (string.length + 1);
+
+    var n = 0,
+      pos = 0,
+      step = allowOverlapping ? 1 : subString.length;
+
+    while (true) {
+      pos = string.indexOf(subString, pos);
+      // console.log("pos=" + pos)
+      if (pos >= 0) {
+        ++n;
+        pos += step;
+      } else break;
+    }
+
+    return n;
+  }
+
+  // String multiple
+  // eg: str="=", num=5 => "====="
+  static times(str, num){
+    return new Array(num + 1).join(str)
+  }
+
+  /*---------- Byte ----------*/
 
   // byte decimaal to byte hex
   // eg:
@@ -56,6 +144,8 @@ class JsUtil {
     return hexValue
   }
 
+  /*---------- Object ----------*/
+
   // check is js string
   static isJsStr(curObj){
     // console.log("curObj=" + curObj)
@@ -64,6 +154,19 @@ class JsUtil {
     var isStr = curObjType === "string"
     // console.log("isStr=" + isStr)
     return isStr
+  }
+
+  /*---------- Pointer ----------*/
+
+  // check pointer is valid or not
+  // example
+  // 		0x103e79560 => true
+  // 		0xc => false
+  static isValidPointer(curPtr){
+    let MinValidPointer = 0x10000
+    var isValid = curPtr > MinValidPointer
+    // console.log("curPtr=" + curPtr, " -> isValid=" + isValid)
+    return isValid
   }
 
 }
