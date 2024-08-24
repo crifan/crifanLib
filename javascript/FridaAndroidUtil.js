@@ -3,7 +3,7 @@
 	Function: crifan's common Frida Android Javascript related functions
 	Author: Crifan Li
 	Latest: https://github.com/crifan/crifanLib/blob/master/javascript/FridaAndroidUtil.js
-	Updated: 20240823
+	Updated: 20240824
 */
 
 // Frida Android Util
@@ -36,6 +36,35 @@ class FridaAndroidUtil {
 
   constructor() {
     console.log("FridaAndroidUtil constructor")
+  }
+
+  static printModuleInfo(moduleName){
+    const foundModule = Module.load(moduleName)
+    // const foundModule = Module.ensureInitialized()
+    console.log("foundModule=" + foundModule)
+  
+    if (null == foundModule) {
+      return
+    }
+  
+    console.log("Module: name=" + foundModule.name + ", base=" + foundModule.base + ", size" + foundModule.size + ", path=" + foundModule.path)
+  
+    var curSymbolList = foundModule.enumerateSymbols()
+    console.log("Symbol: length=" + curSymbolList.length + ", list=" + curSymbolList)
+    for(var i = 0; i < curSymbolList.length; i++) {
+      console.log("---------- Symbol [" + i + "]----------")
+      var curSymbol = curSymbolList[i]
+      var sectionStr = JSON.stringify(curSymbol.section)
+      console.log("name=" + curSymbol.name + ", address=" + curSymbol.address + "isGlobal=" + curSymbol.isGlobal + ", type=" + curSymbol.type + ", section=" + sectionStr)
+    }
+  
+    var curExportList = foundModule.enumerateExports()
+    console.log("Export: length=" + curExportList.length + ", list=" + curExportList)
+    for(var i = 0; i < curExportList.length; i++) {
+      console.log("---------- Export [" + i + "]----------")
+      var curExport = curExportList[i]
+      console.log("type=" + curExport.type + ", name=" + curExport.name + ", address=" + curExport.address)
+    }
   }
 
   static waitForLibLoading(libraryName, callback_afterLibLoaded){
