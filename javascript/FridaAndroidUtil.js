@@ -3,7 +3,7 @@
 	Function: crifan's common Frida Android Javascript related functions
 	Author: Crifan Li
 	Latest: https://github.com/crifan/crifanLib/blob/master/javascript/FridaAndroidUtil.js
-	Updated: 20240824
+	Updated: 20240827
 */
 
 // Frida Android Util
@@ -88,7 +88,7 @@ class FridaAndroidUtil {
         // console.log("android_dlopen_ext: [+] libFullPath=" + libFullPath + ", flags=" + flags + ", info=" + info)
         // if(libraryName === libFullPath){
         if(libFullPath.includes(libraryName)){
-          console.log("+++ Loaded " + libraryName)
+          console.log("+++ Loaded lib " + libraryName)
           this.isLibLoaded = true
         }
       },
@@ -102,6 +102,11 @@ class FridaAndroidUtil {
       }
     })
   
+  }
+
+  static hookAfterLibLoaded(libName, callback_afterLibLoaded){
+    console.log("libName=" + libName)
+    FridaAndroidUtil.waitForLibLoading(libName, callback_afterLibLoaded)
   }
 
   static findSymbolFromLib(soLibName, jniFuncName, callback_isFound) {
@@ -213,184 +218,7 @@ class FridaAndroidUtil {
     FridaAndroidUtil.doHookJniFunc_multipleMatch(jniSymbolList, hookFunc)
   }
 
-  // static find_GetMethodID() {
-  //   return findFunction_libart_so(
-  //     function(symbol){
-  //       // _ZN3art12_GLOBAL__N_18CheckJNI11GetMethodIDEP7_JNIEnvP7_jclassPKcS7_.llvm.16005601603641821307
-  //       // symbolName.includes("GetMethodID")
-  //       // return symbolName.includes("CheckJNI11GetMethodID")
-  //       // return symbolName.includes("GetMethodID")
-
-  //       // _ZN3art12_GLOBAL__N_18CheckJNI19GetMethodIDInternalEPKcP7_JNIEnvP7_jclassS3_S3_b
-  //       // _ZN3art12_GLOBAL__N_18CheckJNI11GetMethodIDEP7_JNIEnvP7_jclassPKcS7_.llvm.16005601603641821307
-  //       // _ZN3art3JNIILb0EE11GetMethodIDEP7_JNIEnvP7_jclassPKcS7_
-  //       // _ZN3art3JNIILb1EE11GetMethodIDEP7_JNIEnvP7_jclassPKcS7_
-  //       return symbol.name.includes("GetMethodID")
-  //     }
-  //   )
-  // }
-
-  // static find_RegisterNatives() {
-  //   // var FuncPtr_RegisterNatives = Module.findExportByName(null, "RegisterNatives")
-  //   // console.log("FuncPtr_RegisterNatives=" + FuncPtr_RegisterNatives)
-  //   // if (null != FuncPtr_RegisterNatives) {
-  //   // }
-
-  //   return findFunction_libart_so(
-  //     function(symbol){
-  //       // _ZN3art12_GLOBAL__N_18CheckJNI15RegisterNativesEP7_JNIEnvP7_jclassPK15JNINativeMethodi
-  //       // symbolName.includes("RegisterNatives") && symbolName.includes("CheckJNI")
-  //       // return symbolName.includes("CheckJNI15RegisterNatives")
-  //       // return symbolName.includes("RegisterNatives")
-
-  //       // _ZN3art12_GLOBAL__N_18CheckJNI15RegisterNativesEP7_JNIEnvP7_jclassPK15JNINativeMethodi.llvm.16005601603641821307
-  //       // _ZN3art3JNIILb0EE15RegisterNativesEP7_JNIEnvP7_jclassPK15JNINativeMethodi
-  //       // _ZN3art3JNIILb1EE15RegisterNativesEP7_JNIEnvP7_jclassPK15JNINativeMethodi
-  //       return symbol.name.includes("RegisterNatives")
-  //     }
-  //   )
-  // }
-
-  // static find_NewStringUTF() {
-  //   return findFunction_libart_so(
-  //     function(symbol){
-  //       // _ZN3art12_GLOBAL__N_18CheckJNI12NewStringUTFEP7_JNIEnvPKc.llvm.16005601603641821307
-  //       // return symbolName.includes("NewStringUTF")
-  //       // return symbolName.includes("CheckJNI12NewStringUTF")
-  //       // return symbol.name.includes("CheckJNI12NewStringUTF")
-
-  //       // _ZN3art12_GLOBAL__N_18CheckJNI12NewStringUTFEP7_JNIEnvPKc.llvm.16005601603641821307
-  //       // _ZN3art3JNIILb0EE12NewStringUTFEP7_JNIEnvPKc
-  //       // _ZN3art2gc4Heap24AllocObjectWithAllocatorILb1ELb1ENS_12_GLOBAL__N_119NewStringUTFVisitorEEEPNS_6mirror6ObjectEPNS_6ThreadENS_6ObjPtrINS5_5ClassEEEmNS0_13AllocatorTypeERKT1_
-  //       // _ZNK3art12_GLOBAL__N_119NewStringUTFVisitorclENS_6ObjPtrINS_6mirror6ObjectEEEm
-  //       // _ZN3art2gc4Heap16AllocLargeObjectILb1ENS_12_GLOBAL__N_119NewStringUTFVisitorEEEPNS_6mirror6ObjectEPNS_6ThreadEPNS_6ObjPtrINS5_5ClassEEEmRKT0_
-  //       // _ZZN3art2gc4Heap24AllocObjectWithAllocatorILb1ELb0ENS_12_GLOBAL__N_119NewStringUTFVisitorEEEPNS_6mirror6ObjectEPNS_6ThreadENS_6ObjPtrINS5_5ClassEEEmNS0_13AllocatorTypeERKT1_ENKUlvE_clEv
-  //       // _ZN3art3JNIILb1EE12NewStringUTFEP7_JNIEnvPKc
-  //       // _ZZN3art3JNIILb0EE12NewStringUTFEP7_JNIEnvPKcE19prev_bad_input_time
-  //       // _ZZN3art3JNIILb1EE12NewStringUTFEP7_JNIEnvPKcE19prev_bad_input_time
-  //       return symbol.name.includes("NewStringUTF")
-  //     }
-  //   )
-  // }
-  // 
-  // static hoook_GetMethodID(symbolList_GetMethodID){
-  //   if (null == symbolList_GetMethodID){
-  //     return
-  //   }
-
-  //   // console.log("symbolList_GetMethodID=" + symbolList_GetMethodID)
-  //   console.log("symbolList_GetMethodID.length=" + symbolList_GetMethodID.length)
-  //   // for(var eachSymbol in symbolList_GetMethodID){
-  //   for(var i = 0; i < symbolList_GetMethodID.length; ++i) {
-  //     var eachSymbol = symbolList_GetMethodID[i]
-  //     // console.log("eachSymbol=" + eachSymbol)
-  //     var curAddr_GetMethodID = eachSymbol.address
-  //     console.log("curAddr_GetMethodID=" + curAddr_GetMethodID)
-  //     Interceptor.attach(curAddr_GetMethodID, {
-  //       onEnter: function (args) {
-  //         JsUtil.logStr("Trigged GetMethodID [" + curAddr_GetMethodID + "]")
-
-  //         // jmethodID GetMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
-  //         var jniEnv = args[0]
-  //         console.log("jniEnv=" + jniEnv)
-
-  //         var clazz = args[1]
-  //         var jclassName = FridaAndroidUtil.getJclassName(clazz)
-  //         console.log("clazz=" + clazz + " -> jclassName=" + jclassName)
-
-  //         var namePtr = args[2]
-  //         var nameStr = FridaUtil.ptrToUtf8Str(namePtr)
-  //         console.log("namePtr=" + namePtr + " -> nameStr=" + nameStr)
-
-  //         var sigPtr = args[3]
-  //         var sigStr = FridaUtil.ptrToUtf8Str(sigPtr)
-  //         console.log("sigPtr=" + sigPtr + " -> sigStr=" + sigStr)
-  //       }
-  //     })
-  //   }
-
-  // }
-
-  // static hoook_NewStringUTF(symbolList_NewStringUTF){
-  //   if (null == symbolList_NewStringUTF){
-  //     return
-  //   }
-
-  //   var NewStringUTF_symbolNum = symbolList_NewStringUTF.length
-  //   console.log("NewStringUTF_symbolNum=" + NewStringUTF_symbolNum)
-  //   for(var i = 0; i < NewStringUTF_symbolNum; ++i) {
-  //     var eachSymbol = symbolList_NewStringUTF[i]
-  //     // console.log("eachSymbol=" + eachSymbol)
-  //     var curAddr_NewStringUTF = eachSymbol.address
-  //     console.log("curAddr_NewStringUTF=" + curAddr_NewStringUTF)
-
-  //     Interceptor.attach(curAddr_NewStringUTF, {
-  //       onEnter: function (args) {
-  //         JsUtil.logStr("Trigged NewStringUTF [" + curAddr_NewStringUTF + "]")
-
-  //         // jstring NewStringUTF(JNIEnv *env, const char *bytes);
-  //         var jniEnv = args[0]
-  //         console.log("jniEnv=" + jniEnv)
-
-  //         var newStrPtr = args[1]
-  //         // var newStr = newStrPtr.readCString()
-  //         // var newStr = FridaUtil.ptrToUtf8Str(newStrPtr)
-  //         var newStr = FridaUtil.ptrToCStr(newStrPtr)
-  //         console.log("newStrPtr=" + newStrPtr + " -> newStr=" + newStr)
-  //       }
-  //     })
-  //   }
-
-  // }
-
-  // static hoook_RegisterNatives(symbolList_RegisterNatives){
-  //   if (null == symbolList_RegisterNatives){
-  //     return
-  //   }
-
-  //   console.log("symbolList_RegisterNatives.length=" + symbolList_RegisterNatives.length)
-  //   for(var i = 0; i < symbolList_RegisterNatives.length; ++i) {
-  //     var eachSymbol = symbolList_RegisterNatives[i]
-  //     // console.log("eachSymbol=" + eachSymbol)
-  //     var curAddr_RegisterNatives = eachSymbol.address
-  //     console.log("curAddr_RegisterNatives=" + curAddr_RegisterNatives)
-
-  //     /*
-  //       typedef struct {
-  //         const char* name;
-  //         const char* signature;
-  //         void* fnPtr;
-  //       } JNINativeMethod;
-
-  //       jint RegisterNatives(JNIEnv *env, jclass clazz, const JNINativeMethod *methods, jint nMethods);
-  //     */
-  //     Interceptor.attach(curAddr_RegisterNatives, {
-  //       onEnter: function (args) {
-  //         JsUtil.logStr("Trigged RegisterNatives [" + curAddr_RegisterNatives + "]")
-
-  //         var jniEnv = args[0]
-  //         console.log("jniEnv=" + jniEnv)
-
-  //         var clazz = args[1]
-  //         var jclassName = FridaAndroidUtil.getJclassName(clazz)
-  //         console.log("clazz=" + clazz + " -> jclassName=" + jclassName)
-
-  //         var methods = args[2]
-  //         console.log("methods=" + methods)
-
-  //         var nMethods = args[3]
-  //         var methodNum = parseInt(nMethods)
-  //         console.log("nMethods=" + nMethods + " -> methodNum=" + methodNum)
-  //       }
-  //     })
-  //   }
-
-  // }
-
   static hookNative_NewStringUTF(){
-    // var symbolList_NewStringUTF = find_NewStringUTF()
-    // hoook_NewStringUTF(symbolList_NewStringUTF)
-
     FridaAndroidUtil.hookJniFunc("NewStringUTF", function(curSymbol, args){
       JsUtil.logStr("Trigged NewStringUTF [" + curSymbol.address + "]")
         // jstring NewStringUTF(JNIEnv *env, const char *bytes);
@@ -406,9 +234,6 @@ class FridaAndroidUtil {
   }
 
   static hookNative_GetMethodID(){
-    // var symbolList_GetMethodID = find_GetMethodID()
-    // hoook_GetMethodID(symbolList_GetMethodID)
-
     FridaAndroidUtil.hookJniFunc("GetMethodID", function(curSymbol, args){
       JsUtil.logStr("Trigged GetMethodID [" + curSymbol.address + "]")
         // jmethodID GetMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);

@@ -3,7 +3,7 @@
 	Function: crifan's common Frida Javascript related functions
 	Author: Crifan Li
 	Latest: https://github.com/crifan/crifanLib/blob/master/javascript/FridaUtil.js
-	Updated: 20240823
+	Updated: 20240827
 */
 
 // Frida Common Util
@@ -34,6 +34,20 @@ class FridaUtil {
     console.log('Stack:\n' +
       Thread.backtrace(curContext, backtracerType)
       .map(DebugSymbol.fromAddress).join('\n') + '\n');
+  }
+
+  static dumpMemory(toDumpPtr, byteLen=128){
+    var buf = toDumpPtr.readByteArray(byteLen)
+    var dumpHexStr = hexdump(
+      buf,
+      {
+        offset: 0,
+        length: byteLen,
+        header: true,
+        ansi: true
+      }
+    )
+    console.log("dumpHexStr=\n" + dumpHexStr)
   }
 
 }
