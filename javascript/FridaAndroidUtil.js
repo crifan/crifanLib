@@ -187,7 +187,7 @@ class FridaAndroidUtil {
     return jniSymbolList
   }
 
-  static doHookJniFunc_multipleMatch(foundSymbolList, callback_hookFunc){
+  static doHookJniFunc_multipleMatch(foundSymbolList, callback_onEnter, callback_onLeave=null){
     if (null == foundSymbolList){
       return
     }
@@ -206,52 +206,77 @@ class FridaAndroidUtil {
 
       Interceptor.attach(curSymbolAddr, {
         onEnter: function (args) {
-          callback_hookFunc(eachSymbol, args)
+          callback_onEnter(this, eachSymbol, args)
+        },
+        onLeave: function(retVal){
+          if (null != callback_onLeave) {
+            callback_onLeave(this, retVal)
+          }
         }
       })
     }
-  
   }
 
-  static hookJniFunc(jniFuncName, hookFunc){
+  static hookJniFunc(jniFuncName, hookFunc_onEnter, hookFunc_onLeave=null){
     var jniSymbolList = FridaAndroidUtil.findJniFunc(jniFuncName)
-    FridaAndroidUtil.doHookJniFunc_multipleMatch(jniSymbolList, hookFunc)
+    FridaAndroidUtil.doHookJniFunc_multipleMatch(jniSymbolList, hookFunc_onEnter, hookFunc_onLeave)
   }
 
   static hookNative_NewStringUTF(){
-    FridaAndroidUtil.hookJniFunc("NewStringUTF", function(curSymbol, args){
-      JsUtil.logStr("Trigged NewStringUTF [" + curSymbol.address + "]")
-        // jstring NewStringUTF(JNIEnv *env, const char *bytes);
-        var jniEnv = args[0]
-        console.log("jniEnv=" + jniEnv)
+    FridaAndroidUtil.hookJniFunc(
+      "NewStringUTF",
+      function(thiz, curSymbol, args){
+        JsUtil.logStr("Trigged NewStringUTF [" + curSymbol.address + "]")
+          // jstring NewStringUTF(JNIEnv *env, const char *bytes);
+          var jniEnv = args[0]
+          console.log("jniEnv=" + jniEnv)
 
-        var newStrPtr = args[1]
-        // var newStr = newStrPtr.readCString()
-        // var newStr = FridaUtil.ptrToUtf8Str(newStrPtr)
-        var newStr = FridaUtil.ptrToCStr(newStrPtr)
-        console.log("newStrPtr=" + newStrPtr + " -> newStr=" + newStr)
-    })
+          var newStrPtr = args[1]
+          // var newStr = newStrPtr.readCString()
+          // var newStr = FridaUtil.ptrToUtf8Str(newStrPtr)
+          var newStr = FridaUtil.ptrToCStr(newStrPtr)
+          console.log("newStrPtr=" + newStrPtr + " -> newStr=" + newStr)
+      }
+    )
   }
 
-  static hookNative_GetMethodID(){
-    FridaAndroidUtil.hookJniFunc("GetMethodID", function(curSymbol, args){
-      JsUtil.logStr("Trigged GetMethodID [" + curSymbol.address + "]")
+  static hookNative_GetMethodID(callback_enableLog=null){
+    FridaAndroidUtil.hookJniFunc(
+      "GetMethodID", 
+      function(thiz, curSymbol, args){
         // jmethodID GetMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
         var jniEnv = args[0]
-        console.log("jniEnv=" + jniEnv)
 
         var clazz = args[1]
         var jclassName = FridaAndroidUtil.getJclassName(clazz)
-        console.log("clazz=" + clazz + " -> jclassName=" + jclassName)
-
+        
         var namePtr = args[2]
         var nameStr = FridaUtil.ptrToUtf8Str(namePtr)
-        console.log("namePtr=" + namePtr + " -> nameStr=" + nameStr)
-
+        
         var sigPtr = args[3]
         var sigStr = FridaUtil.ptrToUtf8Str(sigPtr)
-        console.log("sigPtr=" + sigPtr + " -> sigStr=" + sigStr)
-    })
+
+        thiz.enableLog = false
+        if (callback_enableLog) {
+          thiz.enableLog = callback_enableLog(jniEnv, jclassName, nameStr, sigStr)
+        } else {
+          thiz.enableLog = true          
+        }
+
+        if (thiz.enableLog) {
+          JsUtil.logStr("Trigged GetMethodID [" + curSymbol.address + "]")
+          console.log("jniEnv=" + jniEnv)
+          console.log("clazz=" + clazz + " -> jclassName=" + jclassName)
+          console.log("namePtr=" + namePtr + " -> nameStr=" + nameStr)
+          console.log("sigPtr=" + sigPtr + " -> sigStr=" + sigStr)
+        }
+      },
+      function(thiz, retVal){
+        if (thiz.enableLog) {
+          console.log("GetMethodID retVal=" + retVal)
+        }
+      }
+    )
   }
 
   /* print detail of JNINativeMethod:
@@ -314,26 +339,29 @@ class FridaAndroidUtil {
     // var symbolList_RegisterNatives = find_RegisterNatives()
     // hoook_RegisterNatives(symbolList_RegisterNatives)
 
-    FridaAndroidUtil.hookJniFunc("RegisterNatives", function(curSymbol, args){
-      JsUtil.logStr("Trigged RegisterNatives [" + curSymbol.address + "]")
+    FridaAndroidUtil.hookJniFunc(
+      "RegisterNatives",
+      function(thiz, curSymbol, args){
+        JsUtil.logStr("Trigged RegisterNatives [" + curSymbol.address + "]")
 
-      // jint RegisterNatives(JNIEnv *env, jclass clazz, const JNINativeMethod *methods, jint nMethods);
-      var jniEnv = args[0]
-      console.log("jniEnv=" + jniEnv)
+        // jint RegisterNatives(JNIEnv *env, jclass clazz, const JNINativeMethod *methods, jint nMethods);
+        var jniEnv = args[0]
+        console.log("jniEnv=" + jniEnv)
 
-      var clazz = args[1]
-      var jclassName = FridaAndroidUtil.getJclassName(clazz)
-      console.log("clazz=" + clazz + " -> jclassName=" + jclassName)
+        var clazz = args[1]
+        var jclassName = FridaAndroidUtil.getJclassName(clazz)
+        console.log("clazz=" + clazz + " -> jclassName=" + jclassName)
 
-      var methodsPtr = args[2]
-      console.log("methodsPtr=" + methodsPtr)
+        var methodsPtr = args[2]
+        console.log("methodsPtr=" + methodsPtr)
 
-      var nMethods = args[3]
-      var methodNum = parseInt(nMethods)
-      console.log("nMethods=" + nMethods + " -> methodNum=" + methodNum)
+        var nMethods = args[3]
+        var methodNum = parseInt(nMethods)
+        console.log("nMethods=" + nMethods + " -> methodNum=" + methodNum)
 
-      FridaAndroidUtil.printJNINativeMethodDetail(methodsPtr, methodNum)
-    })
+        FridaAndroidUtil.printJNINativeMethodDetail(methodsPtr, methodNum)
+      }
+  )
 
   }
 
