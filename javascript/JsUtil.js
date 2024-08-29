@@ -3,7 +3,7 @@
 	Function: crifan's common Javascript related functions
 	Author: Crifan Li
 	Latest: https://github.com/crifan/crifanLib/blob/master/javascript/JsUtil.js
-	Updated: 20240823
+	Updated: 20240829
 */
 
 // pure JavaScript utils
@@ -14,6 +14,13 @@ class JsUtil {
   }
 
   static {
+  }
+
+  /*---------- Number(Int) ----------*/
+
+  static intToHexStr(intValue, prefix="0x"){
+    var hexStr = prefix + intValue.toString(16)
+    return hexStr
   }
 
   /*---------- Log ----------*/

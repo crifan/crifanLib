@@ -3,7 +3,7 @@
 	Function: crifan's common Frida Android Javascript related functions
 	Author: Crifan Li
 	Latest: https://github.com/crifan/crifanLib/blob/master/javascript/FridaAndroidUtil.js
-	Updated: 20240827
+	Updated: 20240829
 */
 
 // Frida Android Util
@@ -531,7 +531,7 @@ class FridaAndroidUtil {
     // console.log("genStackStr: newThrowable=" + newThrowable)
     var stackElements = newThrowable.getStackTrace()
     // console.log("genStackStr: stackElements=" + stackElements)
-    var stackStr = "Stack: " + stackElements[0] //method//stackElements[0].getMethodName()
+    var stackStr = "Stack:\n" + stackElements[0] //method//stackElements[0].getMethodName()
     for (var i = 1; i < stackElements.length; i++) {
       stackStr += "\n    at " + stackElements[i]
     }
