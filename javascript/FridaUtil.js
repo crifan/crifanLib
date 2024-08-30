@@ -3,7 +3,7 @@
 	Function: crifan's common Frida Javascript related functions
 	Author: Crifan Li
 	Latest: https://github.com/crifan/crifanLib/blob/master/javascript/FridaUtil.js
-	Updated: 20240829
+	Updated: 20240830
 */
 
 // Frida Common Util
