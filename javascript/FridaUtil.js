@@ -27,13 +27,21 @@ class FridaUtil {
     return curCStr
   }
 
-  // print function call and stack, output type is: address
-  static printFunctionCallStack_addr(curContext){
+  // print function call and stack, output content type is: address
+  static printFunctionCallStack_addr(curContext, prefix=""){
     var backtracerType = Backtracer.ACCURATE
     // var backtracerType = Backtracer.FUZZY
-    console.log('Stack:\n' +
+    if (!JsUtil.strIsEmpty(prefix)){
+      prefix = prefix + " "
+    }
+    // const linePrefix = "\n"
+    // const linePrefix = "\n\t"
+    const linePrefix = "\n  "
+    // const linePrefix = "\n "
+    // const linePrefix = "\n"
+    console.log(prefix + 'Stack:' + linePrefix +
       Thread.backtrace(curContext, backtracerType)
-      .map(DebugSymbol.fromAddress).join('\n') + '\n');
+      .map(DebugSymbol.fromAddress).join(linePrefix) + '\n');
   }
 
   static dumpMemory(toDumpPtr, byteLen=128){
