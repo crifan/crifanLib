@@ -3,11 +3,14 @@
 	Function: crifan's common Frida Android Javascript related functions
 	Author: Crifan Li
 	Latest: https://github.com/crifan/crifanLib/blob/master/javascript/FridaAndroidUtil.js
-	Updated: 20240829
+	Updated: 20240830
 */
 
 // Frida Android Util
 class FridaAndroidUtil {
+  // {env: {clazz: className} }
+  static cacheDictEnvClazz = {}
+
   static curThrowableCls = Java.use("java.lang.Throwable")
 
   static JavaArray = null
@@ -18,6 +21,7 @@ class FridaAndroidUtil {
   static JavaObjArr = null
 
   static {
+    console.log("FridaAndroidUtil.cacheDictEnvClazz=" + FridaAndroidUtil.cacheDictEnvClazz)
     console.log("FridaAndroidUtil.curThrowableCls=" + FridaAndroidUtil.curThrowableCls)
 
     FridaAndroidUtil.JavaArray = Java.use('java.lang.reflect.Array')
@@ -383,16 +387,101 @@ class FridaAndroidUtil {
     return jsByteArr;
   }
 
-  // get java class name
+  // get java class name from clazz
   // example:
   //  clazz=0x35 -> className=java.lang.ref.Reference
   //  clazz=0xa1 -> className=com.tencent.wcdb.database.SQLiteConnection
   //  clazz=0x91 -> className=java.lang.String
-  static getJclassName(clazz){
+  //  clazz=0x42a6 -> jclassName=java.lang.Integer
+  // static getJclassName(clazz){
+  // Note: if not use cache, some time will cause Frida crashed: Process terminated
+  static getJclassName(clazz, isUseCache=true){
+  // static getJclassName(clazz, isUseCache=false){
+    // console.log("clazz=" + clazz)
+    var isFoundCache = false
+    var isNeedAddToCache = false
+    var className = ""
+
+    if (null == clazz){
+      return className
+    }
+
     var env = Java.vm.tryGetEnv()
     // console.log("env=" + env) // env=[object Object]
-    var className = env.getClassName(clazz)
+    if (null == env){
+      return className
+    }
+
+    // console.log("isUseCache=" + isUseCache)
+    if(isUseCache){
+      if (env in FridaAndroidUtil.cacheDictEnvClazz){
+        var cachedClazzClassnameDict = FridaAndroidUtil.cacheDictEnvClazz[env]
+        if (clazz in cachedClazzClassnameDict) {
+          className = cachedClazzClassnameDict[clazz]
+          if (JsUtil.strIsEmpty(className)){
+            console.warn("clazz=" + clazz + " in cache=" + cachedClazzClassnameDict + ", but empty className")
+          } else {
+            isFoundCache = true
+          }
+        }
+        else {
+          // console.log("clazz=" + clazz + " not in cache=" + cachedClazzClassnameDict)
+        }
+      }
+      else {
+        // console.log("env=" + env + " not in cache=" + FridaAndroidUtil.cacheDictEnvClazz)
+      }
+    }
+
+    // console.log("isFoundCache=" + isFoundCache)
+    if (!isFoundCache){
+      // var clazzInt = clazz.toInt32(clazzInt)
+      // // console.log("clazzInt=" + clazzInt)
+      // const ProbablyErrorMinClazzValue = 0x1000
+      // var isProbabllyError = clazzInt < ProbablyErrorMinClazzValue
+      // if (isProbabllyError) {
+      //   // console.warn("Not do getClassName, for probably erro for clazz=" + clazz + ", less then ProbablyErrorMinClazzValue=" + ProbablyErrorMinClazzValue)
+      // } else {
+      try {
+        className = env.getClassName(clazz)
+      } catch(err){
+        console.error("getJclassName catch: err=" + err + ", for clazz=" + clazz)
+      } finally {
+        if (JsUtil.strIsEmpty(className)){
+          console.error("getJclassName finally: empty className for clazz=" + clazz)
+        } else {
+          // console.log("getJclassName OK: clazz=" + clazz + " -> className=" + className)
+          if (isUseCache){
+            isNeedAddToCache = true
+          }
+        }
+      }
+      // }
+    }
+
+    if (isUseCache && isNeedAddToCache){  
+      if (env in FridaAndroidUtil.cacheDictEnvClazz){
+        var oldCachedClazzClassnameDict = FridaAndroidUtil.cacheDictEnvClazz[env]
+        // console.log("old CachedClazzClassnameDict=" + oldCachedClazzClassnameDict)
+        oldCachedClazzClassnameDict[clazz] = className
+        // console.log("new CachedClazzClassnameDict=" + oldCachedClazzClassnameDict)
+        FridaAndroidUtil.cacheDictEnvClazz[env] = oldCachedClazzClassnameDict
+        // console.log("Added clazz=" + clazz + ", className=" + className + " -> to existed env cache:" + FridaAndroidUtil.cacheDictEnvClazz)
+      } else {
+        FridaAndroidUtil.cacheDictEnvClazz[env] = {
+          clazz: className
+        }
+        // console.log("Added clazz=" + clazz + ", className=" + className + " -> to cache:" + FridaAndroidUtil.cacheDictEnvClazz)
+      }
+    }
+
+    var logPrefix = ""
+    if (isFoundCache){
+      logPrefix = "Cached: "
+    }
+
     // console.log("className=" + className)
+    // console.log(logPrefix + "clazz=" + clazz + "-> className=" + className)
     return className
   }
 
@@ -524,14 +613,14 @@ class FridaAndroidUtil {
   }
 
   // generate current stack trace string
-  static genStackStr() {
+  static genStackStr(prefix="") {
     // let newThrowable = ThrowableCls.$new()
     // let newThrowable = this.curThrowableCls.$new()
     let newThrowable = FridaAndroidUtil.curThrowableCls.$new()
     // console.log("genStackStr: newThrowable=" + newThrowable)
     var stackElements = newThrowable.getStackTrace()
     // console.log("genStackStr: stackElements=" + stackElements)
-    var stackStr = "Stack:\n" + stackElements[0] //method//stackElements[0].getMethodName()
+    var stackStr = prefix + "Stack:\n" + stackElements[0] //method//stackElements[0].getMethodName()
     for (var i = 1; i < stackElements.length; i++) {
       stackStr += "\n    at " + stackElements[i]
     }
@@ -543,9 +632,8 @@ class FridaAndroidUtil {
   }
 
   // 打印当前调用堆栈信息 print call stack
-  static printStack() {
-    // var stackStr = this.genStackStr()
-    var stackStr = FridaAndroidUtil.genStackStr()
+  static printStack(prefix="") {
+    var stackStr = FridaAndroidUtil.genStackStr(prefix)
     console.log(stackStr)
 
     // let newThrowable = ThrowableCls.$new()
@@ -593,7 +681,8 @@ class FridaAndroidUtil {
     var functionCallStr = FridaAndroidUtil.genFunctionCallStr(funcName, funcParaDict)
 
     // var stackStr = this.genStackStr()
-    var stackStr = FridaAndroidUtil.genStackStr()
+    // var stackStr = FridaAndroidUtil.genStackStr()
+    var stackStr = FridaAndroidUtil.genStackStr(funcName)
 
     if (filterList != undefined) {
       needPrint = false
