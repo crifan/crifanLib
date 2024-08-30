@@ -3,7 +3,7 @@
 	Function: crifan's common Javascript related functions
 	Author: Crifan Li
 	Latest: https://github.com/crifan/crifanLib/blob/master/javascript/JsUtil.js
-	Updated: 20240829
+	Updated: 20240830
 */
 
 // pure JavaScript utils
@@ -130,6 +130,13 @@ class JsUtil {
   // eg: str="=", num=5 => "====="
   static times(str, num){
     return new Array(num + 1).join(str)
+  }
+
+  // check string is empty or null
+  static strIsEmpty(curStr){
+    var isNull = null == curStr
+    var isEmp = "" === curStr
+    return isNull || isEmp
   }
 
   /*---------- Byte ----------*/
