@@ -3,7 +3,7 @@
 	Function: crifan's common Frida Android Javascript related functions
 	Author: Crifan Li
 	Latest: https://github.com/crifan/crifanLib/blob/master/javascript/FridaAndroidUtil.js
-	Updated: 20240830
+	Updated: 20241106
 */
 
 // Frida Android Util
