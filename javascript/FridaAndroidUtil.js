@@ -8,6 +8,31 @@
 
 // Frida Android Util
 class FridaAndroidUtil {
+
+  // android common root related binary files
+  // static RootBinFileList = ["/system/bin/su", "/system/xbin/su", "/system/bin/magisk"]
+  static RootBinFileList = [
+    "/su",
+    "/su/bin/su",
+    "/sbin/su",
+    "/data/local/xbin/su",
+    "/data/local/bin/su",
+    "/data/local/su",
+    "/system/xbin/su",
+    "/system/bin/su",
+    "/system/bin/magisk",
+    "/system/sd/xbin/su",
+    "/system/bin/failsafe/su",
+    "/system/bin/cufsdosck",
+    "/system/xbin/cufsdosck",
+    "/system/bin/cufsmgr",
+    "/system/xbin/cufsmgr",
+    "/system/bin/cufaevdd",
+    "/system/xbin/cufaevdd",
+    "/system/bin/conbb",
+    "/system/xbin/conbb",
+  ]
+
   // {env: {clazz: className} }
   static cacheDictEnvClazz = {}
 
@@ -248,12 +273,14 @@ class FridaAndroidUtil {
     FridaAndroidUtil.hookJniFunc(
       "GetMethodID", 
       function(thiz, curSymbol, args){
+        var curSymbolAddr = curSymbol.address
+
         // jmethodID GetMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
         var jniEnv = args[0]
 
         var clazz = args[1]
         var jclassName = FridaAndroidUtil.getJclassName(clazz)
-        
+
         var namePtr = args[2]
         var nameStr = FridaUtil.ptrToUtf8Str(namePtr)
         
@@ -268,11 +295,56 @@ class FridaAndroidUtil {
         }
 
         if (thiz.enableLog) {
-          JsUtil.logStr("Trigged GetMethodID [" + curSymbol.address + "]")
+          JsUtil.logStr("Trigged GetMethodID [" + curSymbolAddr + "]")
+
           console.log("jniEnv=" + jniEnv)
           console.log("clazz=" + clazz + " -> jclassName=" + jclassName)
           console.log("namePtr=" + namePtr + " -> nameStr=" + nameStr)
           console.log("sigPtr=" + sigPtr + " -> sigStr=" + sigStr)
+
+          // if ("com.bytedance.mobsec.metasec.ml.MS" == jclassName){
+          //   console.log("curSymbolAddr=" + curSymbolAddr)
+          //   var libArtFuncPtr_GetMethodID = curSymbolAddr
+          //   console.log("libArtFuncPtr_GetMethodID=" + libArtFuncPtr_GetMethodID)
+          //   // jmethodID GetMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
+          //   var nativeFunc_GetMethodID = new NativeFunction(
+          //     libArtFuncPtr_GetMethodID,
+          //     // 'jmethodID',
+          //     // 'int',
+          //     'pointer',
+          //     // ['pointer', 'jclass', 'pointer', 'pointer']
+          //     // ['pointer', 'int', 'pointer', 'pointer']
+          //     ['pointer', 'pointer', 'pointer', 'pointer']
+          //     // ['JNIEnv*', 'jclass', 'char*', 'char*']
+          //   )
+          //   console.log("nativeFunc_GetMethodID=" + nativeFunc_GetMethodID)
+          //   // console.log("jniEnv=" + jniEnv + ", clazz=" + clazz + " -> jclassName=" + jclassName)
+          //   // var funcName_Bill = "Bill"
+          //   // var funcSig_Bill = "()V"
+          //   var funcSig_common = Memory.allocUtf8String("()V")
+          //   console.log("funcSig_common=" + funcSig_common)
+
+          //   var funcName_Bill = Memory.allocUtf8String("Bill")
+          //   console.log("funcName_Bill=" + funcName_Bill)
+          //   var jMethodID_Bill = nativeFunc_GetMethodID(jniEnv, clazz, funcName_Bill, funcSig_common)
+          //   console.log("jMethodID_Bill=" + jMethodID_Bill)
+
+          //   var funcName_Louis = Memory.allocUtf8String("Louis")
+          //   console.log("funcName_Louis=" + funcName_Louis)
+          //   var jMethodID_Louis = nativeFunc_GetMethodID(jniEnv, clazz, funcName_Louis, funcSig_common)
+          //   console.log("jMethodID_Louis=" + jMethodID_Louis)
+
+          //   var funcName_Zeoy = Memory.allocUtf8String("Zeoy")
+          //   console.log("funcName_Zeoy=" + funcName_Zeoy)
+          //   var jMethodID_Zeoy = nativeFunc_GetMethodID(jniEnv, clazz, funcName_Zeoy, funcSig_common)
+          //   console.log("jMethodID_Zeoy=" + jMethodID_Zeoy)
+
+          //   var funcName_Francies = Memory.allocUtf8String("Francies")
+          //   console.log("funcName_Francies=" + funcName_Francies)
+          //   var jMethodID_Francies = nativeFunc_GetMethodID(jniEnv, clazz, funcName_Francies, funcSig_common)
+          //   console.log("jMethodID_Francies=" + jMethodID_Francies)
+          // }
+
         }
       },
       function(thiz, retVal){
@@ -384,7 +456,16 @@ class FridaAndroidUtil {
       jsByteArr[i] = curByte
     }
     // console.log("jsByteArr=" + jsByteArr)
-    return jsByteArr;
+    return jsByteArr
+  }
+
+  // java array/list (byte array / List<Integer> )to string
+  static javaArrayListToStr(javaArraryList){
+    var jsArrayList = FridaAndroidUtil.javaByteArrToJsByteArr(javaArraryList)
+    console.log("jsArrayList=" + jsArrayList)
+    var jsArrayListStr = jsArrayList.toString()
+    console.log("jsArrayListStr=" + jsArrayListStr)
+    return jsArrayListStr
   }
 
   // get java class name from clazz
@@ -620,9 +701,13 @@ class FridaAndroidUtil {
     // console.log("genStackStr: newThrowable=" + newThrowable)
     var stackElements = newThrowable.getStackTrace()
     // console.log("genStackStr: stackElements=" + stackElements)
-    var stackStr = prefix + "Stack:\n" + stackElements[0] //method//stackElements[0].getMethodName()
+    if (!JsUtil.strIsEmpty(prefix)){
+      prefix = prefix + " "
+    }
+    const linePrefix = "\n  "
+    var stackStr = prefix + "Stack:" + linePrefix + stackElements[0] //method//stackElements[0].getMethodName()
     for (var i = 1; i < stackElements.length; i++) {
-      stackStr += "\n    at " + stackElements[i]
+      stackStr += linePrefix + "at " + stackElements[i]
     }
     // stackStr = "\n\n" + stackStr
     stackStr = stackStr + "\n"
