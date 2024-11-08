@@ -671,7 +671,7 @@ class FridaAndroidUtil {
 
   // print single java class all Functions=Methods and Fields=Properties
   static printClassAllMethodsFields(javaClassName) {
-    console.log("==========" + "Class: " + javaClassName + " ==========")
+    console.log("=============== " + "Class: " + javaClassName + " ===============")
 
     console.log("-----" + "All Properties" + "-----")
     // var allProperties = enumProperties(javaClassName)
@@ -690,7 +690,8 @@ class FridaAndroidUtil {
       console.log(singleMethod)
     })
 
-    console.log("")
+    // console.log("")
+    console.log("=========== " + "End of class: " + javaClassName + " ===========")
   }
 
   // generate current stack trace string
