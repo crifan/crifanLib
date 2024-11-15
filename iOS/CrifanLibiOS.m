@@ -3,7 +3,7 @@
     Function: crifan's common iOS function
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/CrifanLibiOS.m
-    Updated: 20230605_1609
+    Updated: 20241115_2308
 */
 
 #import "CrifanLibiOS.h"
@@ -262,6 +262,12 @@
     
     // If no processes are found, return nothing
     return nil;
+}
+
+// Print function call stack == backstrace
++ (NSArray *)printCallStack {
+    NSArray *btArr = [NSThread callStackSymbols];
+    return btArr;
 }
 
 @end

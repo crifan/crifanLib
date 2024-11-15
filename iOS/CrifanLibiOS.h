@@ -3,7 +3,7 @@
     Function: crifan's common iOS function
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/CrifanLibiOS.h
-    Updated: 20230607_1444
+    Updated: 20241115_2308
 */
 
 #import <Foundation/Foundation.h>
@@ -51,6 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
 ==============================================================================*/
 
 + (NSArray *)runningProcesses;
++ (NSArray *)printCallStack;
 
 @end
 
