@@ -1,8 +1,8 @@
 /*
 	File: FridaUtil.js
-	Function: crifan's common Frida Javascript related functions
+	Function: crifan's common Frida util related functions
 	Author: Crifan Li
-	Latest: https://github.com/crifan/crifanLib/blob/master/javascript/FridaUtil.js
+	Latest: https://github.com/crifan/crifanLib/blob/master/javascript/frida/FridaUtil.js
 	Updated: 20240830
 */
 
@@ -22,6 +22,7 @@ class FridaUtil {
 
   // Frida pointer to C string
   static ptrToCStr(curPtr){
+    // var curCStr = Memory.readCString(curPtr)
     var curCStr = curPtr.readCString()
     // console.log("curCStr=" + curCStr)
     return curCStr

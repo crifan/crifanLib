@@ -1,8 +1,8 @@
 /*
 	File: FridaiOSUtil.js
-	Function: crifan's common Frida iOS Javascript related functions
+	Function: crifan's common Frida iOS util related functions
 	Author: Crifan Li
-	Latest: https://github.com/crifan/crifanLib/blob/master/javascript/FridaiOSUtil.js
+	Latest: https://github.com/crifan/crifanLib/blob/master/javascript/frida/FridaiOSUtil.js
 	Updated: 20240823
 */
 
