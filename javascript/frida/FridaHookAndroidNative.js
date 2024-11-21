@@ -12,7 +12,7 @@ class FridaHookAndroidNative {
     console.log("FridaHookAndroidNative constructor")
   }
 
-  static hookNative_JNI_OnLoad(libraryName) {
+  static JNI_OnLoad(libraryName) {
     const funcSym = "JNI_OnLoad"
     const funcPtr = Module.findExportByName(libraryName, funcSym)
     console.log("[+] Hooking " + funcSym + ", funcPtr=" + funcPtr)
