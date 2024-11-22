@@ -3,7 +3,7 @@
 	Function: crifan's common Frida Android util related functions
 	Author: Crifan Li
 	Latest: https://github.com/crifan/crifanLib/blob/master/javascript/frida/FridaAndroidUtil.js
-	Updated: 20241121
+	Updated: 20241122
 */
 
 // Frida Android Util
@@ -36,7 +36,7 @@ class FridaAndroidUtil {
   // {env: {clazz: className} }
   static cacheDictEnvClazz = {}
 
-  static curThrowableCls = Java.use("java.lang.Throwable")
+  static curThrowableCls = null
 
   static JavaArray = null
   static JavaArrays = null
@@ -45,26 +45,32 @@ class FridaAndroidUtil {
   static JavaByteArr = null
   static JavaObjArr = null
 
-  static {
-    console.log("FridaAndroidUtil.cacheDictEnvClazz=" + FridaAndroidUtil.cacheDictEnvClazz)
-    console.log("FridaAndroidUtil.curThrowableCls=" + FridaAndroidUtil.curThrowableCls)
-
-    FridaAndroidUtil.JavaArray = Java.use('java.lang.reflect.Array')
-    console.log("FridaAndroidUtil.JavaArray=" + FridaAndroidUtil.JavaArray)
-    FridaAndroidUtil.JavaArrays = Java.use("java.util.Arrays")
-    console.log("FridaAndroidUtil.JavaArrays=" + FridaAndroidUtil.JavaArrays)
-    FridaAndroidUtil.JavaArrayList = Java.use('java.util.ArrayList')
-    console.log("FridaAndroidUtil.JavaArrayList=" + FridaAndroidUtil.JavaArrayList)
-
-    FridaAndroidUtil.JavaByteArr = Java.use("[B")
-    console.log("FridaAndroidUtil.JavaByteArr=" + FridaAndroidUtil.JavaByteArr)
-    // var JavaObjArr = Java.use("[Ljava.lang.Object")
-    FridaAndroidUtil.JavaObjArr = Java.use("[Ljava.lang.Object;")
-    console.log("FridaAndroidUtil.JavaObjArr=" + FridaAndroidUtil.JavaObjArr)
-  }
-
   constructor() {
     console.log("FridaAndroidUtil constructor")
+  }
+
+  static {
+    if (FridaUtil.isAndroid()) {
+      FridaAndroidUtil.curThrowableCls = Java.use("java.lang.Throwable")
+      console.log("FridaAndroidUtil.curThrowableCls=" + FridaAndroidUtil.curThrowableCls)
+
+      console.log("FridaAndroidUtil.cacheDictEnvClazz=" + FridaAndroidUtil.cacheDictEnvClazz)
+  
+      FridaAndroidUtil.JavaArray = Java.use('java.lang.reflect.Array')
+      console.log("FridaAndroidUtil.JavaArray=" + FridaAndroidUtil.JavaArray)
+      FridaAndroidUtil.JavaArrays = Java.use("java.util.Arrays")
+      console.log("FridaAndroidUtil.JavaArrays=" + FridaAndroidUtil.JavaArrays)
+      FridaAndroidUtil.JavaArrayList = Java.use('java.util.ArrayList')
+      console.log("FridaAndroidUtil.JavaArrayList=" + FridaAndroidUtil.JavaArrayList)
+  
+      FridaAndroidUtil.JavaByteArr = Java.use("[B")
+      console.log("FridaAndroidUtil.JavaByteArr=" + FridaAndroidUtil.JavaByteArr)
+      // var JavaObjArr = Java.use("[Ljava.lang.Object")
+      FridaAndroidUtil.JavaObjArr = Java.use("[Ljava.lang.Object;")
+      console.log("FridaAndroidUtil.JavaObjArr=" + FridaAndroidUtil.JavaObjArr)  
+    } else {
+      console.warn("FridaAndroidUtil: Non Android platfrom, no need init Android related")
+    }
   }
 
   static printModuleInfo(moduleName){
@@ -120,6 +126,8 @@ class FridaAndroidUtil {
         if(libFullPath.includes(libraryName)){
           console.log("+++ Loaded lib " + libraryName + ", flags=" + flags + ", info=" + info)
           this.isLibLoaded = true
+
+          this._libFullPath = libFullPath
         }
       },
   
@@ -128,7 +136,8 @@ class FridaAndroidUtil {
           this.isLibLoaded = false
   
           if(null != callback_afterLibLoaded) {
-            callback_afterLibLoaded(libraryName)
+            // callback_afterLibLoaded(libraryName)
+            callback_afterLibLoaded(this._libFullPath)
           }
         }
       }

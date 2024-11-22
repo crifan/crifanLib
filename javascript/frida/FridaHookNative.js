@@ -8,8 +8,58 @@
 
 // Frida hook common native functions
 class FridaHookNative {
+  static dladdr = null
+  static free = null
+
   constructor() {
     console.log("FridaHookNative constructor")
+  }
+
+  static {
+    FridaHookNative.dladdr = FridaHookNative.genNativeFunc_dladdr()
+    console.log("FridaHookNative.dladdr=" + FridaHookNative.dladdr)
+
+    FridaHookNative.free = FridaHookNative.genNativeFunc_free()
+    console.log("FridaHookNative.free=" + FridaHookNative.free)
+  }
+
+  static genNativeFunc_dladdr(){
+    var newNativeFunc_dladdr = null
+    /*
+      int dladdr(const void *, Dl_info *);
+
+      typedef struct dl_info {
+              const char      *dli_fname;     // Pathname of shared object
+              void            *dli_fbase;     // Base address of shared object
+              const char      *dli_sname;     // Name of nearest symbol
+              void            *dli_saddr;     // Address of nearest symbol
+      } Dl_info;
+    */
+    var origNativeFunc_dladdr = Module.findExportByName(null, 'dladdr')
+    // console.log("origNativeFunc_dladdr=" + origNativeFunc_dladdr)
+    if (null != origNativeFunc_dladdr) {
+      newNativeFunc_dladdr = new NativeFunction(
+        origNativeFunc_dladdr,
+        'int',
+        ['pointer','pointer']
+      )
+    }
+    return newNativeFunc_dladdr
+  }
+
+  static genNativeFunc_free(){
+    // void free(void *ptr)
+    var newNativeFunc_free = null
+    var origNativeFunc_free = Module.findExportByName(null, "free")
+    // console.log("origNativeFunc_free=" + origNativeFunc_free)
+    if (null != origNativeFunc_free) {
+      newNativeFunc_free = new NativeFunction(
+        origNativeFunc_free,
+        'void',
+        ['pointer']
+      )
+    }
+    return newNativeFunc_free
   }
 
   static hookNative_dlopen(){
@@ -176,6 +226,38 @@ class FridaHookNative {
       onLeave: function (args) {
       }
     })
+  }
+  
+  static hookNative_strlen(){
+    // size_t strlen(const char *str)
+    Interceptor.attach(Module.findExportByName(null, "strlen"), {
+      onEnter: function (args) {
+        var str = FridaUtil.ptrToCStr(args[0])
+        console.log("strlen: str=" + str)
+      },
+      onLeave: function (args) {
+      }
+    })
+
+    // var FuncPtr_strlen = Module.findExportByName(null, "strlen")
+    // console.log("FuncPtr_strlen=" + FuncPtr_strlen)
+    // if (null != FuncPtr_strlen) {
+    //   var func_strlen = new NativeFunction(FuncPtr_strlen, 'int', ['pointer'])
+    //   console.log("func_strlen=" + func_strlen)
+    //   Interceptor.replace(func_strlen,
+    //     new NativeCallback(function (cStr) {
+    //       // console.log("cStr=" + cStr)
+    //       var jsStr = cStr.readUtf8String()
+    //       console.log("jsStr=" + jsStr)
+    //       var retLen = func_strlen(cStr)
+    //       // console.log("retLen=" + retLen)
+    //       return retLen
+    //     },
+    //     'int',
+    //     ['pointer'])
+    //   );
+    // }
+
   }
   
   static hookNative_strncpy(){

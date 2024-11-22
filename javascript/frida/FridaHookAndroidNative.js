@@ -3,7 +3,7 @@
 	Function: crifan's Frida hook Android native related functions
 	Author: Crifan Li
 	Latest: https://github.com/crifan/crifanLib/blob/master/javascript/frida/FridaHookAndroidNative.js
-	Updated: 20241121
+	Updated: 20241122
 */
 
 // Frida hook Android native functions
@@ -12,11 +12,11 @@ class FridaHookAndroidNative {
     console.log("FridaHookAndroidNative constructor")
   }
 
-  static JNI_OnLoad(libraryName) {
-    const funcSym = "JNI_OnLoad"
-    const funcPtr = Module.findExportByName(libraryName, funcSym)
-    console.log("[+] Hooking " + funcSym + ", funcPtr=" + funcPtr)
+  static JNI_OnLoad(libFullPath) {
     // jint JNI_OnLoad(JavaVM *vm, void *reserved)
+    const funcSym = "JNI_OnLoad"
+    const funcPtr = Module.findExportByName(libFullPath, funcSym)
+    console.log("[+] Hooking " + funcSym + ", funcPtr=" + funcPtr)
     if (null != funcPtr){
       var funcHook = Interceptor.attach(funcPtr, {
         onEnter: function (args) {

@@ -28,17 +28,6 @@ class FridaiOSUtil {
   static gModulePathAddrToSymbolDict = {}
   static gClassnameToAllMethodsDict = {}
 
-  static free = null
-  static objc_getClass = null
-  static class_copyMethodList = null
-  static objc_getMetaClass = null
-  static method_getName = null
-  static dladdr = null
-  static _dyld_image_count = null
-  static _dyld_get_image_name = null
-  static _dyld_get_image_vmaddr_slide = null
-  static objc_copyClassNamesForImage = null
-
   static {
     if (FridaiOSUtil.isUsePrintStackSymbol) {
       FridaiOSUtil.initCommonLibFunctions()
@@ -105,92 +94,6 @@ class FridaiOSUtil {
   static initCommonLibFunctions(){
     console.log("Init common functions in common libs:")
 
-    // free
-    FridaiOSUtil.free = new NativeFunction(
-      Module.findExportByName(null, 'free'),
-      'void',
-      ['pointer']
-    )
-    console.log("FridaiOSUtil.free=" + FridaiOSUtil.free)
-
-    FridaiOSUtil.objc_getClass = new NativeFunction(
-      Module.findExportByName(null, 'objc_getClass'),
-      'pointer',
-      ['pointer']
-    )
-    console.log("FridaiOSUtil.objc_getClass=" + FridaiOSUtil.objc_getClass)
-
-    FridaiOSUtil.class_copyMethodList = new NativeFunction(
-      Module.findExportByName(null, 'class_copyMethodList'),
-      'pointer',
-      ['pointer', 'pointer']
-    )
-    console.log("FridaiOSUtil.class_copyMethodList=" + FridaiOSUtil.class_copyMethodList)
-
-    FridaiOSUtil.objc_getMetaClass = new NativeFunction(
-      Module.findExportByName(null, 'objc_getMetaClass'),
-      'pointer',
-      ['pointer']
-    )
-    console.log("FridaiOSUtil.objc_getMetaClass=" + FridaiOSUtil.objc_getMetaClass)
-
-    FridaiOSUtil.method_getName = new NativeFunction(
-      Module.findExportByName(null, 'method_getName'),
-      'pointer',
-      ['pointer']
-    )
-    console.log("FridaiOSUtil.method_getName=" + FridaiOSUtil.method_getName)
-
-    /*
-    int dladdr(const void *, Dl_info *);
-
-    typedef struct dl_info {
-            const char      *dli_fname;     // Pathname of shared object
-            void            *dli_fbase;     // Base address of shared object
-            const char      *dli_sname;     // Name of nearest symbol
-            void            *dli_saddr;     // Address of nearest symbol
-    } Dl_info;
-
-    */
-    FridaiOSUtil.dladdr = new NativeFunction(
-      Module.findExportByName(null, 'dladdr'),
-      'int',
-      ['pointer','pointer']
-    )
-    console.log("FridaiOSUtil.dladdr=" + FridaiOSUtil.dladdr)
-
-    // uint32_t  _dyld_image_count(void)
-    FridaiOSUtil._dyld_image_count = new NativeFunction(
-      Module.findExportByName(null, '_dyld_image_count'),
-      'uint32',
-      []
-    )
-    console.log("FridaiOSUtil._dyld_image_count=" + FridaiOSUtil._dyld_image_count)
-
-    // const char*  _dyld_get_image_name(uint32_t image_index) 
-    FridaiOSUtil._dyld_get_image_name = new NativeFunction(
-      Module.findExportByName(null, '_dyld_get_image_name'),
-      'pointer',
-      ['uint32']
-    )
-    console.log("FridaiOSUtil._dyld_get_image_name=" + FridaiOSUtil._dyld_get_image_name)
-
-
-    // intptr_t   _dyld_get_image_vmaddr_slide(uint32_t image_index)
-    FridaiOSUtil._dyld_get_image_vmaddr_slide = new NativeFunction(
-      Module.findExportByName(null, '_dyld_get_image_vmaddr_slide'),
-      'pointer',
-      ['uint32']
-    )
-    console.log("FridaiOSUtil._dyld_get_image_vmaddr_slide=" + FridaiOSUtil._dyld_get_image_vmaddr_slide)
-
-    // const char * objc_copyClassNamesForImage(const char *image, unsigned int *outCount)
-    FridaiOSUtil.objc_copyClassNamesForImage = new NativeFunction(
-      Module.findExportByName(null, 'objc_copyClassNamesForImage'),
-      'pointer',
-      ['pointer', 'pointer']
-    );
-    console.log("FridaiOSUtil.objc_copyClassNamesForImage=" + FridaiOSUtil.objc_copyClassNamesForImage)
   }
 
   // https://github.com/4ch12dy/FridaLib/blob/master/iOS/iOSFridaLib.js
@@ -237,7 +140,7 @@ class FridaiOSUtil {
 
     var dl_info = Memory.alloc(Process.pointerSize*4);
 
-    FridaiOSUtil.dladdr(ptr(address), dl_info)
+    FridaHookiOSNative.dladdr(ptr(address), dl_info)
 
     var dli_fname = Memory.readCString(Memory.readPointer(dl_info))
     var dli_fbase = Memory.readPointer(dl_info.add(Process.pointerSize))
@@ -289,11 +192,11 @@ class FridaiOSUtil {
       }
     }
 
-    var image_count = FridaiOSUtil._dyld_image_count()
+    var image_count = FridaHookiOSNative._dyld_image_count()
 
     for (var i = 0; i < image_count; i++) {
-        var image_name_ptr = FridaiOSUtil._dyld_get_image_name(i)
-        var image_silde_ptr = FridaiOSUtil._dyld_get_image_vmaddr_slide(i)
+        var image_name_ptr = FridaHookiOSNative._dyld_get_image_name(i)
+        var image_silde_ptr = FridaHookiOSNative._dyld_get_image_vmaddr_slide(i)
         var image_name = Memory.readUtf8String(image_name_ptr)
 
         if (image_name == modulePath) {
@@ -343,7 +246,7 @@ class FridaiOSUtil {
     var p = Memory.alloc(Process.pointerSize)
     Memory.writeUInt(p, 0)
 
-    var pClasses = FridaiOSUtil.objc_copyClassNamesForImage(pPath, p)
+    var pClasses = FridaHookiOSNative.objc_copyClassNamesForImage(pPath, p)
     var count = Memory.readUInt(p)
     classes = new Array(count)
 
@@ -352,7 +255,7 @@ class FridaiOSUtil {
         classes[i] = Memory.readUtf8String(pClassName)
     }
 
-    FridaiOSUtil.free(pClasses)
+    FridaHookNative.free(pClasses)
 
     if (needAddToCache){
       // XLOG("Add: modulePath=" + modulePath + ", classes=" + classes + " into cache FridaiOSUtil.gModulePathToClassesDict")
@@ -382,13 +285,13 @@ class FridaiOSUtil {
 
     // get objclass and metaclass
     var name = Memory.allocUtf8String(classname)
-    var objClass = FridaiOSUtil.objc_getClass(name)
-    var metaClass = FridaiOSUtil.objc_getMetaClass(name)
+    var objClass = FridaHookiOSNative.objc_getClass(name)
+    var metaClass = FridaHookiOSNative.objc_getMetaClass(name)
     
     // get obj class all methods
     var size_ptr = Memory.alloc(Process.pointerSize)
     Memory.writeUInt(size_ptr, 0)
-    var pObjMethods = FridaiOSUtil.class_copyMethodList(objClass, size_ptr)
+    var pObjMethods = FridaHookiOSNative.class_copyMethodList(objClass, size_ptr)
     var count = Memory.readUInt(size_ptr)
     
     var allObjMethods = new Array()
@@ -396,7 +299,7 @@ class FridaiOSUtil {
     // get obj class all methods name and IMP
     for (var i = 0; i < count; i++) {
       var curObjMethod = new Array()
-      var pObjMethodSEL = FridaiOSUtil.method_getName(pObjMethods.add(i * Process.pointerSize))
+      var pObjMethodSEL = FridaHookiOSNative.method_getName(pObjMethods.add(i * Process.pointerSize))
       var pObjMethodName = Memory.readCString(Memory.readPointer(pObjMethodSEL))
       var objMethodIMP = Memory.readPointer(pObjMethodSEL.add(2*Process.pointerSize))
       // XLOG("-["+classname+ " " + pObjMethodName+"]" + ":" + objMethodIMP)
@@ -408,12 +311,12 @@ class FridaiOSUtil {
     var allMetaMethods = new Array()
     
     // get meta class all methods name and IMP
-    var pMetaMethods = FridaiOSUtil.class_copyMethodList(metaClass, size_ptr)
+    var pMetaMethods = FridaHookiOSNative.class_copyMethodList(metaClass, size_ptr)
     var count = Memory.readUInt(size_ptr)
     for (var i = 0; i < count; i++) {
       var curMetaMethod = new Array()
       
-      var pMetaMethodSEL = FridaiOSUtil.method_getName(pMetaMethods.add(i * Process.pointerSize))
+      var pMetaMethodSEL = FridaHookiOSNative.method_getName(pMetaMethods.add(i * Process.pointerSize))
       var pMetaMethodName = Memory.readCString(Memory.readPointer(pMetaMethodSEL))
       var metaMethodIMP = Memory.readPointer(pMetaMethodSEL.add(2*Process.pointerSize))
       //XLOG("+["+classname+ " " + pMetaMethodName+"]" + ":" + metaMethodIMP)
@@ -425,8 +328,8 @@ class FridaiOSUtil {
     allMethods.push(allObjMethods)
     allMethods.push(allMetaMethods)
     
-    FridaiOSUtil.free(pObjMethods)
-    FridaiOSUtil.free(pMetaMethods)
+    FridaHookNative.free(pObjMethods)
+    FridaHookNative.free(pMetaMethods)
 
     if (needAddToCache){
       // XLOG("Add: classname=" + classname + ", allMethods=" + toJsonStr(allMethods) + " into cache FridaiOSUtil.gClassnameToAllMethodsDict")

@@ -3,7 +3,7 @@
 	Function: crifan's common Frida util related functions
 	Author: Crifan Li
 	Latest: https://github.com/crifan/crifanLib/blob/master/javascript/frida/FridaUtil.js
-	Updated: 20240830
+	Updated: 20241122
 */
 
 // Frida Common Util
@@ -11,6 +11,31 @@ class FridaUtil {
 
   constructor() {
     console.log("FridaUtil constructor")
+    console.log("FridaUtil Process.platform=" + Process.platform)
+  }
+
+  static isiOS(){
+    var platform = Process.platform
+    // console.log("platform=" + platform)
+    var isJavaAvailable = Java.available
+    // console.log("isJavaAvailable=" + isJavaAvailable)
+    var isDarwin = platform === "darwin"
+    // console.log("isDarwin=" + isDarwin)
+    var isiOSOS = (!isJavaAvailable) && isDarwin
+    // console.log("isiOSOS=" + isiOSOS)
+    return isiOSOS
+  }
+
+  static isAndroid(){
+    var platform = Process.platform
+    // console.log("platform=" + platform)
+    var isJavaAvailable = Java.available
+    // console.log("isJavaAvailable=" + isJavaAvailable)
+    var isLinux = platform === "linux"
+    // console.log("isLinux=" + isLinux)
+    var isAndroidOS = isJavaAvailable && isLinux
+    // console.log("isAndroidOS=" + isAndroidOS)
+    return isAndroidOS
   }
 
   // Frida pointer to UTF-8 string
@@ -24,6 +49,7 @@ class FridaUtil {
   static ptrToCStr(curPtr){
     // var curCStr = Memory.readCString(curPtr)
     var curCStr = curPtr.readCString()
+    // var curCStr = curPtr.readUtf8String()
     // console.log("curCStr=" + curCStr)
     return curCStr
   }

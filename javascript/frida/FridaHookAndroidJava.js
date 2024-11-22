@@ -3,7 +3,7 @@
 	Function: crifan's Frida hook common Android Java related functions
 	Author: Crifan Li
 	Latest: https://github.com/crifan/crifanLib/blob/master/javascript/frida/FridaHookAndroidJava.js
-	Updated: 20241121
+	Updated: 20241122
 */
 
 // Frida hook common Android/Java class
