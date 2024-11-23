@@ -3,13 +3,14 @@
     Function: crifan's common iOS function
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/CrifanLibiOS.h
-    Updated: 20241115_2308
+    Updated: 20241123_1748
 */
 
 #import <Foundation/Foundation.h>
 #import <os/log.h>
 #import <dlfcn.h>
 #import <sys/sysctl.h>
+#import <objc/runtime.h>
 
 #import "CrifanLib.h"
 
