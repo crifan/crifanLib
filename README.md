@@ -1,6 +1,6 @@
 # crifanLib
 
-* update: `20241122`
+* update: `20241123`
 
 Crifan's library for various programming language
 
@@ -21,6 +21,8 @@ Crifan's library for various programming language
       * https://github.com/crifan/iOSBypassJailbreak/tree/main/iOSBypassJailbreak/libs
     * iOSYouTubeAdsFilter
       * https://github.com/crifan/iOSYouTubeAdsFilter/tree/main/youtubeDylib/libs
+    * iOSOpenDevHookTemplate
+      * https://github.com/crifan/iOSOpenDevHookTemplate/tree/main/iOSOpenDevHookTemplate/iOSOpenDevHookTemplate/libs
   * for `c`
     * related
       * https://book.crifan.org/books/c_lang_dev_summary/website/c_summary/
