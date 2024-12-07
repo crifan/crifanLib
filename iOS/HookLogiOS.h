@@ -3,7 +3,7 @@
     Function: crifan's common iOS hook log functions header
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/HookLogiOS.h
-    Updated: 20230607_1450
+    Updated: 20241207_1111
 */
 
 // This will not work with all C++ compilers, but it works with clang and gcc
@@ -44,9 +44,9 @@ extern long gNoUse;
 bool nonEmptyHeader(id _Nullable curHeaderDict);
 void logLargeStr(NSString* _Nonnull largeStr);
 void logPossibleLargeStr(NSString* _Nonnull possibleLargeStr);
+void printCallStack(void);
 
 void dbgWriteClsDescToFile(char* _Nonnull className, id _Nonnull classObj);
-
 
 /*==============================================================================
  Common Define
