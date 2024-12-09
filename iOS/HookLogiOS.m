@@ -3,7 +3,7 @@
     Function: crifan's common iOS hook log functions
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/HookLogiOS.m
-    Updated: 20241207_1111
+    Updated: 20241207_1142
 */
 
 #import "HookLogiOS.h"
@@ -80,6 +80,12 @@ void logPossibleLargeStr(NSString* possibleLargeStr){
 void printCallStack(void){
     NSArray *callStackArr = [CrifanLibiOS printCallStack];
     iosLogInfo("callStackArr=%{public}@", callStackArr);
+}
+
+void printCallStack_largeStr(void){
+    NSArray *callStackArr = [CrifanLibiOS printCallStack];
+    NSString* callStackLargeStr = [NSString stringWithFormat:@"callStackArr=%@", callStackArr];
+    logPossibleLargeStr(callStackLargeStr);
 }
 
 /*==============================================================================
