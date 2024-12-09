@@ -54,6 +54,10 @@ class FridaUtil {
     return curCStr
   }
 
+  static printModuleBasicInfo(foundModule){
+    console.log("Module: name=" + foundModule.name + ", base=" + foundModule.base + ", size" + foundModule.size + ", path=" + foundModule.path)
+  }
+
   static printModuleInfo(moduleName){
     const foundModule = Module.load(moduleName)
     // const foundModule = Module.ensureInitialized()
@@ -62,8 +66,8 @@ class FridaUtil {
     if (null == foundModule) {
       return
     }
-  
-    console.log("Module: name=" + foundModule.name + ", base=" + foundModule.base + ", size" + foundModule.size + ", path=" + foundModule.path)
+
+    FridaUtil.printModuleBasicInfo(foundModule)
   
     var curSymbolList = foundModule.enumerateSymbols()
     console.log("Symbol: length=" + curSymbolList.length + ", list=" + curSymbolList)
