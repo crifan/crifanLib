@@ -3,7 +3,7 @@
 	Function: crifan's common Frida util related functions
 	Author: Crifan Li
 	Latest: https://github.com/crifan/crifanLib/blob/master/javascript/frida/FridaUtil.js
-	Updated: 20241209
+	Updated: 20241210
 */
 
 // Frida Common Util
@@ -55,7 +55,7 @@ class FridaUtil {
   }
 
   static printModuleBasicInfo(foundModule){
-    console.log("Module: name=" + foundModule.name + ", base=" + foundModule.base + ", size" + foundModule.size + ", path=" + foundModule.path)
+    console.log("Module: name=" + foundModule.name + ", base=" + foundModule.base + ", size=" + foundModule.size + ", path=" + foundModule.path)
   }
 
   static printModuleInfo(moduleName){
