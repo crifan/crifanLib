@@ -56,7 +56,10 @@ class FridaUtil {
 
   // print module basic info: name, base, size, path
   static printModuleBasicInfo(foundModule){
-    console.log("Module: name=" + foundModule.name + ", base=" + foundModule.base + ", size=" + foundModule.size + ", path=" + foundModule.path)
+    // console.log("Module: name=" + foundModule.name + ", base=" + foundModule.base + ", size=" + foundModule.size + ", path=" + foundModule.path)
+    var endAddress = foundModule.base.add(foundModule.size)
+    var sizeHexStr = JsUtil.intToHexStr(foundModule.size)
+    console.log("Module: name=" + foundModule.name + ", address=[" + foundModule.base + "-" + endAddress + "], size=" + sizeHexStr + "=" + foundModule.size + ", path=" + foundModule.path)
   }
 
   // print module symbols
