@@ -98,16 +98,35 @@ class FridaUtil {
     FridaUtil.printModuleExports(foundModule)
   }
 
+  // print process basic info
+  static printProcessBasicInfo(){
+    console.log(
+      "Process: id=" + Process.id
+      + ", currentThreadId=" + Process.getCurrentThreadId()
+      + ", currentDir=" + Process.getCurrentDir()
+      + ", homeDir=" + Process.getHomeDir()
+      + ", tmpDir=" + Process.getTmpDir()
+      + ", arch=" + Process.arch
+      + ", platform=" + Process.platform
+      + ", pageSize=" + Process.pageSize
+      + ", pointerSize=" + Process.pointerSize
+      + ", codeSigningPolicy=" + Process.codeSigningPolicy
+      + ", isDebuggerAttached=" + Process.isDebuggerAttached()
+    )
+  }
+
   // print all loaded modules basic info of current process
   //  Note: similar to `image list` in lldb
   static printAllLoadedModules(){
+    FridaUtil.printProcessBasicInfo()
+
     Process.enumerateModules({
       onMatch: function(module){
         // console.log('Module name: ' + module.name + " - " + "Base Address: " + module.base.toString());
         FridaUtil.printModuleBasicInfo(module)
       }, 
       onComplete: function(){}
-    })  
+    })
   }
 
   // print function call and stack, output content type is: address
