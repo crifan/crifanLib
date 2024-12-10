@@ -129,6 +129,16 @@ class FridaUtil {
     })
   }
 
+  static printModuleInfoAndStalkerExclude(moduleName){
+    var foundModule = Process.getModuleByName(moduleName)
+    console.log("moduleName=" + moduleName + " -> foundModule=" + foundModule)
+    if (null != foundModule) {
+      Stalker.exclude(foundModule)
+      console.log("Stalker.exclude for module:")
+      FridaUtil.printModuleBasicInfo(foundModule)  
+    }
+  }
+
   // print function call and stack, output content type is: address
   static printFunctionCallStack_addr(curContext, prefix=""){
     var backtracerType = Backtracer.ACCURATE
