@@ -3,7 +3,7 @@
 	Function: crifan's common Javascript related functions
 	Author: Crifan Li
 	Latest: https://github.com/crifan/crifanLib/blob/master/javascript/JsUtil.js
-	Updated: 20240830
+	Updated: 20241211
 */
 
 // pure JavaScript utils
@@ -91,6 +91,18 @@ class JsUtil {
     return curList.includes(curItem)
     // // method2:
     // return curList.indexOf(curItem) > -1
+  }
+
+  static sortByKey(curList, keyName){
+    if (null != curList){
+      curList.sort(function(objA, objB) {
+        var valueA = objA[keyName]
+        var valueB = objB[keyName]
+        var valudDiff = valueA - valueB
+        // console.log("valueA=" + valueA + ", valueB=" + valueB + " -> valudDiff=" + valudDiff)
+        return valudDiff
+      })  
+    }
   }
 
   /*---------- String ----------*/

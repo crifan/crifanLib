@@ -127,16 +127,38 @@ class FridaUtil {
 
   // print all loaded modules basic info of current process
   //  Note: similar to `image list` in lldb
-  static printAllLoadedModules(){
+  static printAllLoadedModules(isSort=true){
     FridaUtil.printProcessBasicInfo()
+
+    var moduleList = []
 
     Process.enumerateModules({
       onMatch: function(module){
         // console.log('Module name: ' + module.name + " - " + "Base Address: " + module.base.toString());
-        FridaUtil.printModuleBasicInfo(module)
+        // FridaUtil.printModuleBasicInfo(module)
+        moduleList.push(module)
       }, 
       onComplete: function(){}
     })
+
+    if (isSort) {
+      // moduleList.sort(function(moduleA, moduleB) {
+      //   // var isLarge = moduleA.base > moduleB.base
+      //   // console.log("moduleA.base=" + moduleA.base + ", moduleB.base=" + moduleB.base + " -> isLarge=" + isLarge)
+      //   var addrDiff = moduleA.base - moduleB.base
+      //   console.log("moduleA.base=" + moduleA.base + ", moduleB.base=" + moduleB.base + " -> addrDiff=" + addrDiff)
+      //   return addrDiff
+      // })
+      JsUtil.sortByKey(moduleList, "base")
+    }
+
+    for(var i = 0; i < moduleList.length; i++) {
+      var curModule = moduleList[i]
+      // var prefixStr = "\t"
+      var prefixStr = "  "
+      console.log(prefixStr + FridaUtil.genModuleInfoStr(curModule))
+    }
+
   }
 
   static printModuleInfoAndStalkerExclude(moduleName){
