@@ -1,6 +1,6 @@
 # crifanLib
 
-* update: `20241123`
+* update: `20241211`
 
 Crifan's library for various programming language
 
@@ -9,11 +9,16 @@ Crifan's library for various programming language
 * https://github.com/crifan/crifanLib
   * old: https://code.google.com/archive/p/crifanlib/
 
+## Sub repos
+
+* Frida
+  * https://github.com/crifan/JsFridaUtil
+* Python
+  * https://github.com/crifan/crifanLibPython
+
 ## Doc / Usage
 
 * new
-  * for Frida
-    * https://github.com/crifan/FridaHookTemplate
   * for `c` and `iOS`
     * iOSJailbreakDetection
       * https://github.com/crifan/iOSJailbreakDetection/tree/main/iOSJailbreakDetection/libs
