@@ -3,7 +3,7 @@
 	Function: crifan's common Frida util related functions
 	Author: Crifan Li
 	Latest: https://github.com/crifan/crifanLib/blob/master/javascript/frida/FridaUtil.js
-	Updated: 20241210
+	Updated: 20241211
 */
 
 // Frida Common Util
@@ -54,13 +54,19 @@ class FridaUtil {
     return curCStr
   }
 
-  // print module basic info: name, base, size, path
-  static printModuleBasicInfo(foundModule){
+  static genModuleInfoStr(foundModule){
     // console.log("Module: name=" + foundModule.name + ", base=" + foundModule.base + ", size=" + foundModule.size + ", path=" + foundModule.path)
     var endAddress = foundModule.base.add(foundModule.size)
     var sizeHexStr = JsUtil.intToHexStr(foundModule.size)
     // console.log("Module: name=" + foundModule.name + ", address=[" + foundModule.base + "-" + endAddress + "], size=" + sizeHexStr + "=" + foundModule.size + ", path=" + foundModule.path)
-    console.log("Module: address=[" + foundModule.base + "-" + endAddress + "], name=" + foundModule.name + ", size=" + sizeHexStr + "=" + foundModule.size + ", path=" + foundModule.path)
+    var moduleInfoStr = "Module: address=[" + foundModule.base + "-" + endAddress + "], name=" + foundModule.name + ", size=" + sizeHexStr + "=" + foundModule.size + ", path=" + foundModule.path
+    return moduleInfoStr
+  }
+
+  // print module basic info: name, base, size, path
+  static printModuleBasicInfo(foundModule){
+    var moduleInfoStr = FridaUtil.genModuleInfoStr(foundModule)
+    console.log(moduleInfoStr)
   }
 
   // print module symbols
@@ -138,8 +144,9 @@ class FridaUtil {
     console.log("moduleName=" + moduleName + " -> foundModule=" + foundModule)
     if (null != foundModule) {
       Stalker.exclude(foundModule)
-      console.log("Stalker.exclude for module:")
-      FridaUtil.printModuleBasicInfo(foundModule)  
+      // console.log("Stalker.exclude for module:")
+      // FridaUtil.printModuleBasicInfo(foundModule)
+      console.log("Stalker.exclude for: " + FridaUtil.genModuleInfoStr(foundModule))
     }
   }
 
