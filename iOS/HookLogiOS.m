@@ -3,7 +3,7 @@
     Function: crifan's common iOS hook log functions
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/HookLogiOS.m
-    Updated: 20241214_1207
+    Updated: 20260120_1748
 */
 
 #import "HookLogiOS.h"

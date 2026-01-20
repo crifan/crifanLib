@@ -3,7 +3,7 @@
     Function: crifan's common iOS hook log functions header
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/HookLogiOS.h
-    Updated: 20241214_1207
+    Updated: 20260120_1748
 */
 
 // This will not work with all C++ compilers, but it works with clang and gcc
@@ -52,6 +52,13 @@ void dbgWriteClsDescToFile(char* _Nonnull className, id _Nonnull classObj);
 /*==============================================================================
  Common Define
 ==============================================================================*/
+
+@interface NSObject (CrifanDebug)
+- (nullable id)_ivarDescription;
+- (nullable id)_propertyDescription;
+- (nullable id)_methodDescription;
+- (nullable id)_shortMethodDescription;
+@end
 
 // String
 #define STR_EMPTY ""

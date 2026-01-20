@@ -3,7 +3,7 @@
     Function: crifan's common iOS function
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/CrifanLibiOS.m
-    Updated: 20241115_2308
+    Updated: 20260120_1748
 */
 
 #import "CrifanLibiOS.h"
@@ -14,12 +14,14 @@
  String List
 ==============================================================================*/
 
-+ (NSArray *) strListToNSArray: (char**)strList listCount:(int)listCount
+// + (NSArray *) strListToNSArray: (char**)strList listCount:(int)listCount
++ (NSArray *) strListToNSArray: (const char *_Nonnull *_Nonnull)strList listCount:(int)listCount
 {
     NSMutableArray * nsArr = [NSMutableArray array];
     if (strList) {
         for(int i = 0; i < listCount; i++){
-            char* curStr = strList[i];
+            // char* curStr = strList[i];
+            const char* curStr = strList[i];
             NSString* curNSStr = [NSString stringWithUTF8String: curStr];
             [nsArr addObject: curNSStr];
         }

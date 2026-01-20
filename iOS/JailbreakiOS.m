@@ -3,7 +3,7 @@
     Function: crifan's common iOS jailbreak functions
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/JailbreakiOS.m
-    Updated: 20220308_1002
+    Updated: 20260120_1748
 */
 
 #import "JailbreakiOS.h"
@@ -45,7 +45,8 @@ const char* _Nonnull FILE_PREFIX = "file://";
         //        [jbPathArr addObject: curAdditionalTestPach];
         //    }
 
-        jbPathArr = [CrifanLibiOS strListToNSArray:jailbreakPathList listCount:jailbreakPathListLen];
+        // jbPathArr = [CrifanLibiOS strListToNSArray:jailbreakPathList listCount:jailbreakPathListLen];
+        jbPathArr = [[CrifanLibiOS strListToNSArray:jailbreakPathList listCount:jailbreakPathListLen] mutableCopy];
 
         // final: free char** self
         free(jailbreakPathList);

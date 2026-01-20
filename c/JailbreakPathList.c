@@ -3,7 +3,7 @@
     Function: crifan's common jailbreak file path list
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/JailbreakPathList.c
-    Updated: 20221104_1730
+    Updated: 20260120_1748
 */
 
 #include "JailbreakPathList.h"
@@ -348,7 +348,8 @@ bool isPathInList(
         inputOrigOrPurePath = strdup(inputPath);
     }
 
-    char* matchedPath = NULL;
+    // char* matchedPath = NULL;
+    char* __unused matchedPath = NULL;
 
     char* curPathNoEndSlash = NULL;
     char * curPathWithEndSlash = NULL;

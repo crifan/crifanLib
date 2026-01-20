@@ -3,7 +3,7 @@
     Function: crifan's common iOS open file functions header
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/OpenFileiOS.h
-    Updated: 20230327_1111
+    Updated: 20260120_1748
 */
 
 #import <Foundation/Foundation.h>
@@ -165,7 +165,8 @@ const int FORK_FAILED = -1;
 const int PTRACE_OK = 0;
 const int PTRACE_FAILED = -1;
 
-const int FOPEN_OPEN_FAILED = NULL;
+// const int FOPEN_OPEN_FAILED = NULL;
+const int FOPEN_OPEN_FAILED = -1;
 
 const int FCNTL_FAILED = -1;
 
