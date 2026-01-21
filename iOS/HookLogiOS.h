@@ -3,7 +3,7 @@
     Function: crifan's common iOS hook log functions header
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/HookLogiOS.h
-    Updated: 20260120_1748
+    Updated: 20260121_1111
 */
 
 // This will not work with all C++ compilers, but it works with clang and gcc
@@ -140,8 +140,34 @@ void dbgWriteClsDescToFile(char* _Nonnull className, id _Nonnull classObj);
 // hook_aweme.xm -> hook_aweme.xm
 // CrifanLibHookiOS.m -> hook_ CrifanLibHookiOS.m
 
+// --- 静态内联辅助函数 (彻底解决 os_log 宏展开报错问题) ---
+// 它可以把复杂的 os_log 逻辑隔离在这个函数内部，外部调用时就像调普通函数一样安全
+static inline void _crifan_log_internal(const char * _Nullable file, const char * _Nullable func, const char * _Nullable format, ...) {
+    va_list args;
+    va_start(args, format);
+    
+    // 1. 将 C 字符串格式转换为 NSString 格式 (假设输入是 UTF8)
+    NSString *fmtStr = format ? [NSString stringWithUTF8String:format] : @"(null)";
+    
+    // 2. 格式化用户的消息内容
+    NSString *msg = [[NSString alloc] initWithFormat:fmtStr arguments:args];
+    va_end(args);
+    
+    // 3. 调用 os_log
+    // 注意：os_log 要求格式字符串必须是常量。
+    // 我们这里固定使用 "%{public}s..."，把变动的内容作为参数传进去，完全合规。
+    os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "[CrifanHook]%{public}s %{public}s: %{public}@", file, func, msg);
+}
+
 #define iosLogInfo(format, ...) \
-    do { if (IOS_LOG_INFO_ENABLE) os_log(OS_LOG_DEFAULT, "%s %s: " format, HOOK_FILE_NAME, FUNC_NAME, __VA_ARGS__); } while(0)
+    do { \
+        if (IOS_LOG_INFO_ENABLE) { \
+            _crifan_log_internal(HOOK_FILE_NAME, FUNC_NAME, format, ##__VA_ARGS__); \
+        } \
+    } while(0)
+// #define iosLogInfo(format, ...) \
+// do { if (IOS_LOG_INFO_ENABLE) { os_log(OS_LOG_DEFAULT, "%s %s: " format, HOOK_FILE_NAME, FUNC_NAME, __VA_ARGS__); } } while(0)
+// do { if (IOS_LOG_INFO_ENABLE) os_log(OS_LOG_DEFAULT, "%s %s: " format, HOOK_FILE_NAME, FUNC_NAME, __VA_ARGS__); } while(0)
 //    do { if (IOS_LOG_INFO_ENABLE) os_log(OS_LOG_DEFAULT, "%s %s: " format, __FILE_NAME__, FUNC_NAME, __VA_ARGS__); } while(0)
 //    do { if (IOS_LOG_INFO_ENABLE) os_log(OS_LOG_DEFAULT, "%s %s: " format, __FILE_NAME__, FUNC_ONLY_METHOD, __VA_ARGS__); } while(0)
 //    do { if (IOS_LOG_INFO_ENABLE) os_log(OS_LOG_DEFAULT, "%s %s: " format, __FILE_NAME__, FUNC_UNGROUPED_NEXT, __VA_ARGS__); } while(0)
@@ -150,12 +176,26 @@ void dbgWriteClsDescToFile(char* _Nonnull className, id _Nonnull classObj);
 //    do { if (IOS_LOG_INFO_ENABLE) os_log(OS_LOG_DEFAULT, "%s %s: " format, __FILE_NAME__, __func__, __VA_ARGS__); } while(0)
 
 #define iosLogDebug(format, ...) \
-do { if (IOS_LOG_DEBUG_ENABLE) os_log(OS_LOG_DEFAULT, "%s %s: " format, HOOK_FILE_NAME,  FUNC_NAME, __VA_ARGS__); } while(0)
+    do { \
+        if (IOS_LOG_DEBUG_ENABLE) { \
+            _crifan_log_internal(HOOK_FILE_NAME, FUNC_NAME, format, ##__VA_ARGS__); \
+        } \
+    } while(0)
+// #define iosLogDebug(format, ...) \
+// do { if (IOS_LOG_DEBUG_ENABLE) { os_log(OS_LOG_DEFAULT, "%s %s: " format, HOOK_FILE_NAME,  FUNC_NAME, __VA_ARGS__); } } while(0)
+// do { if (IOS_LOG_DEBUG_ENABLE) os_log(OS_LOG_DEFAULT, "%s %s: " format, HOOK_FILE_NAME,  FUNC_NAME, __VA_ARGS__); } while(0)
 //    do { if (IOS_LOG_DEBUG_ENABLE) os_log(OS_LOG_DEFAULT, "%s %s: " format, __FILE_NAME__,  FUNC_NAME, __VA_ARGS__); } while(0)
 //    do { if (IOS_LOG_DEBUG_ENABLE) os_log(OS_LOG_DEFAULT, "%s %s: " format, __FILE_NAME__,  PURE_FUNC, __VA_ARGS__); } while(0)
 
 #define iosLogError(format, ...) \
-do { if (IOS_LOG_ERROR_ENABLE) os_log(OS_LOG_DEFAULT, "%s %s: " format, HOOK_FILE_NAME, FUNC_NAME, __VA_ARGS__); } while(0)
+    do { \
+        if (IOS_LOG_ERROR_ENABLE) { \
+            _crifan_log_internal(HOOK_FILE_NAME, FUNC_NAME, format, ##__VA_ARGS__); \
+        } \
+    } while(0)
+// #define iosLogError(format, ...) \
+//     do { if (IOS_LOG_ERROR_ENABLE) { os_log(OS_LOG_DEFAULT, "%s %s: " format, HOOK_FILE_NAME, FUNC_NAME, __VA_ARGS__); } } while(0)
+// do { if (IOS_LOG_ERROR_ENABLE) os_log(OS_LOG_DEFAULT, "%s %s: " format, HOOK_FILE_NAME, FUNC_NAME, __VA_ARGS__); } while(0)
 //    do { if (IOS_LOG_ERROR_ENABLE) os_log(OS_LOG_DEFAULT, "%s %s: " format, __FILE_NAME__, FUNC_NAME, __VA_ARGS__); } while(0)
 //    do { if (IOS_LOG_ERROR_ENABLE) os_log(OS_LOG_DEFAULT, "%s %s: " format, __FILE_NAME__, PURE_FUNC, __VA_ARGS__); } while(0)
 
