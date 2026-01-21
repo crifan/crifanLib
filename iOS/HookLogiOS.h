@@ -3,7 +3,7 @@
     Function: crifan's common iOS hook log functions header
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/HookLogiOS.h
-    Updated: 20260121_1111
+    Updated: 20260121_1154
 */
 
 // This will not work with all C++ compilers, but it works with clang and gcc
@@ -156,7 +156,7 @@ static inline void _crifan_log_internal(const char * _Nullable file, const char 
     // 3. 调用 os_log
     // 注意：os_log 要求格式字符串必须是常量。
     // 我们这里固定使用 "%{public}s..."，把变动的内容作为参数传进去，完全合规。
-    os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "[CrifanHook]%{public}s %{public}s: %{public}@", file, func, msg);
+    os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%{public}s %{public}s: %{public}@", file, func, msg);
 }
 
 #define iosLogInfo(format, ...) \
