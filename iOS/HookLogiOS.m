@@ -3,7 +3,7 @@
     Function: crifan's common iOS hook log functions
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/HookLogiOS.m
-    Updated: 20260120_1748
+    Updated: 20260210_1526
 */
 
 #import "HookLogiOS.h"
@@ -62,7 +62,8 @@ void logLargeStr(NSString* largeStr){
         NSString* curLineStr = splitedLineArr[lineIdx];
 //        os_log(OS_LOG_DEFAULT, "[%d] curLineStr=%@", lineIdx, curLineStr);
 //        iosLogInfo("[%d] curLineStr=%{public}@", lineIdx, curLineStr);
-        iosLogInfo("[%d] %{public}@", lineIdx, curLineStr);
+//        iosLogInfo("[%d] %{public}@", lineIdx, curLineStr);
+        iosLogInfo("[%d] %@", lineIdx, curLineStr);
     }
 }
 
@@ -73,13 +74,15 @@ void logPossibleLargeStr(NSString* possibleLargeStr){
         logLargeStr(possibleLargeStr);
     } else {
 //        iosLogInfo("%@", @"log_for_normal_str:");
-        iosLogInfo("%{public}@", possibleLargeStr);
+//        iosLogInfo("%{public}@", possibleLargeStr);
+        iosLogInfo("%@", possibleLargeStr);
     }
 }
 
 void printCallStack(NSString* prefix){
     NSArray *callStackArr = [CrifanLibiOS printCallStack];
-    iosLogInfo("%@ -> callStackArr=%{public}@", prefix, callStackArr);
+//    iosLogInfo("%@ -> callStackArr=%{public}@", prefix, callStackArr);
+    iosLogInfo("%@ -> callStackArr=%@", prefix, callStackArr);
 }
 
 void printCallStack_largeStr(NSString* _Nullable prefix){
