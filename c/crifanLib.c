@@ -3,7 +3,7 @@
     Function: crifan's common C libs implementation
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/crifanLib.c
-    Updated: 20220602_1526
+    Updated: 20260313_1733
 */
 
 #include "CrifanLib.h"

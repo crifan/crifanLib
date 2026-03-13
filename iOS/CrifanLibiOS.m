@@ -3,10 +3,11 @@
     Function: crifan's common iOS function
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/iOS/CrifanLibiOS.m
-    Updated: 20260120_1748
+    Updated: 20260313_1716
 */
 
 #import "CrifanLibiOS.h"
+#import "HookLogiOS.h"
 
 @implementation CrifanLibiOS
 
@@ -273,4 +274,121 @@
 }
 
 @end
+
+/*==============================================================================
+ ObjC Runtime Utilities (C functions)
+==============================================================================*/
+
+// ---- IVAR helpers ----
+
+ptrdiff_t getIvarOffset(Class cls, const char *ivarName) {
+    Ivar ivar = class_getInstanceVariable(cls, ivarName);
+    if (!ivar) {
+        iosLogInfo("[CrifanLibiOS] [IVAR] WARNING: ivar '%s' not found on class %s",
+                   ivarName, class_getName(cls));
+        return -1;
+    }
+    return ivar_getOffset(ivar);
+}
+
+void writeBoolIvar(id instance, const char *ivarName, BOOL value) {
+    Class cls = object_getClass(instance);
+    ptrdiff_t offset = getIvarOffset(cls, ivarName);
+    if (offset < 0) return;
+    *(BOOL *)((uint8_t *)(__bridge void *)instance + offset) = value;
+    iosLogInfo("[CrifanLibiOS] [IVAR] %s.%s = %d (offset %td)",
+              class_getName(cls), ivarName, value, offset);
+}
+
+BOOL readBoolIvar(id instance, const char *ivarName) {
+    Class cls = object_getClass(instance);
+    ptrdiff_t offset = getIvarOffset(cls, ivarName);
+    if (offset < 0) return NO;
+    return *(BOOL *)((uint8_t *)(__bridge void *)instance + offset);
+}
+
+id readObjIvar(id instance, const char *ivarName) {
+    Ivar ivar = class_getInstanceVariable(object_getClass(instance), ivarName);
+    if (!ivar) return nil;
+    return object_getIvar(instance, ivar);
+}
+
+void writeObjIvar(id instance, const char *ivarName, id value) {
+    Ivar ivar = class_getInstanceVariable(object_getClass(instance), ivarName);
+    if (!ivar) return;
+    object_setIvar(instance, ivar, value);
+    iosLogInfo("[CrifanLibiOS] [IVAR] %s.%s = %@ (object_setIvar)",
+              class_getName(object_getClass(instance)), ivarName, value);
+}
+
+// ---- Class/Object introspection ----
+
+void dumpClassMethods(const char *className) {
+    Class cls = NSClassFromString([NSString stringWithUTF8String:className]);
+    if (!cls) {
+        iosLogInfo("[CrifanLibiOS] Class not found: %s", className);
+        return;
+    }
+    
+    iosLogInfo("[CrifanLibiOS] === Dump class: %s ===", className);
+    
+    // Class (+) methods
+    unsigned int clsMethodCount = 0;
+    Method *clsMethods = class_copyMethodList(object_getClass(cls), &clsMethodCount);
+    iosLogInfo("[CrifanLibiOS] + methods (%u):", clsMethodCount);
+    for (unsigned int i = 0; i < clsMethodCount; i++) {
+        SEL sel = method_getName(clsMethods[i]);
+        const char *enc = method_getTypeEncoding(clsMethods[i]);
+        iosLogInfo("[CrifanLibiOS]   +[%s %s] enc=%s", className, sel_getName(sel), enc ? enc : "?");
+    }
+    if (clsMethods) free(clsMethods);
+    
+    // Instance (-) methods
+    unsigned int instMethodCount = 0;
+    Method *instMethods = class_copyMethodList(cls, &instMethodCount);
+    iosLogInfo("[CrifanLibiOS] - methods (%u):", instMethodCount);
+    for (unsigned int i = 0; i < instMethodCount; i++) {
+        SEL sel = method_getName(instMethods[i]);
+        const char *enc = method_getTypeEncoding(instMethods[i]);
+        iosLogInfo("[CrifanLibiOS]   -[%s %s] enc=%s", className, sel_getName(sel), enc ? enc : "?");
+    }
+    if (instMethods) free(instMethods);
+    
+    // Properties
+    unsigned int propCount = 0;
+    objc_property_t *props = class_copyPropertyList(cls, &propCount);
+    if (propCount > 0) {
+        iosLogInfo("[CrifanLibiOS] Properties (%u):", propCount);
+        for (unsigned int i = 0; i < propCount; i++) {
+            const char *name = property_getName(props[i]);
+            const char *attrs = property_getAttributes(props[i]);
+            iosLogInfo("[CrifanLibiOS]   @property %s attrs=%s", name, attrs ? attrs : "?");
+        }
+    }
+    if (props) free(props);
+    
+    iosLogInfo("[CrifanLibiOS] === End %s ===", className);
+}
+
+void dumpObjectProperties(id obj, const char *context) {
+    if (!obj) return;
+    
+    Class cls = [obj class];
+    unsigned int propCount = 0;
+    objc_property_t *props = class_copyPropertyList(cls, &propCount);
+    
+    iosLogInfo("[CrifanLibiOS] %s: Dumping %u properties of <%s>", context, propCount, class_getName(cls));
+    
+    for (unsigned int i = 0; i < propCount; i++) {
+        const char *propName = property_getName(props[i]);
+        @try {
+            id value = [obj valueForKey:[NSString stringWithUTF8String:propName]];
+            iosLogInfo("[CrifanLibiOS]   %s.%s = %@", context, propName, value);
+        } @catch (NSException *e) {
+            // Property not KVC-compliant, skip
+        }
+    }
+    
+    if (props) free(props);
+}
 

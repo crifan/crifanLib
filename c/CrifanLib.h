@@ -3,7 +3,7 @@
     Function: crifan's common C libs header file
     Author: Crifan Li
     Latest: https://github.com/crifan/crifanLib/blob/master/c/CrifanLib.h
-    Updated: 20220602_1526
+    Updated: 20260313_1733
 */
 
 // This will not work with all C++ compilers, but it works with clang and gcc
